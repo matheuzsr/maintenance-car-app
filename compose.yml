@@ -5,6 +5,9 @@ services:
       target: development
     command: npm run start:dev
     env_file: .env
+    environment:
+      DATABASE_URL: postgresql://maintenance_car:maintenance_car@postgres:5432/maintenance_car?schema=public
+      REDIS_URL: redis://redis:6379
     ports:
       - '${PORT:-3000}:3000'
     volumes:
@@ -22,6 +25,9 @@ services:
       target: development
     command: npm run start:dev
     env_file: .env
+    environment:
+      DATABASE_URL: postgresql://maintenance_car:maintenance_car@postgres:5432/maintenance_car?schema=public
+      REDIS_URL: redis://redis:6379
     profiles: ['worker']
     volumes:
       - ./src:/app/src
@@ -39,7 +45,7 @@ services:
       POSTGRES_USER: maintenance_car
       POSTGRES_PASSWORD: maintenance_car
     ports:
-      - '5432:5432'
+      - '${POSTGRES_PORT:-5433}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

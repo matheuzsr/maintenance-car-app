@@ -308,9 +308,13 @@ executar a aplicação fora do ambiente local:
 ```bash
 cp .env.example .env
 docker compose up -d postgres redis
+npm run prisma:migrate:deploy
 npm ci
 npm run start:dev
 ```
+
+O PostgreSQL do projeto é publicado em `localhost:5433` para evitar conflito
+com instalações locais que normalmente usam a porta `5432`.
 
 ### Testando pela interface Swagger
 
