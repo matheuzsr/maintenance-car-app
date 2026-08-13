@@ -8,6 +8,7 @@ import {
   IsString,
   Max,
   MaxLength,
+  Matches,
   Min,
   MinLength,
 } from 'class-validator';
@@ -69,5 +70,8 @@ export class CreateVehicleDto {
 
   @ApiProperty({ example: '2026-08-13T12:00:00.000Z' })
   @IsDateString({ strict: true })
+  @Matches(/^\d{4}-\d{2}-\d{2}T.+(?:Z|[+-]\d{2}:\d{2})$/, {
+    message: 'currentOdometerRecordedAt must include time and UTC offset',
+  })
   currentOdometerRecordedAt!: string;
 }

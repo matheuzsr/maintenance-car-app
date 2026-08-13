@@ -8,6 +8,10 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { VehiclesModule } from './vehicles/vehicles.module';
+import { MaintenanceTemplatesModule } from './maintenance-templates/maintenance-templates.module';
+import { MaintenancePlansModule } from './maintenance-plans/maintenance-plans.module';
+import { MaintenanceRecordsModule } from './maintenance-records/maintenance-records.module';
+import { RemindersModule } from './reminders/reminders.module';
 
 @Module({
   imports: [
@@ -21,6 +25,10 @@ import { VehiclesModule } from './vehicles/vehicles.module';
     AuthModule,
     UsersModule,
     VehiclesModule,
+    MaintenanceTemplatesModule,
+    MaintenancePlansModule,
+    MaintenanceRecordsModule,
+    RemindersModule,
     HealthModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
