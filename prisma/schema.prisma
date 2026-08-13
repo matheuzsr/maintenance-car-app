@@ -7,6 +7,86 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum OdometerReadingSource {
+  MANUAL
+  MAINTENANCE_RECORD
+}
+
+model User {
+  id           String            @id @default(uuid()) @db.Uuid
+  name         String
+  email        String            @unique
+  passwordHash String            @map("password_hash")
+  timezone     String            @default("America/Sao_Paulo")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+  deletedAt    DateTime?         @map("deleted_at")
+  sessions     RefreshSession[]
+  vehicles     Vehicle[]
+  readings     OdometerReading[]
+
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model RefreshSession {
+  id           String           @id @default(uuid()) @db.Uuid
+  userId       String           @map("user_id") @db.Uuid
+  familyId     String           @map("family_id") @db.Uuid
+  tokenHash    String           @map("token_hash")
+  expiresAt    DateTime         @map("expires_at")
+  revokedAt    DateTime?        @map("revoked_at")
+  replacedById String?          @map("replaced_by_id") @db.Uuid
+  userAgent    String?          @map("user_agent")
+  ipAddress    String?          @map("ip_address")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replacedBy   RefreshSession?  @relation("SessionRotation", fields: [replacedById], references: [id], onDelete: SetNull)
+  replaces     RefreshSession[] @relation("SessionRotation")
+
+  @@index([userId, revokedAt])
+  @@index([familyId, revokedAt])
+  @@index([expiresAt])
+  @@map("refresh_sessions")
+}
+
+model Vehicle {
+  id                        String            @id @default(uuid()) @db.Uuid
+  userId                    String            @map("user_id") @db.Uuid
+  nickname                  String
+  brand                     String
+  model                     String
+  year                      Int
+  licensePlate              String?           @map("license_plate")
+  currentOdometerKm         Int               @map("current_odometer_km")
+  currentOdometerRecordedAt DateTime          @map("current_odometer_recorded_at")
+  createdAt                 DateTime          @default(now()) @map("created_at")
+  updatedAt                 DateTime          @updatedAt @map("updated_at")
+  deletedAt                 DateTime?         @map("deleted_at")
+  user                      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  odometerReadings          OdometerReading[]
+
+  @@unique([id, userId])
+  @@index([userId, deletedAt])
+  @@map("vehicles")
+}
+
+model OdometerReading {
+  id         String                @id @default(uuid()) @db.Uuid
+  userId     String                @map("user_id") @db.Uuid
+  vehicleId  String                @map("vehicle_id") @db.Uuid
+  odometerKm Int                   @map("odometer_km")
+  recordedAt DateTime              @map("recorded_at")
+  source     OdometerReadingSource
+  createdAt  DateTime              @default(now()) @map("created_at")
+  user       User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle    Vehicle               @relation(fields: [vehicleId, userId], references: [id, userId], onDelete: Cascade)
+
+  @@index([vehicleId, recordedAt])
+  @@index([userId, vehicleId])
+  @@map("odometer_readings")
+}
+
 model SystemMetadata {
   id        String   @id @default(uuid()) @db.Uuid
   key       String   @unique
