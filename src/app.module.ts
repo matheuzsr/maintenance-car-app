@@ -12,6 +12,8 @@ import { MaintenanceTemplatesModule } from './maintenance-templates/maintenance-
 import { MaintenancePlansModule } from './maintenance-plans/maintenance-plans.module';
 import { MaintenanceRecordsModule } from './maintenance-records/maintenance-records.module';
 import { RemindersModule } from './reminders/reminders.module';
+import { ExpensesModule } from './expenses/expenses.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { RemindersModule } from './reminders/reminders.module';
     MaintenancePlansModule,
     MaintenanceRecordsModule,
     RemindersModule,
+    ExpensesModule,
+    ReportsModule,
     HealthModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

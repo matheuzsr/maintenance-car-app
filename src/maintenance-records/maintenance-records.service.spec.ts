@@ -86,17 +86,20 @@ describe('MaintenanceRecordsService', () => {
     create: jest.fn(),
     update: jest.fn(),
   };
+  const expenseDelegate = { count: jest.fn().mockResolvedValue(0) };
   const transactionClient = {
     vehicle: vehicleDelegate,
     vehicleMaintenancePlan: planDelegate,
     maintenanceRecord: recordDelegate,
     odometerReading: readingDelegate,
+    expense: expenseDelegate,
   };
   const prisma = {
     vehicle: vehicleDelegate,
     vehicleMaintenancePlan: planDelegate,
     maintenanceRecord: recordDelegate,
     odometerReading: readingDelegate,
+    expense: expenseDelegate,
     $transaction: jest.fn(
       (input: unknown): Promise<unknown> | Promise<unknown>[] =>
         typeof input === 'function'

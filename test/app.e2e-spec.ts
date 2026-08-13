@@ -51,6 +51,7 @@ describe('Core journeys (e2e)', () => {
   });
 
   beforeEach(async () => {
+    await prisma.expense.deleteMany();
     await prisma.maintenanceRecord.deleteMany();
     await prisma.vehicleMaintenancePlan.deleteMany();
     await prisma.odometerReading.deleteMany();
@@ -169,6 +170,43 @@ describe('Core journeys (e2e)', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
     expect((history.body as { data: unknown[] }).data).toHaveLength(1);
+  });
+
+  it('records an expense and returns monthly cost totals', async () => {
+    const accessToken = await register('costs@example.com');
+    const createdVehicle = await request(server)
+      .post('/api/v1/vehicles')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        nickname: 'Cost vehicle',
+        brand: 'Honda',
+        model: 'Civic',
+        year: 2023,
+        currentOdometerKm: 10000,
+        currentOdometerRecordedAt: '2026-08-01T12:00:00.000Z',
+      })
+      .expect(201);
+    const vehicle = createdVehicle.body as VehicleBody;
+
+    await request(server)
+      .post(`/api/v1/vehicles/${vehicle.id}/expenses`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        category: 'PARTS',
+        description: 'Replacement filter',
+        incurredAt: '2026-08-10T12:00:00.000Z',
+        amount: '75.50',
+      })
+      .expect(201);
+
+    const report = await request(server)
+      .get('/api/v1/reports/costs')
+      .query({ vehicleId: vehicle.id, period: 'monthly' })
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    expect((report.body as { summary: { total: string } }).summary.total).toBe(
+      '75.50',
+    );
   });
 
   async function register(email: string): Promise<string> {

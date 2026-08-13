@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   MaintenanceRecord,
   OdometerReadingSource,
@@ -266,6 +270,19 @@ export class MaintenanceRecordsService {
         vehicleId,
         recordId,
       );
+      const linkedExpenses = await transaction.expense.count({
+        where: {
+          userId,
+          vehicleId,
+          maintenanceRecordId: recordId,
+          deletedAt: null,
+        },
+      });
+      if (linkedExpenses > 0) {
+        throw new ConflictException(
+          'Delete or unlink active expenses before deleting this maintenance record',
+        );
+      }
       await transaction.maintenanceRecord.update({
         where: { id: recordId, userId, vehicleId, deletedAt: null },
         data: { deletedAt: new Date() },
