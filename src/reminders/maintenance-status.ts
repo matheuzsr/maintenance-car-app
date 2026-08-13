@@ -71,7 +71,7 @@ function calculateTimeStatus(
     return { status: DueStatus.NOT_CONFIGURED };
   }
   if (input.lastPerformedAt === null) {
-    reasons.push('Informe a data da última execução');
+    reasons.push('Provide the date of the last service');
     return { status: DueStatus.UNKNOWN };
   }
 
@@ -87,14 +87,14 @@ function calculateTimeStatus(
 
   if (remainingDays < 0) {
     const overdueByDays = Math.abs(remainingDays);
-    reasons.push(`Vencida há ${overdueByDays} dia(s)`);
+    reasons.push(`Overdue by ${overdueByDays} day(s)`);
     return { status: DueStatus.OVERDUE, dueDate, overdueByDays };
   }
   if (remainingDays <= input.alertBeforeDays) {
     reasons.push(
       remainingDays === 0
-        ? 'Vence hoje pelo prazo'
-        : `Faltam ${remainingDays} dia(s) para o prazo`,
+        ? 'Due today based on the time interval'
+        : `${remainingDays} day(s) remaining until due`,
     );
     return { status: DueStatus.DUE_SOON, dueDate, remainingDays };
   }
@@ -109,7 +109,7 @@ function calculateOdometerStatus(
     return { status: DueStatus.NOT_CONFIGURED };
   }
   if (input.lastPerformedOdometerKm === null) {
-    reasons.push('Informe a quilometragem da última execução');
+    reasons.push('Provide the odometer reading from the last service');
     return { status: DueStatus.UNKNOWN };
   }
 
@@ -119,13 +119,13 @@ function calculateOdometerStatus(
     const overdueByKm = Math.abs(remainingKm);
     reasons.push(
       overdueByKm === 0
-        ? 'Atingiu a quilometragem limite'
-        : `Ultrapassou o limite em ${overdueByKm} km`,
+        ? 'Reached the mileage limit'
+        : `Exceeded the mileage limit by ${overdueByKm} km`,
     );
     return { status: DueStatus.OVERDUE, dueAtKm, overdueByKm };
   }
   if (remainingKm <= input.alertBeforeKm) {
-    reasons.push(`Faltam ${remainingKm} km para o limite`);
+    reasons.push(`${remainingKm} km remaining until the limit`);
     return { status: DueStatus.DUE_SOON, dueAtKm, remainingKm };
   }
   return { status: DueStatus.ON_TRACK, dueAtKm, remainingKm };

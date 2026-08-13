@@ -7,7 +7,7 @@ export class VehicleResponseDto {
   @ApiProperty({ format: 'uuid' })
   userId!: string;
 
-  @ApiProperty({ example: 'Meu carro' })
+  @ApiProperty({ example: 'My car' })
   nickname!: string;
 
   @ApiProperty({ example: 'Fiat' })

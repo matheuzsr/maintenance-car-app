@@ -18,18 +18,22 @@ export class AuthResponseDto {
   @ApiProperty({ type: AuthenticatedUserDto })
   user!: AuthenticatedUserDto;
 
-  @ApiProperty({ description: 'Use no botão Authorize do Swagger.' })
+  @ApiProperty({
+    description: 'Use this value in the Swagger Authorize dialog.',
+  })
   accessToken!: string;
 
-  @ApiProperty({ description: 'Use somente em refresh e logout.' })
+  @ApiProperty({ description: 'Use only for refresh and logout.' })
   refreshToken!: string;
 }
 
 export class TokenPairResponseDto {
-  @ApiProperty({ description: 'Novo access token.' })
+  @ApiProperty({ description: 'New access token.' })
   accessToken!: string;
 
-  @ApiProperty({ description: 'Novo refresh token; o anterior foi revogado.' })
+  @ApiProperty({
+    description: 'New refresh token; the previous one was revoked.',
+  })
   refreshToken!: string;
 }
 

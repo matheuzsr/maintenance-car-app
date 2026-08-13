@@ -31,7 +31,7 @@ export class ListMaintenancePlansQueryDto {
   @IsEnum(MaintenanceCategory)
   category?: MaintenanceCategory;
 
-  @ApiPropertyOptional({ description: 'Filtra planos ativos ou inativos.' })
+  @ApiPropertyOptional({ description: 'Filters active or inactive plans.' })
   @IsOptional()
   @Transform(({ value }): unknown => {
     if (value === 'true') return true;

@@ -49,9 +49,9 @@ export class MaintenanceRecordsController {
   ) {}
 
   @Post('maintenance-records')
-  @ApiOperation({ summary: 'Registra uma manutenção executada' })
+  @ApiOperation({ summary: 'Records completed maintenance' })
   @ApiCreatedResponse({ type: MaintenanceRecordResponseDto })
-  @ApiNotFoundResponse({ description: 'Veículo ou plano não encontrado' })
+  @ApiNotFoundResponse({ description: 'Vehicle or maintenance plan not found' })
   create(
     @CurrentUserId() userId: string,
     @Param('vehicleId', ParseUUIDPipe) vehicleId: string,
@@ -61,9 +61,9 @@ export class MaintenanceRecordsController {
   }
 
   @Post('maintenance-plans/:planId/complete')
-  @ApiOperation({ summary: 'Conclui um plano e registra sua execução' })
+  @ApiOperation({ summary: 'Completes a plan and records its service' })
   @ApiCreatedResponse({ type: MaintenanceRecordResponseDto })
-  @ApiNotFoundResponse({ description: 'Veículo ou plano não encontrado' })
+  @ApiNotFoundResponse({ description: 'Vehicle or maintenance plan not found' })
   completePlan(
     @CurrentUserId() userId: string,
     @Param('vehicleId', ParseUUIDPipe) vehicleId: string,
@@ -79,7 +79,7 @@ export class MaintenanceRecordsController {
   }
 
   @Get('maintenance-records')
-  @ApiOperation({ summary: 'Lista o histórico de manutenção do veículo' })
+  @ApiOperation({ summary: "Lists a vehicle's maintenance history" })
   @ApiOkResponse({
     schema: {
       properties: {
@@ -91,7 +91,7 @@ export class MaintenanceRecordsController {
       },
     },
   })
-  @ApiNotFoundResponse({ description: 'Veículo não encontrado' })
+  @ApiNotFoundResponse({ description: 'Vehicle not found' })
   findAll(
     @CurrentUserId() userId: string,
     @Param('vehicleId', ParseUUIDPipe) vehicleId: string,
@@ -101,9 +101,11 @@ export class MaintenanceRecordsController {
   }
 
   @Get('maintenance-records/:recordId')
-  @ApiOperation({ summary: 'Consulta um registro de manutenção' })
+  @ApiOperation({ summary: 'Retrieves a maintenance record' })
   @ApiOkResponse({ type: MaintenanceRecordResponseDto })
-  @ApiNotFoundResponse({ description: 'Veículo ou registro não encontrado' })
+  @ApiNotFoundResponse({
+    description: 'Vehicle or maintenance record not found',
+  })
   findOne(
     @CurrentUserId() userId: string,
     @Param('vehicleId', ParseUUIDPipe) vehicleId: string,
@@ -113,10 +115,10 @@ export class MaintenanceRecordsController {
   }
 
   @Patch('maintenance-records/:recordId')
-  @ApiOperation({ summary: 'Atualiza um registro de manutenção' })
+  @ApiOperation({ summary: 'Updates a maintenance record' })
   @ApiOkResponse({ type: MaintenanceRecordResponseDto })
   @ApiNotFoundResponse({
-    description: 'Veículo, plano ou registro não encontrado',
+    description: 'Vehicle, maintenance plan, or maintenance record not found',
   })
   update(
     @CurrentUserId() userId: string,
@@ -134,9 +136,11 @@ export class MaintenanceRecordsController {
 
   @Delete('maintenance-records/:recordId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Exclui logicamente um registro de manutenção' })
-  @ApiNoContentResponse({ description: 'Registro excluído' })
-  @ApiNotFoundResponse({ description: 'Veículo ou registro não encontrado' })
+  @ApiOperation({ summary: 'Soft-deletes a maintenance record' })
+  @ApiNoContentResponse({ description: 'Maintenance record deleted' })
+  @ApiNotFoundResponse({
+    description: 'Vehicle or maintenance record not found',
+  })
   remove(
     @CurrentUserId() userId: string,
     @Param('vehicleId', ParseUUIDPipe) vehicleId: string,

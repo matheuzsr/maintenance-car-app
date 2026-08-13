@@ -19,7 +19,7 @@ describe('MaintenanceRecordsService', () => {
   const vehicle: Vehicle = {
     id: vehicleId,
     userId,
-    nickname: 'Meu carro',
+    nickname: 'My car',
     brand: 'Honda',
     model: 'Civic',
     year: 2022,
@@ -35,7 +35,7 @@ describe('MaintenanceRecordsService', () => {
     userId,
     vehicleId,
     templateId: null,
-    name: 'Troca de óleo',
+    name: 'Oil change',
     description: null,
     category: MaintenanceCategory.ENGINE,
     intervalMonths: 6,
@@ -201,7 +201,7 @@ describe('MaintenanceRecordsService', () => {
 
   it('does not advance the vehicle reference for a lower odometer', async () => {
     await service.create(userId, vehicleId, {
-      description: 'Serviço antigo',
+      description: 'Previous service',
       performedAt: '2026-08-12T12:00:00.000Z',
       odometerKm: 44000,
       totalCost: '0',

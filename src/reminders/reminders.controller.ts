@@ -25,9 +25,11 @@ export class RemindersController {
   constructor(private readonly reminders: RemindersService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Consulta a agenda e os motivos de cada situação' })
+  @ApiOperation({
+    summary: 'Retrieves the schedule and reasons for each status',
+  })
   @ApiOkResponse({
-    description: 'Planos com situações de prazo e km separadas',
+    description: 'Plans with separate time and mileage statuses',
   })
   getAgenda(
     @CurrentUserId() userId: string,

@@ -34,10 +34,10 @@ export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
   @Post('register')
-  @ApiOperation({ summary: 'Cria uma conta e inicia uma sessão' })
+  @ApiOperation({ summary: 'Creates an account and starts a session' })
   @ApiCreatedResponse({ type: AuthResponseDto })
-  @ApiConflictResponse({ description: 'E-mail já cadastrado' })
-  @ApiTooManyRequestsResponse({ description: 'Muitas tentativas' })
+  @ApiConflictResponse({ description: 'Email is already registered' })
+  @ApiTooManyRequestsResponse({ description: 'Too many attempts' })
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   register(
     @Body() dto: RegisterDto,
@@ -51,10 +51,10 @@ export class AuthController {
   }
 
   @Post('login')
-  @ApiOperation({ summary: 'Autentica com e-mail e senha' })
+  @ApiOperation({ summary: 'Authenticates with email and password' })
   @ApiOkResponse({ type: AuthResponseDto })
-  @ApiUnauthorizedResponse({ description: 'Credenciais inválidas' })
-  @ApiTooManyRequestsResponse({ description: 'Muitas tentativas' })
+  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+  @ApiTooManyRequestsResponse({ description: 'Too many attempts' })
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   login(
@@ -69,10 +69,10 @@ export class AuthController {
   }
 
   @Post('refresh')
-  @ApiOperation({ summary: 'Rotaciona o refresh token e emite novos tokens' })
+  @ApiOperation({ summary: 'Rotates the refresh token and issues new tokens' })
   @ApiOkResponse({ type: TokenPairResponseDto })
   @ApiUnauthorizedResponse({
-    description: 'Refresh token inválido ou reutilizado',
+    description: 'Invalid or reused refresh token',
   })
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
@@ -88,7 +88,9 @@ export class AuthController {
   }
 
   @Post('logout')
-  @ApiOperation({ summary: 'Revoga a sessão associada ao refresh token' })
+  @ApiOperation({
+    summary: 'Revokes the session associated with a refresh token',
+  })
   @ApiOkResponse({ type: LogoutResponseDto })
   @HttpCode(HttpStatus.OK)
   async logout(@Body() dto: RefreshTokenDto): Promise<{ success: true }> {

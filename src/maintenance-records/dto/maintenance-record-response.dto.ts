@@ -16,7 +16,7 @@ export class MaintenanceRecordResponseDto {
   @ApiPropertyOptional({ format: 'uuid', nullable: true })
   odometerReadingId!: string | null;
 
-  @ApiProperty({ example: 'Troca de óleo e filtro' })
+  @ApiProperty({ example: 'Oil and filter change' })
   description!: string;
 
   @ApiProperty({ format: 'date-time' })
@@ -25,7 +25,7 @@ export class MaintenanceRecordResponseDto {
   @ApiProperty({ example: 76808 })
   odometerKm!: number;
 
-  @ApiPropertyOptional({ nullable: true, example: 'Oficina do bairro' })
+  @ApiPropertyOptional({ nullable: true, example: 'Local repair shop' })
   workshop!: string | null;
 
   @ApiPropertyOptional({ nullable: true })

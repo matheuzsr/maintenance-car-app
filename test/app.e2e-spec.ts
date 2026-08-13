@@ -76,7 +76,7 @@ describe('Core journeys (e2e)', () => {
       .post('/api/v1/vehicles')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
-        nickname: 'Meu carro',
+        nickname: 'My car',
         brand: 'Fiat',
         model: 'Argo',
         year: 2022,
@@ -90,7 +90,7 @@ describe('Core journeys (e2e)', () => {
       .get(`/api/v1/vehicles/${vehicle.id}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
-    expect((fetched.body as VehicleBody).nickname).toBe('Meu carro');
+    expect((fetched.body as VehicleBody).nickname).toBe('My car');
   });
 
   it('hides another user vehicle as not found', async () => {
@@ -136,7 +136,7 @@ describe('Core journeys (e2e)', () => {
       .post(`/api/v1/vehicles/${vehicle.id}/maintenance-plans`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
-        name: 'Óleo do motor',
+        name: 'Engine oil',
         category: 'ENGINE',
         intervalMonths: 12,
         intervalKm: 10000,

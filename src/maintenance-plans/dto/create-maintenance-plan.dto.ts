@@ -23,7 +23,7 @@ export class CreateMaintenancePlanDto {
   @IsUUID()
   templateId?: string;
 
-  @ApiPropertyOptional({ example: 'Troca de óleo do motor', maxLength: 120 })
+  @ApiPropertyOptional({ example: 'Engine oil change', maxLength: 120 })
   @Transform(trim)
   @IsOptional()
   @IsString()

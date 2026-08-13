@@ -6,15 +6,15 @@ import { CreateMaintenancePlanDto } from './create-maintenance-plan.dto';
 describe('CreateMaintenancePlanDto', () => {
   it('trims textual fields', async () => {
     const dto = plainToInstance(CreateMaintenancePlanDto, {
-      name: '  Troca de óleo  ',
-      description: '  Óleo sintético  ',
+      name: '  Oil change  ',
+      description: '  Synthetic oil  ',
       category: MaintenanceCategory.ENGINE,
       intervalKm: 10000,
     });
 
     await expect(validate(dto)).resolves.toHaveLength(0);
-    expect(dto.name).toBe('Troca de óleo');
-    expect(dto.description).toBe('Óleo sintético');
+    expect(dto.name).toBe('Oil change');
+    expect(dto.description).toBe('Synthetic oil');
   });
 
   it('rejects blank names and non-positive intervals', async () => {

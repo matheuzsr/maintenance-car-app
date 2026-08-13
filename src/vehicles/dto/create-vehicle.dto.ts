@@ -14,7 +14,7 @@ import {
 } from 'class-validator';
 
 export class CreateVehicleDto {
-  @ApiProperty({ example: 'Meu carro' })
+  @ApiProperty({ example: 'My car' })
   @Transform(({ value }): unknown =>
     typeof value === 'string' ? value.trim() : value,
   )

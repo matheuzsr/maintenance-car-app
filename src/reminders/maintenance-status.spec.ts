@@ -25,8 +25,8 @@ describe('calculateMaintenanceStatus', () => {
     expect(result.odometerStatus.status).toBe(DueStatus.DUE_SOON);
     expect(result.reasons).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('Vencida'),
-        'Faltam 500 km para o limite',
+        expect.stringContaining('Overdue'),
+        '500 km remaining until the limit',
       ]),
     );
   });

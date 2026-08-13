@@ -6,7 +6,7 @@ export class CreateMaintenanceRecordDto extends MaintenanceRecordFieldsDto {
   @ApiPropertyOptional({
     format: 'uuid',
     description:
-      'Plano relacionado ao histórico. O vínculo não conclui nem atualiza o plano.',
+      'Plan associated with this record. Linking it does not complete or update the plan.',
   })
   @IsOptional()
   @IsUUID()

@@ -22,7 +22,7 @@ export class MaintenanceTemplatesController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'Lista os modelos ativos de manutenção' })
+  @ApiOperation({ summary: 'Lists active maintenance templates' })
   @ApiOkResponse({ type: MaintenanceTemplateResponseDto, isArray: true })
   findAll(@Query() query: ListMaintenanceTemplatesQueryDto) {
     return this.maintenanceTemplatesService.findAll(query);

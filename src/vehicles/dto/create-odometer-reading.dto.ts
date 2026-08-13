@@ -26,7 +26,7 @@ export class CreateOdometerReadingDto {
   @ApiPropertyOptional({
     default: false,
     description:
-      'Confirma o registro de uma leitura inferior à referência atual sem reduzi-la.',
+      'Confirms recording a reading below the current reference without lowering it.',
   })
   @IsOptional()
   @IsBoolean()

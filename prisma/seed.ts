@@ -3,18 +3,24 @@ import { MaintenanceCategory, PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const templates = [
-  ['engine-oil', 'Óleo do motor', MaintenanceCategory.ENGINE, 12, 10000],
-  ['oil-filter', 'Filtro de óleo', MaintenanceCategory.FILTERS, 12, 10000],
-  ['engine-air-filter', 'Filtro de ar do motor', MaintenanceCategory.FILTERS, 12, 10000],
-  ['cabin-filter', 'Filtro de cabine', MaintenanceCategory.FILTERS, 12, 10000],
-  ['fuel-filter', 'Filtro de combustível', MaintenanceCategory.FILTERS, 24, 20000],
-  ['brake-pads', 'Pastilhas de freio', MaintenanceCategory.BRAKES, 12, 10000],
-  ['brake-fluid', 'Fluido de freio', MaintenanceCategory.BRAKES, 24, null],
-  ['spark-plugs', 'Velas de ignição', MaintenanceCategory.ENGINE, null, 40000],
-  ['accessory-belts', 'Correias auxiliares', MaintenanceCategory.ENGINE, 24, null],
-  ['tires', 'Pneus', MaintenanceCategory.TIRES, 12, 10000],
-  ['battery', 'Bateria', MaintenanceCategory.ELECTRICAL, 36, null],
-  ['coolant', 'Líquido de arrefecimento', MaintenanceCategory.COOLING, 48, 60000],
+  ['engine-oil', 'Engine oil', MaintenanceCategory.ENGINE, 12, 10000],
+  ['oil-filter', 'Oil filter', MaintenanceCategory.FILTERS, 12, 10000],
+  [
+    'engine-air-filter',
+    'Engine air filter',
+    MaintenanceCategory.FILTERS,
+    12,
+    10000,
+  ],
+  ['cabin-filter', 'Cabin air filter', MaintenanceCategory.FILTERS, 12, 10000],
+  ['fuel-filter', 'Fuel filter', MaintenanceCategory.FILTERS, 24, 20000],
+  ['brake-pads', 'Brake pads', MaintenanceCategory.BRAKES, 12, 10000],
+  ['brake-fluid', 'Brake fluid', MaintenanceCategory.BRAKES, 24, null],
+  ['spark-plugs', 'Spark plugs', MaintenanceCategory.ENGINE, null, 40000],
+  ['accessory-belts', 'Accessory belts', MaintenanceCategory.ENGINE, 24, null],
+  ['tires', 'Tires', MaintenanceCategory.TIRES, 12, 10000],
+  ['battery', 'Battery', MaintenanceCategory.ELECTRICAL, 36, null],
+  ['coolant', 'Coolant', MaintenanceCategory.COOLING, 48, 60000],
 ] as const;
 
 async function main(): Promise<void> {

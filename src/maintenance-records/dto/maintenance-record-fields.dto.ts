@@ -14,7 +14,7 @@ import {
 export const DECIMAL_COST_PATTERN = /^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/;
 
 export class MaintenanceRecordFieldsDto {
-  @ApiProperty({ example: 'Troca de óleo e filtro', maxLength: 500 })
+  @ApiProperty({ example: 'Oil and filter change', maxLength: 500 })
   @Transform(({ value }): unknown =>
     typeof value === 'string' ? value.trim() : value,
   )
@@ -36,7 +36,7 @@ export class MaintenanceRecordFieldsDto {
   @Min(0)
   odometerKm!: number;
 
-  @ApiPropertyOptional({ example: 'Oficina do bairro', maxLength: 120 })
+  @ApiPropertyOptional({ example: 'Local repair shop', maxLength: 120 })
   @Transform(({ value }): unknown =>
     typeof value === 'string' ? value.trim() : value,
   )
@@ -46,7 +46,7 @@ export class MaintenanceRecordFieldsDto {
   workshop?: string;
 
   @ApiPropertyOptional({
-    example: 'Filtro original utilizado',
+    example: 'Original filter used',
     maxLength: 2000,
   })
   @Transform(({ value }): unknown =>
@@ -61,7 +61,7 @@ export class MaintenanceRecordFieldsDto {
     example: '350.00',
     type: String,
     description:
-      'Valor decimal não negativo, enviado como string com no máximo duas casas decimais.',
+      'Non-negative decimal value sent as a string with up to two decimal places.',
     pattern: DECIMAL_COST_PATTERN.source,
   })
   @IsString()

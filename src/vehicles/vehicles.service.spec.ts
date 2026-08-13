@@ -11,7 +11,7 @@ describe('VehiclesService', () => {
   const vehicle: Vehicle = {
     id: vehicleId,
     userId,
-    nickname: 'Meu carro',
+    nickname: 'My car',
     brand: 'Honda',
     model: 'Civic',
     year: 2022,

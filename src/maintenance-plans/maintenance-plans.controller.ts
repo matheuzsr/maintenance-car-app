@@ -48,9 +48,9 @@ export class MaintenancePlansController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Cria um plano de manutenção para o veículo' })
+  @ApiOperation({ summary: 'Creates a maintenance plan for a vehicle' })
   @ApiCreatedResponse({ type: MaintenancePlanResponseDto })
-  @ApiNotFoundResponse({ description: 'Veículo ou template não encontrado' })
+  @ApiNotFoundResponse({ description: 'Vehicle or template not found' })
   create(
     @CurrentUserId() userId: string,
     @Param('vehicleId', ParseUUIDPipe) vehicleId: string,
@@ -60,7 +60,7 @@ export class MaintenancePlansController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Lista os planos de manutenção do veículo' })
+  @ApiOperation({ summary: "Lists a vehicle's maintenance plans" })
   @ApiOkResponse({
     schema: {
       properties: {
@@ -72,7 +72,7 @@ export class MaintenancePlansController {
       },
     },
   })
-  @ApiNotFoundResponse({ description: 'Veículo não encontrado' })
+  @ApiNotFoundResponse({ description: 'Vehicle not found' })
   findAll(
     @CurrentUserId() userId: string,
     @Param('vehicleId', ParseUUIDPipe) vehicleId: string,
@@ -82,9 +82,9 @@ export class MaintenancePlansController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Consulta um plano de manutenção' })
+  @ApiOperation({ summary: 'Retrieves a maintenance plan' })
   @ApiOkResponse({ type: MaintenancePlanResponseDto })
-  @ApiNotFoundResponse({ description: 'Veículo ou plano não encontrado' })
+  @ApiNotFoundResponse({ description: 'Vehicle or maintenance plan not found' })
   findOne(
     @CurrentUserId() userId: string,
     @Param('vehicleId', ParseUUIDPipe) vehicleId: string,
@@ -94,9 +94,9 @@ export class MaintenancePlansController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Atualiza um plano de manutenção' })
+  @ApiOperation({ summary: 'Updates a maintenance plan' })
   @ApiOkResponse({ type: MaintenancePlanResponseDto })
-  @ApiNotFoundResponse({ description: 'Veículo ou plano não encontrado' })
+  @ApiNotFoundResponse({ description: 'Vehicle or maintenance plan not found' })
   update(
     @CurrentUserId() userId: string,
     @Param('vehicleId', ParseUUIDPipe) vehicleId: string,
@@ -108,9 +108,9 @@ export class MaintenancePlansController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Exclui logicamente um plano de manutenção' })
-  @ApiNoContentResponse({ description: 'Plano excluído' })
-  @ApiNotFoundResponse({ description: 'Veículo ou plano não encontrado' })
+  @ApiOperation({ summary: 'Soft-deletes a maintenance plan' })
+  @ApiNoContentResponse({ description: 'Maintenance plan deleted' })
+  @ApiNotFoundResponse({ description: 'Vehicle or maintenance plan not found' })
   remove(
     @CurrentUserId() userId: string,
     @Param('vehicleId', ParseUUIDPipe) vehicleId: string,

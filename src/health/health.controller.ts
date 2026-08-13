@@ -8,13 +8,13 @@ export class HealthController {
   constructor(private readonly prisma: PrismaService) {}
 
   @Get('live')
-  @ApiOperation({ summary: 'Indica se o processo está ativo' })
+  @ApiOperation({ summary: 'Checks whether the process is alive' })
   live(): { status: string } {
     return { status: 'ok' };
   }
 
   @Get('ready')
-  @ApiOperation({ summary: 'Confirma acesso às dependências essenciais' })
+  @ApiOperation({ summary: 'Checks access to essential dependencies' })
   async ready(): Promise<{ status: string }> {
     try {
       await this.prisma.$queryRaw`SELECT 1`;

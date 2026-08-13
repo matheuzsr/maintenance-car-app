@@ -4,7 +4,7 @@ import { MaintenanceRecordFieldsDto } from './maintenance-record-fields.dto';
 
 describe('MaintenanceRecordFieldsDto', () => {
   const validInput = {
-    description: 'Troca de óleo',
+    description: 'Oil change',
     performedAt: '2026-08-13T12:00:00.000Z',
     odometerKm: 46000,
     totalCost: '350.00',

@@ -2,7 +2,7 @@
   "name": "maintenance-car-api",
   "version": "0.1.0",
   "private": true,
-  "description": "API multiusuário para gestão de manutenção de veículos",
+  "description": "Multi-user vehicle maintenance management API",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=22 <23"

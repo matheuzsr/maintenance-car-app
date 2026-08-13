@@ -8,7 +8,7 @@ export class MaintenanceTemplateResponseDto {
   @ApiProperty({ example: 'engine-oil' })
   slug!: string;
 
-  @ApiProperty({ example: 'Troca de óleo do motor' })
+  @ApiProperty({ example: 'Engine oil change' })
   name!: string;
 
   @ApiPropertyOptional({ nullable: true })

@@ -18,7 +18,7 @@ describe('MaintenancePlansService', () => {
     userId,
     vehicleId,
     templateId: null,
-    name: 'Óleo',
+    name: 'Oil',
     description: null,
     category: MaintenanceCategory.ENGINE,
     intervalMonths: 12,
@@ -35,8 +35,8 @@ describe('MaintenancePlansService', () => {
   const template: MaintenanceTemplate = {
     id: 'template-1',
     slug: 'engine-oil',
-    name: 'Troca de óleo',
-    description: 'Óleo e filtro',
+    name: 'Oil change',
+    description: 'Oil and filter',
     category: MaintenanceCategory.ENGINE,
     suggestedIntervalMonths: 12,
     suggestedIntervalKm: 10000,
@@ -74,7 +74,7 @@ describe('MaintenancePlansService', () => {
 
     await service.create(userId, vehicleId, {
       templateId: template.id,
-      name: 'Óleo sintético',
+      name: 'Synthetic oil',
       intervalMonths: 6,
     });
 
@@ -89,7 +89,7 @@ describe('MaintenancePlansService', () => {
       userId,
       vehicleId,
       templateId: template.id,
-      name: 'Óleo sintético',
+      name: 'Synthetic oil',
       description: template.description,
       category: template.category,
       intervalMonths: 6,
@@ -122,7 +122,7 @@ describe('MaintenancePlansService', () => {
   it('rejects a plan without any interval after resolving defaults', async () => {
     await expect(
       service.create(userId, vehicleId, {
-        name: 'Inspeção',
+        name: 'Inspection',
         category: MaintenanceCategory.OTHER,
       }),
     ).rejects.toThrow(BadRequestException);

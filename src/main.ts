@@ -38,14 +38,14 @@ async function bootstrap(): Promise<void> {
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Maintenance Car API')
-    .setDescription('API para gestão de manutenção de veículos')
+    .setDescription('API for vehicle maintenance management')
     .setVersion('1.0')
     .addBearerAuth(
       {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        description: 'Informe apenas o accessToken retornado pelo login.',
+        description: 'Enter only the accessToken returned by login.',
       },
       'access-token',
     )

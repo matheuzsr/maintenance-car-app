@@ -51,14 +51,14 @@ export class VehiclesController {
   constructor(private readonly vehiclesService: VehiclesService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Cadastra um veículo' })
+  @ApiOperation({ summary: 'Creates a vehicle' })
   @ApiCreatedResponse({ type: VehicleResponseDto })
   create(@CurrentUserId() userId: string, @Body() dto: CreateVehicleDto) {
     return this.vehiclesService.create(userId, dto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Lista os veículos ativos do usuário' })
+  @ApiOperation({ summary: "Lists the user's active vehicles" })
   @ApiOkResponse({
     schema: {
       properties: {
@@ -75,9 +75,9 @@ export class VehiclesController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Consulta um veículo' })
+  @ApiOperation({ summary: 'Retrieves a vehicle' })
   @ApiOkResponse({ type: VehicleResponseDto })
-  @ApiNotFoundResponse({ description: 'Veículo não encontrado' })
+  @ApiNotFoundResponse({ description: 'Vehicle not found' })
   findOne(
     @CurrentUserId() userId: string,
     @Param('id', ParseUUIDPipe) id: string,
@@ -86,9 +86,9 @@ export class VehiclesController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Atualiza os dados de um veículo' })
+  @ApiOperation({ summary: 'Updates a vehicle' })
   @ApiOkResponse({ type: VehicleResponseDto })
-  @ApiNotFoundResponse({ description: 'Veículo não encontrado' })
+  @ApiNotFoundResponse({ description: 'Vehicle not found' })
   update(
     @CurrentUserId() userId: string,
     @Param('id', ParseUUIDPipe) id: string,
@@ -99,9 +99,9 @@ export class VehiclesController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Exclui logicamente um veículo' })
-  @ApiNoContentResponse({ description: 'Veículo excluído' })
-  @ApiNotFoundResponse({ description: 'Veículo não encontrado' })
+  @ApiOperation({ summary: 'Soft-deletes a vehicle' })
+  @ApiNoContentResponse({ description: 'Vehicle deleted' })
+  @ApiNotFoundResponse({ description: 'Vehicle not found' })
   remove(
     @CurrentUserId() userId: string,
     @Param('id', ParseUUIDPipe) id: string,
@@ -110,9 +110,9 @@ export class VehiclesController {
   }
 
   @Post(':id/odometer-readings')
-  @ApiOperation({ summary: 'Registra uma leitura do hodômetro' })
+  @ApiOperation({ summary: 'Records an odometer reading' })
   @ApiCreatedResponse({ type: OdometerReadingResponseDto })
-  @ApiNotFoundResponse({ description: 'Veículo não encontrado' })
+  @ApiNotFoundResponse({ description: 'Vehicle not found' })
   createOdometerReading(
     @CurrentUserId() userId: string,
     @Param('id', ParseUUIDPipe) id: string,
@@ -122,7 +122,7 @@ export class VehiclesController {
   }
 
   @Get(':id/odometer-readings')
-  @ApiOperation({ summary: 'Lista as leituras do hodômetro' })
+  @ApiOperation({ summary: 'Lists odometer readings' })
   @ApiOkResponse({
     schema: {
       properties: {
@@ -134,7 +134,7 @@ export class VehiclesController {
       },
     },
   })
-  @ApiNotFoundResponse({ description: 'Veículo não encontrado' })
+  @ApiNotFoundResponse({ description: 'Vehicle not found' })
   findOdometerReadings(
     @CurrentUserId() userId: string,
     @Param('id', ParseUUIDPipe) id: string,
