@@ -212,10 +212,7 @@ A resposta da API deve trazer razões legíveis e valores objetivos. Exemplo:
     "dueAtKm": 80000,
     "remainingKm": 350
   },
-  "reasons": [
-    "Vencida há 12 dias",
-    "Faltam 350 km para o limite"
-  ]
+  "reasons": ["Vencida há 12 dias", "Faltam 350 km para o limite"]
 }
 ```
 
@@ -315,6 +312,21 @@ npm ci
 npm run start:dev
 ```
 
+### Testando pela interface Swagger
+
+Com a API em execução, abra `http://localhost:3000/docs`. O fluxo básico é:
+
+1. Execute `POST /api/v1/auth/register` ou `POST /api/v1/auth/login`.
+2. Copie o campo `accessToken` da resposta.
+3. Clique em **Authorize**, cole somente o token e confirme.
+4. Execute os endpoints protegidos de usuários, veículos e hodômetro.
+
+A autorização fica preservada ao recarregar a página. O documento OpenAPI em
+JSON está disponível em `http://localhost:3000/docs/openapi.json`, permitindo
+importar a API no Postman, Insomnia ou gerar clientes automaticamente. O
+`refreshToken` não deve ser colocado no botão **Authorize**; ele é usado apenas
+nos endpoints `/auth/refresh` e `/auth/logout`.
+
 As chaves VAPID podem permanecer com os marcadores do exemplo enquanto as
 notificações push não estiverem habilitadas. Antes de enviar alterações, execute
 as mesmas verificações da integração contínua:
@@ -405,13 +417,13 @@ decompor cada fase, distribuir tarefas independentes, integrar as alterações e
 confirmar os critérios de aceite. A escolha do modelo e do nível de raciocínio
 será proporcional ao risco da tarefa:
 
-| Tipo de tarefa | Modelo | Raciocínio |
-| --- | --- | --- |
-| Arquitetura, Prisma/PostgreSQL, autenticação e notificações | `gpt-5.6-sol` | `high` |
-| Revisões de segurança, domínio e integração entre módulos | `gpt-5.6-sol` | `high` |
-| CRUDs, seeds, documentação e ajustes rotineiros | `gpt-5.6-sol` | `medium` |
-| Trabalho bem definido quando custo for prioridade | `gpt-5.6-terra` | `high` |
-| Problemas excepcionalmente difíceis | `gpt-5.6-sol` | `xhigh` |
+| Tipo de tarefa                                              | Modelo          | Raciocínio |
+| ----------------------------------------------------------- | --------------- | ---------- |
+| Arquitetura, Prisma/PostgreSQL, autenticação e notificações | `gpt-5.6-sol`   | `high`     |
+| Revisões de segurança, domínio e integração entre módulos   | `gpt-5.6-sol`   | `high`     |
+| CRUDs, seeds, documentação e ajustes rotineiros             | `gpt-5.6-sol`   | `medium`   |
+| Trabalho bem definido quando custo for prioridade           | `gpt-5.6-terra` | `high`     |
+| Problemas excepcionalmente difíceis                         | `gpt-5.6-sol`   | `xhigh`    |
 
 O nível `xhigh` não será usado como padrão. Ele será reservado para um bloqueio
 concreto que permaneça difícil após investigação em `high`, como uma condição de

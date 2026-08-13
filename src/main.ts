@@ -9,7 +9,18 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:'],
+        },
+      },
+    }),
+  );
   app.enableCors({
     origin: config.getOrThrow<string>('CORS_ORIGIN').split(','),
     credentials: true,
@@ -29,13 +40,27 @@ async function bootstrap(): Promise<void> {
     .setTitle('Maintenance Car API')
     .setDescription('API para gestão de manutenção de veículos')
     .setVersion('1.0')
-    .addBearerAuth()
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Informe apenas o accessToken retornado pelo login.',
+      },
+      'access-token',
+    )
     .build();
-  SwaggerModule.setup(
-    'docs',
-    app,
-    SwaggerModule.createDocument(app, swaggerConfig),
-  );
+  const openApiDocument = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('docs', app, openApiDocument, {
+    jsonDocumentUrl: 'docs/openapi.json',
+    customSiteTitle: 'Maintenance Car API — Swagger',
+    swaggerOptions: {
+      displayRequestDuration: true,
+      filter: true,
+      persistAuthorization: true,
+      tryItOutEnabled: true,
+    },
+  });
 
   await app.listen(config.getOrThrow<number>('PORT'));
 }

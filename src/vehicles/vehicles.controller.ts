@@ -15,11 +15,13 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiExtraModels,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { CurrentUserId } from '../auth/decorators/current-user-id.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -29,10 +31,20 @@ import {
   ListQueryDto,
   UpdateVehicleDto,
 } from './dto';
+import {
+  OdometerReadingResponseDto,
+  PaginationMetaDto,
+  VehicleResponseDto,
+} from './dto/vehicle-response.dto';
 import { VehiclesService } from './vehicles.service';
 
 @ApiTags('vehicles')
-@ApiBearerAuth()
+@ApiBearerAuth('access-token')
+@ApiExtraModels(
+  VehicleResponseDto,
+  OdometerReadingResponseDto,
+  PaginationMetaDto,
+)
 @UseGuards(JwtAuthGuard)
 @Controller({ path: 'vehicles', version: '1' })
 export class VehiclesController {
@@ -40,21 +52,31 @@ export class VehiclesController {
 
   @Post()
   @ApiOperation({ summary: 'Cadastra um veículo' })
-  @ApiCreatedResponse({ description: 'Veículo cadastrado' })
+  @ApiCreatedResponse({ type: VehicleResponseDto })
   create(@CurrentUserId() userId: string, @Body() dto: CreateVehicleDto) {
     return this.vehiclesService.create(userId, dto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Lista os veículos ativos do usuário' })
-  @ApiOkResponse({ description: 'Lista paginada de veículos' })
+  @ApiOkResponse({
+    schema: {
+      properties: {
+        data: {
+          type: 'array',
+          items: { $ref: getSchemaPath(VehicleResponseDto) },
+        },
+        meta: { $ref: getSchemaPath(PaginationMetaDto) },
+      },
+    },
+  })
   findAll(@CurrentUserId() userId: string, @Query() query: ListQueryDto) {
     return this.vehiclesService.findAll(userId, query);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Consulta um veículo' })
-  @ApiOkResponse({ description: 'Veículo encontrado' })
+  @ApiOkResponse({ type: VehicleResponseDto })
   @ApiNotFoundResponse({ description: 'Veículo não encontrado' })
   findOne(
     @CurrentUserId() userId: string,
@@ -65,7 +87,7 @@ export class VehiclesController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Atualiza os dados de um veículo' })
-  @ApiOkResponse({ description: 'Veículo atualizado' })
+  @ApiOkResponse({ type: VehicleResponseDto })
   @ApiNotFoundResponse({ description: 'Veículo não encontrado' })
   update(
     @CurrentUserId() userId: string,
@@ -89,7 +111,7 @@ export class VehiclesController {
 
   @Post(':id/odometer-readings')
   @ApiOperation({ summary: 'Registra uma leitura do hodômetro' })
-  @ApiCreatedResponse({ description: 'Leitura registrada' })
+  @ApiCreatedResponse({ type: OdometerReadingResponseDto })
   @ApiNotFoundResponse({ description: 'Veículo não encontrado' })
   createOdometerReading(
     @CurrentUserId() userId: string,
@@ -101,7 +123,17 @@ export class VehiclesController {
 
   @Get(':id/odometer-readings')
   @ApiOperation({ summary: 'Lista as leituras do hodômetro' })
-  @ApiOkResponse({ description: 'Lista paginada de leituras' })
+  @ApiOkResponse({
+    schema: {
+      properties: {
+        data: {
+          type: 'array',
+          items: { $ref: getSchemaPath(OdometerReadingResponseDto) },
+        },
+        meta: { $ref: getSchemaPath(PaginationMetaDto) },
+      },
+    },
+  })
   @ApiNotFoundResponse({ description: 'Veículo não encontrado' })
   findOdometerReadings(
     @CurrentUserId() userId: string,
