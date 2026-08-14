@@ -1,0 +1,3123 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/auth/register": {
+      "post": {
+        "operationId": "AuthController_register_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email is already registered"
+          },
+          "429": {
+            "description": "Too many attempts"
+          }
+        },
+        "summary": "Creates an account and starts a session",
+        "tags": ["auth"]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "AuthController_login_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "429": {
+            "description": "Too many attempts"
+          }
+        },
+        "summary": "Authenticates with email and password",
+        "tags": ["auth"]
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenPairResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or reused refresh token"
+          }
+        },
+        "summary": "Rotates the refresh token and issues new tokens",
+        "tags": ["auth"]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogoutResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Revokes the session associated with a refresh token",
+        "tags": ["auth"]
+      }
+    },
+    "/api/v1/users/me": {
+      "get": {
+        "operationId": "UsersController_me_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "tags": ["users"]
+      }
+    },
+    "/api/v1/vehicles": {
+      "post": {
+        "operationId": "VehiclesController_create_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVehicleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Creates a vehicle",
+        "tags": ["vehicles"]
+      },
+      "get": {
+        "operationId": "VehiclesController_findAll_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/VehicleResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Lists the user's active vehicles",
+        "tags": ["vehicles"]
+      }
+    },
+    "/api/v1/vehicles/{id}": {
+      "get": {
+        "operationId": "VehiclesController_findOne_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Retrieves a vehicle",
+        "tags": ["vehicles"]
+      },
+      "patch": {
+        "operationId": "VehiclesController_update_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVehicleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Updates a vehicle",
+        "tags": ["vehicles"]
+      },
+      "delete": {
+        "operationId": "VehiclesController_remove_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Vehicle deleted"
+          },
+          "404": {
+            "description": "Vehicle not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Soft-deletes a vehicle",
+        "tags": ["vehicles"]
+      }
+    },
+    "/api/v1/vehicles/{id}/odometer-readings": {
+      "post": {
+        "operationId": "VehiclesController_createOdometerReading_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOdometerReadingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OdometerReadingResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Records an odometer reading",
+        "tags": ["vehicles"]
+      },
+      "get": {
+        "operationId": "VehiclesController_findOdometerReadings_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OdometerReadingResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Lists odometer readings",
+        "tags": ["vehicles"]
+      }
+    },
+    "/api/v1/maintenance-templates": {
+      "get": {
+        "operationId": "MaintenanceTemplatesController_findAll_v1",
+        "parameters": [
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ENGINE",
+                "FILTERS",
+                "BRAKES",
+                "TRANSMISSION",
+                "SUSPENSION",
+                "TIRES",
+                "ELECTRICAL",
+                "COOLING",
+                "OTHER"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MaintenanceTemplateResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Lists active maintenance templates",
+        "tags": ["maintenance-templates"]
+      }
+    },
+    "/api/v1/vehicles/{vehicleId}/maintenance-plans": {
+      "post": {
+        "operationId": "MaintenancePlansController_create_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMaintenancePlanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaintenancePlanResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle or template not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Creates a maintenance plan for a vehicle",
+        "tags": ["maintenance-plans"]
+      },
+      "get": {
+        "operationId": "MaintenancePlansController_findAll_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ENGINE",
+                "FILTERS",
+                "BRAKES",
+                "TRANSMISSION",
+                "SUSPENSION",
+                "TIRES",
+                "ELECTRICAL",
+                "COOLING",
+                "OTHER"
+              ]
+            }
+          },
+          {
+            "name": "active",
+            "required": false,
+            "in": "query",
+            "description": "Filters active or inactive plans.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MaintenancePlanResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/MaintenancePlanPaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Lists a vehicle's maintenance plans",
+        "tags": ["maintenance-plans"]
+      }
+    },
+    "/api/v1/vehicles/{vehicleId}/maintenance-plans/{id}": {
+      "get": {
+        "operationId": "MaintenancePlansController_findOne_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaintenancePlanResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle or maintenance plan not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Retrieves a maintenance plan",
+        "tags": ["maintenance-plans"]
+      },
+      "patch": {
+        "operationId": "MaintenancePlansController_update_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMaintenancePlanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaintenancePlanResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle or maintenance plan not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Updates a maintenance plan",
+        "tags": ["maintenance-plans"]
+      },
+      "delete": {
+        "operationId": "MaintenancePlansController_remove_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Maintenance plan deleted"
+          },
+          "404": {
+            "description": "Vehicle or maintenance plan not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Soft-deletes a maintenance plan",
+        "tags": ["maintenance-plans"]
+      }
+    },
+    "/api/v1/vehicles/{vehicleId}/maintenance-records": {
+      "post": {
+        "operationId": "MaintenanceRecordsController_create_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMaintenanceRecordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaintenanceRecordResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle or maintenance plan not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Records completed maintenance",
+        "tags": ["maintenance-records"]
+      },
+      "get": {
+        "operationId": "MaintenanceRecordsController_findAll_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "planId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MaintenanceRecordResponseDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/MaintenanceRecordPaginationMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Lists a vehicle's maintenance history",
+        "tags": ["maintenance-records"]
+      }
+    },
+    "/api/v1/vehicles/{vehicleId}/maintenance-plans/{planId}/complete": {
+      "post": {
+        "operationId": "MaintenanceRecordsController_completePlan_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "planId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteMaintenancePlanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaintenanceRecordResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle or maintenance plan not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Completes a plan and records its service",
+        "tags": ["maintenance-records"]
+      }
+    },
+    "/api/v1/vehicles/{vehicleId}/maintenance-records/{recordId}": {
+      "get": {
+        "operationId": "MaintenanceRecordsController_findOne_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recordId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaintenanceRecordResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle or maintenance record not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Retrieves a maintenance record",
+        "tags": ["maintenance-records"]
+      },
+      "patch": {
+        "operationId": "MaintenanceRecordsController_update_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recordId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMaintenanceRecordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaintenanceRecordResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle, maintenance plan, or maintenance record not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Updates a maintenance record",
+        "tags": ["maintenance-records"]
+      },
+      "delete": {
+        "operationId": "MaintenanceRecordsController_remove_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recordId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Maintenance record deleted"
+          },
+          "404": {
+            "description": "Vehicle or maintenance record not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Soft-deletes a maintenance record",
+        "tags": ["maintenance-records"]
+      }
+    },
+    "/api/v1/vehicles/{vehicleId}/maintenance-agenda": {
+      "get": {
+        "operationId": "RemindersController_getAgenda_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "NOT_CONFIGURED",
+                "UNKNOWN",
+                "ON_TRACK",
+                "DUE_SOON",
+                "OVERDUE"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plans with separate time and mileage statuses"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Retrieves the schedule and reasons for each status",
+        "tags": ["maintenance-agenda"]
+      }
+    },
+    "/api/v1/vehicles/{vehicleId}/expenses": {
+      "post": {
+        "operationId": "ExpensesController_create_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExpenseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle or maintenance record not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Creates a vehicle expense",
+        "tags": ["expenses"]
+      },
+      "get": {
+        "operationId": "ExpensesController_findAll_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["LABOR", "PARTS", "DIAGNOSTICS", "TOWING", "OTHER"]
+            }
+          },
+          {
+            "name": "incurredFrom",
+            "required": false,
+            "in": "query",
+            "description": "Includes expenses incurred at or after this timestamp.",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "name": "incurredTo",
+            "required": false,
+            "in": "query",
+            "description": "Includes expenses incurred at or before this timestamp.",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedExpensesResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Lists a vehicle's expenses",
+        "tags": ["expenses"]
+      }
+    },
+    "/api/v1/vehicles/{vehicleId}/expenses/{expenseId}": {
+      "get": {
+        "operationId": "ExpensesController_findOne_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expenseId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle or expense not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Retrieves a vehicle expense",
+        "tags": ["expenses"]
+      },
+      "patch": {
+        "operationId": "ExpensesController_update_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expenseId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExpenseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vehicle, expense, or maintenance record not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Updates a vehicle expense",
+        "tags": ["expenses"]
+      },
+      "delete": {
+        "operationId": "ExpensesController_remove_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expenseId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Expense deleted"
+          },
+          "404": {
+            "description": "Vehicle or expense not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Soft-deletes a vehicle expense",
+        "tags": ["expenses"]
+      }
+    },
+    "/api/v1/reports/costs": {
+      "get": {
+        "description": "Separates maintenance record costs from standalone and maintenance-linked itemized expenses to prevent double counting.",
+        "operationId": "ReportsController_getCosts_v1",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "query",
+            "description": "Vehicle included in the report.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "period",
+            "required": true,
+            "in": "query",
+            "description": "Calendar interval used to group costs in the user timezone.",
+            "schema": {
+              "type": "string",
+              "enum": ["monthly", "yearly"]
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "Inclusive start instant. A UTC offset is required.",
+            "schema": {
+              "format": "date-time",
+              "example": "2026-01-01T00:00:00-03:00",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "Inclusive end instant. A UTC offset is required.",
+            "schema": {
+              "format": "date-time",
+              "example": "2026-12-31T23:59:59-03:00",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CostReportResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query or the start instant is after the end instant"
+          },
+          "404": {
+            "description": "Vehicle not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Reports vehicle costs by calendar month or year",
+        "tags": ["reports"]
+      }
+    },
+    "/api/v1/notifications/vapid-public-key": {
+      "get": {
+        "operationId": "NotificationsController_getVapidPublicKey_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VapidPublicKeyResponseDto"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Web Push notifications are not configured"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Returns the public key required by the Push API",
+        "tags": ["notifications"]
+      }
+    },
+    "/api/v1/notifications": {
+      "get": {
+        "operationId": "NotificationsController_findAll_v1",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Object"
+                }
+              ]
+            }
+          },
+          {
+            "name": "unreadOnly",
+            "required": false,
+            "in": "query",
+            "description": "When true, returns only notifications not marked as read.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedNotificationsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Lists the current user's maintenance alerts",
+        "tags": ["notifications"]
+      }
+    },
+    "/api/v1/notifications/{notificationId}/read": {
+      "patch": {
+        "operationId": "NotificationsController_markAsRead_v1",
+        "parameters": [
+          {
+            "name": "notificationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaintenanceNotificationResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Notification not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Marks a maintenance alert as read",
+        "tags": ["notifications"]
+      }
+    },
+    "/api/v1/push-subscriptions": {
+      "post": {
+        "operationId": "PushSubscriptionsController_register_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePushSubscriptionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushSubscriptionResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Push service host is not allowed"
+          },
+          "409": {
+            "description": "The endpoint is already registered by another user"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Registers or refreshes a browser push subscription",
+        "tags": ["push-subscriptions"]
+      },
+      "get": {
+        "operationId": "PushSubscriptionsController_findAll_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PushSubscriptionResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Lists the current user's push subscriptions",
+        "tags": ["push-subscriptions"]
+      }
+    },
+    "/api/v1/push-subscriptions/{subscriptionId}": {
+      "delete": {
+        "operationId": "PushSubscriptionsController_disable_v1",
+        "parameters": [
+          {
+            "name": "subscriptionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Push subscription disabled"
+          },
+          "404": {
+            "description": "Push subscription not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Disables a push subscription",
+        "tags": ["push-subscriptions"]
+      }
+    },
+    "/api/v1/health/live": {
+      "get": {
+        "operationId": "HealthController_live_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Checks whether the process is alive",
+        "tags": ["health"]
+      }
+    },
+    "/api/v1/health/ready": {
+      "get": {
+        "operationId": "HealthController_ready_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Checks access to essential dependencies",
+        "tags": ["health"]
+      }
+    }
+  },
+  "info": {
+    "title": "Maintenance Car API",
+    "description": "API for vehicle maintenance management",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "access-token": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Enter only the accessToken returned by login."
+      }
+    },
+    "schemas": {
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Matheus Rocha"
+          },
+          "email": {
+            "type": "string",
+            "example": "matheus@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 128
+          }
+        },
+        "required": ["name", "email", "password"]
+      },
+      "AuthenticatedUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Matheus Rocha"
+          },
+          "email": {
+            "type": "string",
+            "example": "matheus@example.com"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "America/Sao_Paulo"
+          }
+        },
+        "required": ["id", "name", "email", "timezone"]
+      },
+      "AuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/AuthenticatedUserDto"
+          },
+          "accessToken": {
+            "type": "string",
+            "description": "Use this value in the Swagger Authorize dialog."
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Use only for refresh and logout."
+          }
+        },
+        "required": ["user", "accessToken", "refreshToken"]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "matheus@example.com"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": ["email", "password"]
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "required": ["refreshToken"]
+      },
+      "TokenPairResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "New access token."
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "New refresh token; the previous one was revoked."
+          }
+        },
+        "required": ["accessToken", "refreshToken"]
+      },
+      "LogoutResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": ["success"]
+      },
+      "VehicleResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nickname": {
+            "type": "string",
+            "example": "My car"
+          },
+          "brand": {
+            "type": "string",
+            "example": "Fiat"
+          },
+          "model": {
+            "type": "string",
+            "example": "Argo"
+          },
+          "year": {
+            "type": "number",
+            "example": 2022
+          },
+          "licensePlate": {
+            "type": "object",
+            "example": "ABC1D23",
+            "nullable": true
+          },
+          "currentOdometerKm": {
+            "type": "number",
+            "example": 76808
+          },
+          "currentOdometerRecordedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "nickname",
+          "brand",
+          "model",
+          "year",
+          "currentOdometerKm",
+          "currentOdometerRecordedAt",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "OdometerReadingResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "vehicleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "odometerKm": {
+            "type": "number",
+            "example": 76808
+          },
+          "recordedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": ["MANUAL", "MAINTENANCE_RECORD"]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "vehicleId",
+          "odometerKm",
+          "recordedAt",
+          "source",
+          "createdAt"
+        ]
+      },
+      "PaginationMetaDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "limit": {
+            "type": "number",
+            "example": 20
+          },
+          "total": {
+            "type": "number",
+            "example": 1
+          },
+          "totalPages": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "required": ["page", "limit", "total", "totalPages"]
+      },
+      "CreateVehicleDto": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "example": "My car"
+          },
+          "brand": {
+            "type": "string",
+            "example": "Honda"
+          },
+          "model": {
+            "type": "string",
+            "example": "Civic"
+          },
+          "year": {
+            "type": "number",
+            "example": 2022,
+            "minimum": 1886,
+            "maximum": 2200
+          },
+          "licensePlate": {
+            "type": "string",
+            "example": "ABC1D23"
+          },
+          "currentOdometerKm": {
+            "type": "number",
+            "example": 45000,
+            "minimum": 0
+          },
+          "currentOdometerRecordedAt": {
+            "type": "string",
+            "example": "2026-08-13T12:00:00.000Z"
+          }
+        },
+        "required": [
+          "nickname",
+          "brand",
+          "model",
+          "year",
+          "currentOdometerKm",
+          "currentOdometerRecordedAt"
+        ]
+      },
+      "Object": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateVehicleDto": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "example": "My car"
+          },
+          "brand": {
+            "type": "string",
+            "example": "Honda"
+          },
+          "model": {
+            "type": "string",
+            "example": "Civic"
+          },
+          "year": {
+            "type": "number",
+            "example": 2022,
+            "minimum": 1886,
+            "maximum": 2200
+          },
+          "licensePlate": {
+            "type": "string",
+            "example": "ABC1D23"
+          }
+        }
+      },
+      "CreateOdometerReadingDto": {
+        "type": "object",
+        "properties": {
+          "odometerKm": {
+            "type": "number",
+            "example": 45500,
+            "minimum": 0
+          },
+          "recordedAt": {
+            "type": "string",
+            "example": "2026-08-13T12:00:00.000Z"
+          },
+          "confirmLowerReading": {
+            "type": "boolean",
+            "default": false,
+            "description": "Confirms recording a reading below the current reference without lowering it."
+          }
+        },
+        "required": ["odometerKm", "recordedAt"]
+      },
+      "MaintenanceTemplateResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "slug": {
+            "type": "string",
+            "example": "engine-oil"
+          },
+          "name": {
+            "type": "string",
+            "example": "Engine oil change"
+          },
+          "description": {
+            "type": "object",
+            "nullable": true
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "ENGINE",
+              "FILTERS",
+              "BRAKES",
+              "TRANSMISSION",
+              "SUSPENSION",
+              "TIRES",
+              "ELECTRICAL",
+              "COOLING",
+              "OTHER"
+            ]
+          },
+          "suggestedIntervalMonths": {
+            "type": "object",
+            "example": 12,
+            "nullable": true
+          },
+          "suggestedIntervalKm": {
+            "type": "object",
+            "example": 10000,
+            "nullable": true
+          },
+          "active": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "category",
+          "active",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "MaintenancePlanResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "vehicleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "templateId": {
+            "type": "object",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "object",
+            "nullable": true
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "ENGINE",
+              "FILTERS",
+              "BRAKES",
+              "TRANSMISSION",
+              "SUSPENSION",
+              "TIRES",
+              "ELECTRICAL",
+              "COOLING",
+              "OTHER"
+            ]
+          },
+          "intervalMonths": {
+            "type": "object",
+            "nullable": true
+          },
+          "intervalKm": {
+            "type": "object",
+            "nullable": true
+          },
+          "alertBeforeDays": {
+            "type": "number"
+          },
+          "alertBeforeKm": {
+            "type": "number"
+          },
+          "lastPerformedAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastPerformedOdometerKm": {
+            "type": "object",
+            "nullable": true
+          },
+          "active": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "vehicleId",
+          "name",
+          "category",
+          "alertBeforeDays",
+          "alertBeforeKm",
+          "active",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "MaintenancePlanPaginationMetaDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          }
+        },
+        "required": ["page", "limit", "total", "totalPages"]
+      },
+      "CreateMaintenancePlanDto": {
+        "type": "object",
+        "properties": {
+          "templateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Engine oil change",
+            "maxLength": 120
+          },
+          "description": {
+            "type": "object",
+            "nullable": true,
+            "maxLength": 1000
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "ENGINE",
+              "FILTERS",
+              "BRAKES",
+              "TRANSMISSION",
+              "SUSPENSION",
+              "TIRES",
+              "ELECTRICAL",
+              "COOLING",
+              "OTHER"
+            ]
+          },
+          "intervalMonths": {
+            "type": "object",
+            "example": 12,
+            "nullable": true,
+            "minimum": 1
+          },
+          "intervalKm": {
+            "type": "object",
+            "example": 10000,
+            "nullable": true,
+            "minimum": 1
+          },
+          "alertBeforeDays": {
+            "type": "number",
+            "default": 30,
+            "minimum": 0
+          },
+          "alertBeforeKm": {
+            "type": "number",
+            "default": 1000,
+            "minimum": 0
+          },
+          "active": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "UpdateMaintenancePlanDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Engine oil change",
+            "maxLength": 120
+          },
+          "description": {
+            "type": "object",
+            "nullable": true,
+            "maxLength": 1000
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "ENGINE",
+              "FILTERS",
+              "BRAKES",
+              "TRANSMISSION",
+              "SUSPENSION",
+              "TIRES",
+              "ELECTRICAL",
+              "COOLING",
+              "OTHER"
+            ]
+          },
+          "intervalMonths": {
+            "type": "object",
+            "example": 12,
+            "nullable": true,
+            "minimum": 1
+          },
+          "intervalKm": {
+            "type": "object",
+            "example": 10000,
+            "nullable": true,
+            "minimum": 1
+          },
+          "alertBeforeDays": {
+            "type": "number",
+            "default": 30,
+            "minimum": 0
+          },
+          "alertBeforeKm": {
+            "type": "number",
+            "default": 1000,
+            "minimum": 0
+          },
+          "active": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "MaintenanceRecordResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "vehicleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "planId": {
+            "type": "object",
+            "format": "uuid",
+            "nullable": true
+          },
+          "odometerReadingId": {
+            "type": "object",
+            "format": "uuid",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "example": "Oil and filter change"
+          },
+          "performedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "odometerKm": {
+            "type": "number",
+            "example": 76808
+          },
+          "workshop": {
+            "type": "object",
+            "nullable": true,
+            "example": "Local repair shop"
+          },
+          "notes": {
+            "type": "object",
+            "nullable": true
+          },
+          "totalCost": {
+            "type": "string",
+            "example": "350.00"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "vehicleId",
+          "description",
+          "performedAt",
+          "odometerKm",
+          "totalCost",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "MaintenanceRecordPaginationMetaDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "limit": {
+            "type": "number",
+            "example": 20
+          },
+          "total": {
+            "type": "number",
+            "example": 1
+          },
+          "totalPages": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "required": ["page", "limit", "total", "totalPages"]
+      },
+      "CreateMaintenanceRecordDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "example": "Oil and filter change",
+            "maxLength": 500
+          },
+          "performedAt": {
+            "type": "string",
+            "example": "2026-08-13T12:00:00.000Z"
+          },
+          "odometerKm": {
+            "type": "number",
+            "example": 76808,
+            "minimum": 0
+          },
+          "workshop": {
+            "type": "string",
+            "example": "Local repair shop",
+            "maxLength": 120
+          },
+          "notes": {
+            "type": "string",
+            "example": "Original filter used",
+            "maxLength": 2000
+          },
+          "totalCost": {
+            "type": "string",
+            "example": "350.00",
+            "description": "Non-negative decimal value sent as a string with up to two decimal places.",
+            "pattern": "^(?:0|[1-9]\\d{0,9})(?:\\.\\d{1,2})?$"
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Plan associated with this record. Linking it does not complete or update the plan."
+          }
+        },
+        "required": ["description", "performedAt", "odometerKm", "totalCost"]
+      },
+      "CompleteMaintenancePlanDto": {
+        "type": "object",
+        "properties": {
+          "performedAt": {
+            "type": "string",
+            "example": "2026-08-13T12:00:00.000Z"
+          },
+          "odometerKm": {
+            "type": "number",
+            "example": 76808,
+            "minimum": 0
+          },
+          "workshop": {
+            "type": "string",
+            "example": "Local repair shop",
+            "maxLength": 120
+          },
+          "notes": {
+            "type": "string",
+            "example": "Original filter used",
+            "maxLength": 2000
+          },
+          "totalCost": {
+            "type": "string",
+            "example": "350.00",
+            "description": "Non-negative decimal value sent as a string with up to two decimal places.",
+            "pattern": "^(?:0|[1-9]\\d{0,9})(?:\\.\\d{1,2})?$"
+          },
+          "description": {
+            "type": "string",
+            "example": "Oil and filter change",
+            "maxLength": 500
+          }
+        },
+        "required": ["performedAt", "odometerKm", "totalCost"]
+      },
+      "UpdateMaintenanceRecordDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "example": "Oil and filter change",
+            "maxLength": 500
+          },
+          "performedAt": {
+            "type": "string",
+            "example": "2026-08-13T12:00:00.000Z"
+          },
+          "odometerKm": {
+            "type": "number",
+            "example": 76808,
+            "minimum": 0
+          },
+          "workshop": {
+            "type": "string",
+            "example": "Local repair shop",
+            "maxLength": 120
+          },
+          "notes": {
+            "type": "string",
+            "example": "Original filter used",
+            "maxLength": 2000
+          },
+          "totalCost": {
+            "type": "string",
+            "example": "350.00",
+            "description": "Non-negative decimal value sent as a string with up to two decimal places.",
+            "pattern": "^(?:0|[1-9]\\d{0,9})(?:\\.\\d{1,2})?$"
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Plan associated with this record. Linking it does not complete or update the plan."
+          }
+        }
+      },
+      "CreateExpenseDto": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": ["LABOR", "PARTS", "DIAGNOSTICS", "TOWING", "OTHER"],
+            "example": "PARTS"
+          },
+          "description": {
+            "type": "string",
+            "example": "Replacement brake pads",
+            "maxLength": 500
+          },
+          "incurredAt": {
+            "type": "string",
+            "example": "2026-08-13T12:00:00.000-03:00"
+          },
+          "amount": {
+            "type": "string",
+            "example": "249.90",
+            "description": "Non-negative decimal value sent as a string with up to two decimal places.",
+            "pattern": "^(?:0|[1-9]\\d{0,9})(?:\\.\\d{1,2})?$"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Purchased directly from the manufacturer",
+            "maxLength": 2000
+          },
+          "maintenanceRecordId": {
+            "type": "object",
+            "format": "uuid",
+            "nullable": true,
+            "description": "Maintenance record associated with this expense. It must belong to the same user and vehicle."
+          }
+        },
+        "required": ["category", "description", "incurredAt", "amount"]
+      },
+      "ExpenseResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "vehicleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "maintenanceRecordId": {
+            "type": "object",
+            "format": "uuid",
+            "nullable": true
+          },
+          "category": {
+            "type": "string",
+            "enum": ["LABOR", "PARTS", "DIAGNOSTICS", "TOWING", "OTHER"]
+          },
+          "description": {
+            "type": "string",
+            "example": "Replacement brake pads"
+          },
+          "incurredAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "amount": {
+            "type": "string",
+            "example": "249.90"
+          },
+          "notes": {
+            "type": "object",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "vehicleId",
+          "category",
+          "description",
+          "incurredAt",
+          "amount",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ExpensePaginationMetaDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "limit": {
+            "type": "number",
+            "example": 20
+          },
+          "total": {
+            "type": "number",
+            "example": 1
+          },
+          "totalPages": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "required": ["page", "limit", "total", "totalPages"]
+      },
+      "PaginatedExpensesResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpenseResponseDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ExpensePaginationMetaDto"
+          }
+        },
+        "required": ["data", "meta"]
+      },
+      "UpdateExpenseDto": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": ["LABOR", "PARTS", "DIAGNOSTICS", "TOWING", "OTHER"],
+            "example": "PARTS"
+          },
+          "description": {
+            "type": "string",
+            "example": "Replacement brake pads",
+            "maxLength": 500
+          },
+          "incurredAt": {
+            "type": "string",
+            "example": "2026-08-13T12:00:00.000-03:00"
+          },
+          "amount": {
+            "type": "string",
+            "example": "249.90",
+            "description": "Non-negative decimal value sent as a string with up to two decimal places.",
+            "pattern": "^(?:0|[1-9]\\d{0,9})(?:\\.\\d{1,2})?$"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Purchased directly from the manufacturer",
+            "maxLength": 2000
+          },
+          "maintenanceRecordId": {
+            "type": "object",
+            "format": "uuid",
+            "nullable": true,
+            "description": "Maintenance record associated with this expense. It must belong to the same user and vehicle."
+          }
+        }
+      },
+      "ExpenseCategoryTotalDto": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": ["LABOR", "PARTS", "DIAGNOSTICS", "TOWING", "OTHER"],
+            "example": "PARTS"
+          },
+          "total": {
+            "type": "string",
+            "example": "125.50"
+          }
+        },
+        "required": ["category", "total"]
+      },
+      "CostTotalsDto": {
+        "type": "object",
+        "properties": {
+          "serviceCost": {
+            "type": "string",
+            "example": "350.00",
+            "description": "Sum of maintenance record totalCost values."
+          },
+          "additionalExpenses": {
+            "type": "string",
+            "example": "125.50",
+            "description": "Sum of standalone and maintenance-linked itemized expenses."
+          },
+          "linkedItemizedExpenses": {
+            "type": "string",
+            "example": "125.50",
+            "description": "Itemized expenses linked to a maintenance record. Shown for detail and not added to total again."
+          },
+          "total": {
+            "type": "string",
+            "example": "475.50",
+            "description": "Service cost plus additional expenses."
+          },
+          "expensesByCategory": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpenseCategoryTotalDto"
+            }
+          }
+        },
+        "required": [
+          "serviceCost",
+          "additionalExpenses",
+          "linkedItemizedExpenses",
+          "total",
+          "expensesByCategory"
+        ]
+      },
+      "CostReportBucketDto": {
+        "type": "object",
+        "properties": {
+          "serviceCost": {
+            "type": "string",
+            "example": "350.00",
+            "description": "Sum of maintenance record totalCost values."
+          },
+          "additionalExpenses": {
+            "type": "string",
+            "example": "125.50",
+            "description": "Sum of standalone and maintenance-linked itemized expenses."
+          },
+          "linkedItemizedExpenses": {
+            "type": "string",
+            "example": "125.50",
+            "description": "Itemized expenses linked to a maintenance record. Shown for detail and not added to total again."
+          },
+          "total": {
+            "type": "string",
+            "example": "475.50",
+            "description": "Service cost plus additional expenses."
+          },
+          "expensesByCategory": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpenseCategoryTotalDto"
+            }
+          },
+          "period": {
+            "type": "string",
+            "example": "2026-08",
+            "description": "Calendar month (YYYY-MM) or year (YYYY) in the user timezone."
+          }
+        },
+        "required": [
+          "serviceCost",
+          "additionalExpenses",
+          "linkedItemizedExpenses",
+          "total",
+          "expensesByCategory",
+          "period"
+        ]
+      },
+      "CostReportResponseDto": {
+        "type": "object",
+        "properties": {
+          "vehicleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "period": {
+            "type": "string",
+            "enum": ["monthly", "yearly"]
+          },
+          "timezone": {
+            "type": "string",
+            "example": "America/Sao_Paulo"
+          },
+          "from": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Inclusive start instant normalized to UTC."
+          },
+          "to": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Inclusive end instant normalized to UTC."
+          },
+          "summary": {
+            "$ref": "#/components/schemas/CostTotalsDto"
+          },
+          "buckets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CostReportBucketDto"
+            }
+          }
+        },
+        "required": ["vehicleId", "period", "timezone", "summary", "buckets"]
+      },
+      "VapidPublicKeyResponseDto": {
+        "type": "object",
+        "properties": {
+          "publicKey": {
+            "type": "string",
+            "description": "URL-safe Base64 VAPID public key."
+          }
+        },
+        "required": ["publicKey"]
+      },
+      "MaintenanceNotificationResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "vehicleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "trigger": {
+            "type": "string",
+            "enum": ["DATE", "ODOMETER"]
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["DUE_SOON", "OVERDUE"]
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "object",
+            "format": "date",
+            "nullable": true
+          },
+          "dueOdometerKm": {
+            "type": "object",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "QUEUED",
+              "DELIVERED",
+              "PARTIALLY_FAILED",
+              "FAILED"
+            ]
+          },
+          "sentAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true
+          },
+          "readAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "vehicleId",
+          "planId",
+          "trigger",
+          "severity",
+          "title",
+          "body",
+          "reason",
+          "status",
+          "createdAt"
+        ]
+      },
+      "NotificationPaginationMetaDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          }
+        },
+        "required": ["page", "limit", "total", "totalPages"]
+      },
+      "PaginatedNotificationsResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MaintenanceNotificationResponseDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/NotificationPaginationMetaDto"
+          }
+        },
+        "required": ["data", "meta"]
+      },
+      "CreatePushSubscriptionDto": {
+        "type": "object",
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "example": "https://updates.push.services.mozilla.com/wpush/v2/example",
+            "description": "Endpoint returned by the browser Push API."
+          },
+          "p256dh": {
+            "type": "string",
+            "description": "Browser subscription P-256 public key."
+          },
+          "auth": {
+            "type": "string",
+            "description": "Browser subscription authentication secret."
+          },
+          "userAgent": {
+            "type": "string",
+            "example": "Mozilla/5.0"
+          }
+        },
+        "required": ["endpoint", "p256dh", "auth"]
+      },
+      "PushSubscriptionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "endpoint": {
+            "type": "string"
+          },
+          "userAgent": {
+            "type": "object",
+            "nullable": true
+          },
+          "disabledAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": ["id", "endpoint", "createdAt", "updatedAt"]
+      },
+      "HealthResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          }
+        },
+        "required": ["status"]
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@maintenance-car/api-contract",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "generate": "openapi-typescript openapi.json -o src/generated.ts && prettier --write openapi.json src/generated.ts",
+    "format": "prettier --write \"{src/**/*.ts,openapi.json}\"",
+    "format:check": "prettier --check \"{src/**/*.ts,openapi.json}\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.9.0",
+    "prettier": "^3.6.0",
+    "typescript": "^5.7.0"
+  }
+}

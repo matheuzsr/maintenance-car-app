@@ -2,8 +2,10 @@ services:
   api:
     build:
       context: .
+      dockerfile: app/backend/Dockerfile
       target: development
     command: npm run start:dev
+    env_file: .env
     environment:
       DATABASE_URL: postgresql://maintenance_car:maintenance_car@postgres:5432/maintenance_car?schema=public
       REDIS_URL: redis://redis:6379
@@ -15,8 +17,8 @@ services:
     ports:
       - '${PORT:-3000}:3000'
     volumes:
-      - ./src:/app/src
-      - ./prisma:/app/prisma
+      - ./app/backend/src:/workspace/app/backend/src
+      - ./app/backend/prisma:/workspace/app/backend/prisma
     depends_on:
       postgres:
         condition: service_healthy
@@ -26,6 +28,7 @@ services:
   worker:
     build:
       context: .
+      dockerfile: app/backend/Dockerfile
       target: development
     command: npm run start:worker:dev
     env_file: .env
@@ -35,13 +38,29 @@ services:
     profiles: ['worker']
     restart: unless-stopped
     volumes:
-      - ./src:/app/src
-      - ./prisma:/app/prisma
+      - ./app/backend/src:/workspace/app/backend/src
+      - ./app/backend/prisma:/workspace/app/backend/prisma
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: app/frontend/Dockerfile
+      target: development
+    command: npm run dev
+    environment:
+      NUXT_PUBLIC_API_BASE_URL: '${NUXT_PUBLIC_API_BASE_URL:-http://localhost:3000}'
+    ports:
+      - '${FRONTEND_PORT:-3001}:3001'
+    volumes:
+      - ./app/frontend:/workspace/app/frontend
+      - ./packages/api-contract:/workspace/packages/api-contract
+    depends_on:
+      - api
 
   postgres:
     image: postgres:17-alpine

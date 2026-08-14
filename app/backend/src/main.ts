@@ -1,9 +1,9 @@
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { configureOpenApi } from './openapi';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -36,31 +36,7 @@ async function bootstrap(): Promise<void> {
   );
   app.enableShutdownHooks();
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Maintenance Car API')
-    .setDescription('API for vehicle maintenance management')
-    .setVersion('1.0')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        description: 'Enter only the accessToken returned by login.',
-      },
-      'access-token',
-    )
-    .build();
-  const openApiDocument = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('docs', app, openApiDocument, {
-    jsonDocumentUrl: 'docs/openapi.json',
-    customSiteTitle: 'Maintenance Car API — Swagger',
-    swaggerOptions: {
-      displayRequestDuration: true,
-      filter: true,
-      persistAuthorization: true,
-      tryItOutEnabled: true,
-    },
-  });
+  configureOpenApi(app);
 
   await app.listen(config.getOrThrow<number>('PORT'));
 }

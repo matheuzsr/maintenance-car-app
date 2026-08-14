@@ -1,8 +1,20 @@
-# Maintenance Car API
+# Maintenance Car
 
-Multi-user API for tracking vehicles, maintenance schedules, service history,
-overdue work, and monthly or yearly costs. The backend uses NestJS, PostgreSQL,
-Prisma, Redis, and Docker.
+Workspace for the vehicle maintenance API and its responsive Vue application.
+The backend uses NestJS, PostgreSQL, Prisma, and Redis; the frontend uses Nuxt,
+Vue 3, strict TypeScript, and a generated OpenAPI contract.
+
+## Workspace structure
+
+```text
+app/
+  backend/                 NestJS API and Prisma schema
+  frontend/                Nuxt client application
+packages/
+  api-contract/            generated OpenAPI document and TypeScript types
+compose.yml                local service orchestration
+plan-front.md              frontend delivery plan
+```
 
 ## MVP scope
 
@@ -17,9 +29,9 @@ Each user can:
 - view monthly and yearly maintenance costs;
 - receive Web Push reminders in a future frontend.
 
-The MVP does not include a frontend, spreadsheet import, insurance, taxes, fuel,
-manufacturer-specific maintenance catalogs, or file uploads. A storage contract
-will prepare future S3-compatible attachments without requiring S3 now.
+The MVP does not include spreadsheet import, insurance, taxes, fuel,
+manufacturer-specific maintenance catalogs, or file uploads. Attachments remain
+visible as a planned capability until S3-compatible storage is available.
 
 ## Technical decisions
 
@@ -35,7 +47,7 @@ will prepare future S3-compatible attachments without requiring S3 now.
 The application starts as a modular monolith:
 
 ```text
-src/
+app/backend/src/
   auth/                   registration, login, and session renewal
   users/                  account and user preferences
   vehicles/               vehicles and odometer readings
@@ -88,8 +100,12 @@ docker compose up -d postgres redis
 npm ci
 npm run prisma:migrate:deploy
 npm run prisma:seed
-npm run start:dev
+npm run dev
 ```
+
+The API runs at `http://localhost:3000`; the frontend runs at
+`http://localhost:3001`. To run only one side, use `npm run dev:backend` or
+`npm run dev:frontend`.
 
 The project PostgreSQL instance is published on `localhost:5433` to avoid
 conflicts with local installations that commonly use `5432`.
@@ -113,10 +129,23 @@ Insomnia. Refresh tokens belong only in `/auth/refresh` and `/auth/logout`.
 npm run lint
 npm run format:check
 npm run typecheck
-npm test -- --runInBand
+npm test
 DATABASE_URL='postgresql://maintenance_car:maintenance_car@localhost:5433/maintenance_car_test?schema=public' npm run test:e2e -- --runInBand
 npm run build
 ```
+
+## Shared API contract
+
+The backend Swagger document is the source of truth. Regenerate the checked-in
+document and types after changing controllers or DTOs:
+
+```bash
+npm run api:generate
+```
+
+Do not edit `packages/api-contract/openapi.json` or
+`packages/api-contract/src/generated.ts` manually. CI regenerates both and fails
+when they are stale.
 
 The testing pyramid consists of many colocated unit tests (`*.spec.ts`), focused
 PostgreSQL integration coverage for constraints and transactions, and a small

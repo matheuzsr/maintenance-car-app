@@ -1,0 +1,20 @@
+{
+  "app": {
+    "name": "Garagem em Dia"
+  },
+  "health": {
+    "eyebrow": "Conexão do sistema",
+    "title": "Sua manutenção começa com uma base confiável.",
+    "description": "Esta primeira tela confirma, em tempo real, a comunicação entre o aplicativo e a API de manutenção veicular.",
+    "apiLabel": "API principal",
+    "checking": "Verificando conexão…",
+    "online": "Operacional",
+    "offline": "Indisponível",
+    "onlineDetail": "O frontend está pronto para consumir os dados do backend.",
+    "offlineDetail": "Não foi possível falar com a API. Confirme se o backend está em execução e tente novamente.",
+    "retry": "Verificar novamente",
+    "technicalDetail": "Detalhe técnico",
+    "foundation": "Fundação F0",
+    "foundationDetail": "Nuxt, TypeScript estrito e contrato OpenAPI compartilhado."
+  }
+}

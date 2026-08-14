@@ -1,0 +1,42 @@
+{
+  "name": "@maintenance-car/frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.22.2 <23"
+  },
+  "scripts": {
+    "dev": "nuxt dev --host 0.0.0.0 --port 3001",
+    "build": "nuxt build",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "nuxt typecheck",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@maintenance-car/api-contract": "*",
+    "@nuxtjs/i18n": "^10.0.0",
+    "nuxt": "^4.5.2",
+    "openapi-fetch": "^0.14.0",
+    "vue": "^3.5.0",
+    "vue-router": "^5.2.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.8.0",
+    "@nuxt/test-utils": "^3.19.0",
+    "@types/node": "^22.0.0",
+    "@vue/test-utils": "^2.4.11",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "happy-dom": "^20.11.2",
+    "prettier": "^3.6.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.0",
+    "vue-tsc": "^3.0.0"
+  }
+}

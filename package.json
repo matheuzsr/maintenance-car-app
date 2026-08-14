@@ -1,106 +1,37 @@
 {
-  "name": "maintenance-car-api",
+  "name": "maintenance-car",
   "version": "0.1.0",
   "private": true,
-  "description": "Multi-user vehicle maintenance management API",
+  "description": "Vehicle maintenance platform workspace",
   "license": "UNLICENSED",
   "engines": {
-    "node": ">=22 <23"
+    "node": ">=22.22.2 <23"
   },
+  "workspaces": [
+    "app/backend",
+    "app/frontend",
+    "packages/*"
+  ],
   "scripts": {
-    "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:prod": "node dist/src/main.js",
-    "start:worker": "node dist/src/worker.js",
-    "start:worker:dev": "nest start --watch --entryFile worker",
-    "lint": "eslint \"{src,test}/**/*.ts\" --max-warnings=0",
-    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
-    "typecheck": "tsc --noEmit",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate:dev": "prisma migrate dev",
-    "prisma:migrate:deploy": "prisma migrate deploy",
-    "prisma:seed": "tsx prisma/seed.ts"
-  },
-  "dependencies": {
-    "@nestjs/bullmq": "^11.0.5",
-    "@nestjs/common": "^11.0.0",
-    "@nestjs/config": "^4.0.0",
-    "@nestjs/core": "^11.0.0",
-    "@nestjs/jwt": "^11.0.2",
-    "@nestjs/passport": "^11.0.5",
-    "@nestjs/platform-express": "^11.0.0",
-    "@nestjs/swagger": "^11.0.0",
-    "@nestjs/throttler": "^6.5.0",
-    "@prisma/client": "^6.0.0",
-    "argon2": "^0.45.1",
-    "bullmq": "^6.1.1",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.0",
-    "helmet": "^8.0.0",
-    "ioredis": "^6.0.0",
-    "joi": "^18.0.0",
-    "luxon": "^3.7.2",
-    "passport": "^0.7.0",
-    "passport-jwt": "^4.0.1",
-    "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1",
-    "web-push": "^3.6.7"
+    "dev": "concurrently --kill-others --names backend,frontend --prefix-colors magenta,cyan \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:backend": "npm run start:dev --workspace @maintenance-car/backend",
+    "dev:frontend": "npm run dev --workspace @maintenance-car/frontend",
+    "lint": "npm run lint --workspaces --if-present",
+    "format": "npm run format --workspaces --if-present",
+    "format:check": "npm run format:check --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:e2e": "npm run test:e2e --workspace @maintenance-car/backend",
+    "build": "npm run build --workspaces --if-present",
+    "api:generate": "npm run openapi:export --workspace @maintenance-car/backend && npm run generate --workspace @maintenance-car/api-contract",
+    "prisma:generate": "npm run prisma:generate --workspace @maintenance-car/backend",
+    "prisma:migrate:dev": "npm run prisma:migrate:dev --workspace @maintenance-car/backend",
+    "prisma:migrate:deploy": "npm run prisma:migrate:deploy --workspace @maintenance-car/backend",
+    "prisma:seed": "npm run prisma:seed --workspace @maintenance-car/backend",
+    "start:worker:dev": "npm run start:worker:dev --workspace @maintenance-car/backend"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.0.0",
-    "@eslint/js": "^9.0.0",
-    "@nestjs/cli": "^11.0.0",
-    "@nestjs/schematics": "^11.0.0",
-    "@nestjs/testing": "^11.0.0",
-    "@types/express": "^5.0.0",
-    "@types/jest": "^30.0.0",
-    "@types/luxon": "^3.7.4",
-    "@types/node": "^22.0.0",
-    "@types/passport-jwt": "^4.0.1",
-    "@types/supertest": "^6.0.0",
-    "@types/web-push": "^3.6.4",
-    "eslint": "^9.0.0",
-    "eslint-config-prettier": "^10.0.0",
-    "eslint-plugin-prettier": "^5.0.0",
-    "globals": "^16.0.0",
-    "jest": "^30.0.0",
-    "prettier": "^3.0.0",
-    "prisma": "^6.0.0",
-    "source-map-support": "^0.5.21",
-    "supertest": "^7.0.0",
-    "ts-jest": "^29.0.0",
-    "ts-loader": "^9.5.0",
-    "ts-node": "^10.9.0",
-    "tsx": "^4.0.0",
-    "typescript": "^5.7.0",
-    "typescript-eslint": "^8.0.0"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testEnvironment": "node",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage"
-  },
-  "overrides": {
-    "@nestjs/swagger": {
-      "js-yaml": "^5.2.3"
-    }
+    "concurrently": "^9.2.0",
+    "prettier": "^3.6.0"
   }
 }
