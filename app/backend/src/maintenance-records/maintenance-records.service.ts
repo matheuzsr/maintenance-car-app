@@ -66,7 +66,21 @@ export class MaintenanceRecordsService {
         );
       }
 
-      return this.createRecordWithReading(transaction, userId, vehicle, dto);
+      const record = await this.createRecordWithReading(
+        transaction,
+        userId,
+        vehicle,
+        dto,
+      );
+      if (dto.planId) {
+        await this.synchronizePlanReference(
+          transaction,
+          userId,
+          vehicleId,
+          dto.planId,
+        );
+      }
+      return record;
     });
   }
 
@@ -101,13 +115,12 @@ export class MaintenanceRecordsService {
         input,
       );
 
-      await transaction.vehicleMaintenancePlan.update({
-        where: { id: planId, userId, vehicleId, deletedAt: null },
-        data: {
-          lastPerformedAt: new Date(dto.performedAt),
-          lastPerformedOdometerKm: dto.odometerKm,
-        },
-      });
+      await this.synchronizePlanReference(
+        transaction,
+        userId,
+        vehicleId,
+        planId,
+      );
 
       return record;
     });
@@ -163,11 +176,7 @@ export class MaintenanceRecordsService {
     dto: UpdateMaintenanceRecordDto,
   ): Promise<MaintenanceRecord> {
     return this.withSerializableRetry(async (transaction) => {
-      const vehicle = await this.findOwnedVehicle(
-        transaction,
-        userId,
-        vehicleId,
-      );
+      await this.findOwnedVehicle(transaction, userId, vehicleId);
       const current = await this.findOwnedRecord(
         transaction,
         userId,
@@ -245,13 +254,9 @@ export class MaintenanceRecordsService {
           planId,
         );
       }
-      await this.advanceVehicleReference(
-        transaction,
-        userId,
-        vehicle,
-        odometerKm,
-        performedAt,
-      );
+      if (dto.performedAt !== undefined || dto.odometerKm !== undefined) {
+        await this.synchronizeVehicleReference(transaction, userId, vehicleId);
+      }
 
       return record;
     });
@@ -285,8 +290,17 @@ export class MaintenanceRecordsService {
       }
       await transaction.maintenanceRecord.update({
         where: { id: recordId, userId, vehicleId, deletedAt: null },
-        data: { deletedAt: new Date() },
+        data: {
+          deletedAt: new Date(),
+          ...(record.odometerReadingId ? { odometerReadingId: null } : {}),
+        },
       });
+      if (record.odometerReadingId) {
+        await transaction.odometerReading.delete({
+          where: { id: record.odometerReadingId },
+        });
+        await this.synchronizeVehicleReference(transaction, userId, vehicleId);
+      }
       if (record.planId) {
         await this.synchronizePlanReference(
           transaction,
@@ -382,6 +396,39 @@ export class MaintenanceRecordsService {
       data: {
         currentOdometerKm: odometerKm,
         currentOdometerRecordedAt: recordedAt,
+      },
+    });
+  }
+
+  private async synchronizeVehicleReference(
+    transaction: Prisma.TransactionClient,
+    userId: string,
+    vehicleId: string,
+  ): Promise<void> {
+    const readings = await transaction.odometerReading.findMany({
+      where: { userId, vehicleId },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+      select: { odometerKm: true, recordedAt: true },
+    });
+    const reference = readings.reduce<
+      { odometerKm: number; recordedAt: Date } | undefined
+    >((current, reading) => {
+      if (
+        !current ||
+        (reading.odometerKm >= current.odometerKm &&
+          reading.recordedAt >= current.recordedAt)
+      ) {
+        return reading;
+      }
+      return current;
+    }, undefined);
+    if (!reference) return;
+
+    await transaction.vehicle.update({
+      where: { id: vehicleId, userId, deletedAt: null },
+      data: {
+        currentOdometerKm: reference.odometerKm,
+        currentOdometerRecordedAt: reference.recordedAt,
       },
     });
   }

@@ -98,7 +98,15 @@ useHead({ title: computed(() => t('maintenance.agenda.metaTitle')) });
           v-for="entry in entries"
           :key="entry.plan.id"
           :entry="entry"
-        />
+        >
+          <template #actions>
+            <NuxtLink
+              class="text-link"
+              :to="`/vehicles/${id}/plans/${entry.plan.id}/complete`"
+              >{{ t('maintenance.records.complete.action') }}</NuxtLink
+            >
+          </template>
+        </MaintenanceStatus>
       </section>
     </template>
   </div>

@@ -95,6 +95,9 @@ useHead({ title: computed(() => t('maintenance.plans.metaTitle')) });
       <NuxtLink :to="`/vehicles/${id}/agenda`">{{
         t('maintenance.links.agenda')
       }}</NuxtLink
+      ><NuxtLink :to="`/vehicles/${id}/history`">{{
+        t('maintenance.links.history')
+      }}</NuxtLink
       ><NuxtLink :to="`/vehicles/${id}`">{{
         t('maintenance.links.vehicle')
       }}</NuxtLink>
@@ -155,6 +158,12 @@ useHead({ title: computed(() => t('maintenance.plans.metaTitle')) });
           :status="plan.active ? 'success' : 'neutral'"
         />
         <div class="row-actions">
+          <NuxtLink
+            v-if="plan.active"
+            class="text-link"
+            :to="`/vehicles/${id}/plans/${plan.id}/complete`"
+            >{{ t('maintenance.records.complete.shortAction') }}</NuxtLink
+          >
           <NuxtLink
             class="text-link"
             :to="`/vehicles/${id}/plans/${plan.id}/edit`"

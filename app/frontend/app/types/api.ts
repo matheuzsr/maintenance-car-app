@@ -41,6 +41,13 @@ export type MaintenanceAgendaDimension =
   MaintenanceAgendaTimeStatus | MaintenanceAgendaOdometerStatus;
 export type MaintenanceAgendaEntry =
   ApiSchemas['MaintenanceAgendaEntryResponseDto'];
+export type MaintenanceRecord = ApiSchemas['MaintenanceRecordResponseDto'];
+export type CreateMaintenanceRecordInput =
+  ApiSchemas['CreateMaintenanceRecordDto'];
+export type CompleteMaintenancePlanInput =
+  ApiSchemas['CompleteMaintenancePlanDto'];
+export type UpdateMaintenanceRecordInput =
+  ApiSchemas['UpdateMaintenanceRecordDto'];
 export type PaginationMeta = ApiSchemas['PaginationMetaDto'];
 export interface Paginated<T> {
   data: T[];

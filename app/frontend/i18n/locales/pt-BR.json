@@ -94,7 +94,7 @@
     "odometer": "Atualização do odômetro",
     "maintenance": "Manutenção concluída",
     "expense": "Nova despesa",
-    "futureHint": "Os fluxos de registro serão liberados nas próximas etapas."
+    "futureHint": "O registro de despesas será liberado na próxima etapa."
   },
   "states": {
     "loading": "Carregando informações…",
@@ -175,7 +175,12 @@
   },
   "maintenance": {
     "vehicleNavigation": "Navegação de manutenção do veículo",
-    "links": { "vehicle": "Veículo", "plans": "Planos", "agenda": "Agenda" },
+    "links": {
+      "vehicle": "Veículo",
+      "plans": "Planos",
+      "agenda": "Agenda",
+      "history": "Histórico"
+    },
     "categories": {
       "ENGINE": "Motor",
       "FILTERS": "Filtros",
@@ -287,6 +292,83 @@
       "description": "Atualize os intervalos e alertas deste veículo.",
       "errorTitle": "Plano não encontrado",
       "errorDescription": "Não foi possível carregar este plano."
+    },
+    "records": {
+      "filters": {
+        "plan": "Plano de manutenção",
+        "allPlans": "Todos os planos e serviços avulsos"
+      },
+      "list": {
+        "metaTitle": "Histórico de manutenção · Garagem em Dia",
+        "eyebrow": "Caderno de serviços",
+        "title": "Histórico de manutenção",
+        "description": "Consulte tudo o que já foi feito neste veículo.",
+        "create": "Registrar manutenção",
+        "label": "Manutenções realizadas",
+        "errorTitle": "Não foi possível carregar o histórico",
+        "errorDescription": "Verifique a conexão e tente novamente.",
+        "emptyTitle": "Nenhuma manutenção registrada",
+        "emptyDescription": "Registre um serviço concluído para começar o histórico.",
+        "pagination": "Paginação do histórico",
+        "page": "Página {page} de {total}"
+      },
+      "create": {
+        "metaTitle": "Registrar manutenção · Garagem em Dia",
+        "eyebrow": "Serviço concluído",
+        "title": "Registrar manutenção",
+        "description": "Adicione um serviço avulso ou vincule-o a um plano existente.",
+        "action": "Salvar no histórico"
+      },
+      "complete": {
+        "metaTitle": "Concluir manutenção · Garagem em Dia",
+        "eyebrow": "Fechar pendência",
+        "title": "Concluir manutenção planejada",
+        "description": "A execução atualizará o histórico, o odômetro e a próxima referência do plano.",
+        "action": "Registrar conclusão",
+        "shortAction": "Concluir"
+      },
+      "edit": {
+        "metaTitle": "Editar manutenção · Garagem em Dia",
+        "eyebrow": "Corrigir registro",
+        "title": "Editar manutenção",
+        "description": "As referências do plano e do odômetro serão recalculadas quando necessário."
+      },
+      "detail": {
+        "metaTitle": "Detalhes da manutenção · Garagem em Dia",
+        "eyebrow": "Registro concluído",
+        "plan": "Plano relacionado",
+        "linkedPlan": "Abrir plano vinculado",
+        "back": "Voltar ao histórico",
+        "errorTitle": "Registro não encontrado",
+        "errorDescription": "Não foi possível carregar esta manutenção.",
+        "deleteTitle": "Excluir registro",
+        "deleteDescription": "O registro sairá do histórico e as referências relacionadas serão recalculadas.",
+        "deleteConfirm": "Deseja mesmo excluir este registro de manutenção?",
+        "deleteError": "Não foi possível excluir o registro.",
+        "deleteConflict": "Este registro possui despesas ativas. Exclua ou desvincule essas despesas antes de continuar."
+      },
+      "form": {
+        "description": "Serviço realizado",
+        "plan": "Vincular a um plano (opcional)",
+        "noPlan": "Serviço avulso, sem plano",
+        "performedAt": "Data e hora da execução",
+        "odometer": "Quilometragem na execução",
+        "cost": "Custo total (R$)",
+        "workshop": "Oficina (opcional)",
+        "notes": "Observações (opcional)",
+        "validation": "Revise o serviço, data, quilometragem e custo. Use no máximo duas casas decimais.",
+        "saveError": "Não foi possível salvar a manutenção. Revise os dados e tente novamente.",
+        "loadErrorTitle": "Não foi possível preparar o registro",
+        "loadErrorDescription": "Os dados do veículo ou do plano não puderam ser carregados."
+      },
+      "stale": {
+        "title": "Este registro é anterior à referência atual",
+        "odometer": "A quilometragem é menor que a atual ({current} km).",
+        "date": "A data é anterior à última referência do odômetro.",
+        "effect": "O serviço será salvo no histórico, mas não reduzirá o odômetro atual. Em um plano, a execução mais recente continuará como referência.",
+        "confirm": "Entendi e quero registrar estes dados históricos",
+        "confirmRequired": "Confirme que entendeu o efeito deste registro histórico."
+      }
     },
     "form": {
       "name": "Nome do plano",

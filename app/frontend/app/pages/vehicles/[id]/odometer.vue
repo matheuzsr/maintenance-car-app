@@ -10,11 +10,11 @@ import { localDateTimeToIso, toLocalDateTimeInput } from '~/utils/date-time';
 
 definePageMeta({ middleware: 'auth' });
 const route = useRoute();
-const { t, n } = useI18n();
+const { t, n, locale } = useI18n();
 const client = useQueryClient();
 const id = computed(() => String(route.params.id));
 const formatDate = (value: string) =>
-  new Intl.DateTimeFormat('pt-BR', {
+  new Intl.DateTimeFormat(locale.value, {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(value));

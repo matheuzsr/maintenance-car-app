@@ -12,6 +12,15 @@ const props = withDefaults(
     error?: string;
     disabled?: boolean;
     autocomplete?: string;
+    inputmode?:
+      | 'none'
+      | 'text'
+      | 'decimal'
+      | 'numeric'
+      | 'tel'
+      | 'search'
+      | 'email'
+      | 'url';
   }>(),
   {
     modelValue: '',
@@ -21,6 +30,7 @@ const props = withDefaults(
     error: undefined,
     disabled: false,
     autocomplete: undefined,
+    inputmode: undefined,
   },
 );
 
@@ -44,6 +54,7 @@ const descriptionId = computed(() =>
       :placeholder="placeholder"
       :disabled="disabled"
       :autocomplete="autocomplete"
+      :inputmode="inputmode"
       :aria-invalid="Boolean(error)"
       :aria-describedby="descriptionId"
       class="ui-input"

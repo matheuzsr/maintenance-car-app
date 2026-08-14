@@ -58,6 +58,7 @@ const params = (kind: 'time' | 'odometer') => {
         }}</strong>
       </p>
     </div>
+    <footer v-if="$slots.actions"><slot name="actions" /></footer>
   </article>
 </template>
 
@@ -104,6 +105,11 @@ p {
 }
 .compact .dimensions {
   grid-template-columns: 1fr;
+}
+footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.85rem;
 }
 @media (max-width: 38rem) {
   .dimensions {

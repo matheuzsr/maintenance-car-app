@@ -34,6 +34,27 @@ const selectedVehicle = computed({
     );
   },
 });
+const quickActions = computed(() => [
+  {
+    id: 'odometer',
+    to: selection.selectedId
+      ? `/vehicles/${selection.selectedId}/odometer`
+      : '/vehicles',
+    disabled: !selection.selectedId || !isOnline.value,
+  },
+  {
+    id: 'maintenance',
+    to: selection.selectedId
+      ? `/vehicles/${selection.selectedId}/history/new`
+      : '/vehicles',
+    disabled: !selection.selectedId || !isOnline.value,
+  },
+  { id: 'expense', to: '/#costs', disabled: true },
+]);
+async function openQuickAction(to: string): Promise<void> {
+  createOpen.value = false;
+  await navigateTo(to);
+}
 
 watch(
   () => vehiclesQuery.data.value?.data,
@@ -140,12 +161,13 @@ onUnmounted(preferences.dispose);
       <p class="quick-action-copy">{{ t('quickAction.description') }}</p>
       <div class="quick-action-list">
         <button
-          v-for="action in ['odometer', 'maintenance', 'expense']"
-          :key="action"
+          v-for="action in quickActions"
+          :key="action.id"
           type="button"
-          disabled
+          :disabled="action.disabled"
+          @click="openQuickAction(action.to)"
         >
-          <span>{{ t(`quickAction.${action}`) }}</span>
+          <span>{{ t(`quickAction.${action.id}`) }}</span>
           <ChevronRight :size="18" aria-hidden="true" />
         </button>
       </div>

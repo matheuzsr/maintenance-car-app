@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class MaintenanceRecordResponseDto {
   @ApiProperty({ format: 'uuid' })
@@ -10,10 +10,10 @@ export class MaintenanceRecordResponseDto {
   @ApiProperty({ format: 'uuid' })
   vehicleId!: string;
 
-  @ApiPropertyOptional({ format: 'uuid', nullable: true })
+  @ApiProperty({ type: String, format: 'uuid', nullable: true })
   planId!: string | null;
 
-  @ApiPropertyOptional({ format: 'uuid', nullable: true })
+  @ApiProperty({ type: String, format: 'uuid', nullable: true })
   odometerReadingId!: string | null;
 
   @ApiProperty({ example: 'Oil and filter change' })
@@ -25,10 +25,14 @@ export class MaintenanceRecordResponseDto {
   @ApiProperty({ example: 76808 })
   odometerKm!: number;
 
-  @ApiPropertyOptional({ nullable: true, example: 'Local repair shop' })
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'Local repair shop',
+  })
   workshop!: string | null;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiProperty({ type: String, nullable: true })
   notes!: string | null;
 
   @ApiProperty({ type: String, example: '350.00' })
@@ -53,4 +57,12 @@ export class MaintenanceRecordPaginationMetaDto {
 
   @ApiProperty({ example: 1 })
   totalPages!: number;
+}
+
+export class MaintenanceRecordListResponseDto {
+  @ApiProperty({ type: [MaintenanceRecordResponseDto] })
+  data!: MaintenanceRecordResponseDto[];
+
+  @ApiProperty({ type: MaintenanceRecordPaginationMetaDto })
+  meta!: MaintenanceRecordPaginationMetaDto;
 }

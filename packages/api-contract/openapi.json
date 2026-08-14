@@ -870,11 +870,7 @@
             "schema": {
               "minimum": 1,
               "default": 1,
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/Object"
-                }
-              ]
+              "type": "number"
             }
           },
           {
@@ -885,11 +881,7 @@
               "minimum": 1,
               "maximum": 100,
               "default": 20,
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/Object"
-                }
-              ]
+              "type": "number"
             }
           },
           {
@@ -908,17 +900,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/MaintenanceRecordResponseDto"
-                      }
-                    },
-                    "meta": {
-                      "$ref": "#/components/schemas/MaintenanceRecordPaginationMetaDto"
-                    }
-                  }
+                  "$ref": "#/components/schemas/MaintenanceRecordListResponseDto"
                 }
               }
             }
@@ -1114,6 +1096,9 @@
           },
           "404": {
             "description": "Vehicle or maintenance record not found"
+          },
+          "409": {
+            "description": "Active expenses are linked to the maintenance record"
           }
         },
         "security": [
@@ -2438,12 +2423,12 @@
             "format": "uuid"
           },
           "planId": {
-            "type": "object",
+            "type": "string",
             "format": "uuid",
             "nullable": true
           },
           "odometerReadingId": {
-            "type": "object",
+            "type": "string",
             "format": "uuid",
             "nullable": true
           },
@@ -2460,12 +2445,12 @@
             "example": 76808
           },
           "workshop": {
-            "type": "object",
+            "type": "string",
             "nullable": true,
             "example": "Local repair shop"
           },
           "notes": {
-            "type": "object",
+            "type": "string",
             "nullable": true
           },
           "totalCost": {
@@ -2485,9 +2470,13 @@
           "id",
           "userId",
           "vehicleId",
+          "planId",
+          "odometerReadingId",
           "description",
           "performedAt",
           "odometerKm",
+          "workshop",
+          "notes",
           "totalCost",
           "createdAt",
           "updatedAt"
@@ -2525,7 +2514,8 @@
           },
           "performedAt": {
             "type": "string",
-            "example": "2026-08-13T12:00:00.000Z"
+            "example": "2026-08-13T12:00:00.000Z",
+            "format": "date-time"
           },
           "odometerKm": {
             "type": "number",
@@ -2551,7 +2541,7 @@
           "planId": {
             "type": "string",
             "format": "uuid",
-            "description": "Plan associated with this record. Linking it does not complete or update the plan."
+            "description": "Plan associated with this record. The latest active linked record becomes the plan reference."
           }
         },
         "required": ["description", "performedAt", "odometerKm", "totalCost"]
@@ -2561,7 +2551,8 @@
         "properties": {
           "performedAt": {
             "type": "string",
-            "example": "2026-08-13T12:00:00.000Z"
+            "example": "2026-08-13T12:00:00.000Z",
+            "format": "date-time"
           },
           "odometerKm": {
             "type": "number",
@@ -2592,6 +2583,21 @@
         },
         "required": ["performedAt", "odometerKm", "totalCost"]
       },
+      "MaintenanceRecordListResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MaintenanceRecordResponseDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MaintenanceRecordPaginationMetaDto"
+          }
+        },
+        "required": ["data", "meta"]
+      },
       "UpdateMaintenanceRecordDto": {
         "type": "object",
         "properties": {
@@ -2602,22 +2608,13 @@
           },
           "performedAt": {
             "type": "string",
-            "example": "2026-08-13T12:00:00.000Z"
+            "example": "2026-08-13T12:00:00.000Z",
+            "format": "date-time"
           },
           "odometerKm": {
             "type": "number",
             "example": 76808,
             "minimum": 0
-          },
-          "workshop": {
-            "type": "string",
-            "example": "Local repair shop",
-            "maxLength": 120
-          },
-          "notes": {
-            "type": "string",
-            "example": "Original filter used",
-            "maxLength": 2000
           },
           "totalCost": {
             "type": "string",
@@ -2628,7 +2625,17 @@
           "planId": {
             "type": "string",
             "format": "uuid",
-            "description": "Plan associated with this record. Linking it does not complete or update the plan."
+            "nullable": true
+          },
+          "workshop": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 120
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000
           }
         }
       },

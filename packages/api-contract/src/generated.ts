@@ -712,9 +712,9 @@ export interface components {
       /** Format: uuid */
       vehicleId: string;
       /** Format: uuid */
-      planId?: Record<string, never> | null;
+      planId: string | null;
       /** Format: uuid */
-      odometerReadingId?: Record<string, never> | null;
+      odometerReadingId: string | null;
       /** @example Oil and filter change */
       description: string;
       /** Format: date-time */
@@ -722,8 +722,8 @@ export interface components {
       /** @example 76808 */
       odometerKm: number;
       /** @example Local repair shop */
-      workshop?: Record<string, never> | null;
-      notes?: Record<string, never> | null;
+      workshop: string | null;
+      notes: string | null;
       /** @example 350.00 */
       totalCost: string;
       /** Format: date-time */
@@ -744,7 +744,10 @@ export interface components {
     CreateMaintenanceRecordDto: {
       /** @example Oil and filter change */
       description: string;
-      /** @example 2026-08-13T12:00:00.000Z */
+      /**
+       * Format: date-time
+       * @example 2026-08-13T12:00:00.000Z
+       */
       performedAt: string;
       /** @example 76808 */
       odometerKm: number;
@@ -759,12 +762,15 @@ export interface components {
       totalCost: string;
       /**
        * Format: uuid
-       * @description Plan associated with this record. Linking it does not complete or update the plan.
+       * @description Plan associated with this record. The latest active linked record becomes the plan reference.
        */
       planId?: string;
     };
     CompleteMaintenancePlanDto: {
-      /** @example 2026-08-13T12:00:00.000Z */
+      /**
+       * Format: date-time
+       * @example 2026-08-13T12:00:00.000Z
+       */
       performedAt: string;
       /** @example 76808 */
       odometerKm: number;
@@ -780,27 +786,29 @@ export interface components {
       /** @example Oil and filter change */
       description?: string;
     };
+    MaintenanceRecordListResponseDto: {
+      data: components['schemas']['MaintenanceRecordResponseDto'][];
+      meta: components['schemas']['MaintenanceRecordPaginationMetaDto'];
+    };
     UpdateMaintenanceRecordDto: {
       /** @example Oil and filter change */
       description?: string;
-      /** @example 2026-08-13T12:00:00.000Z */
+      /**
+       * Format: date-time
+       * @example 2026-08-13T12:00:00.000Z
+       */
       performedAt?: string;
       /** @example 76808 */
       odometerKm?: number;
-      /** @example Local repair shop */
-      workshop?: string;
-      /** @example Original filter used */
-      notes?: string;
       /**
        * @description Non-negative decimal value sent as a string with up to two decimal places.
        * @example 350.00
        */
       totalCost?: string;
-      /**
-       * Format: uuid
-       * @description Plan associated with this record. Linking it does not complete or update the plan.
-       */
-      planId?: string;
+      /** Format: uuid */
+      planId?: string | null;
+      workshop?: string | null;
+      notes?: string | null;
     };
     MaintenanceAgendaTimeStatusResponseDto: {
       /** @enum {string} */
@@ -1628,8 +1636,8 @@ export interface operations {
   MaintenanceRecordsController_findAll_v1: {
     parameters: {
       query?: {
-        page?: components['schemas']['Object'];
-        limit?: components['schemas']['Object'];
+        page?: number;
+        limit?: number;
         planId?: string;
       };
       header?: never;
@@ -1645,10 +1653,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': {
-            data?: components['schemas']['MaintenanceRecordResponseDto'][];
-            meta?: components['schemas']['MaintenanceRecordPaginationMetaDto'];
-          };
+          'application/json': components['schemas']['MaintenanceRecordListResponseDto'];
         };
       };
       /** @description Vehicle not found */
@@ -1775,6 +1780,13 @@ export interface operations {
       };
       /** @description Vehicle or maintenance record not found */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Active expenses are linked to the maintenance record */
+      409: {
         headers: {
           [name: string]: unknown;
         };

@@ -4,5 +4,6 @@ export { ListMaintenanceRecordsQueryDto } from './list-maintenance-records-query
 export {
   MaintenanceRecordPaginationMetaDto,
   MaintenanceRecordResponseDto,
+  MaintenanceRecordListResponseDto,
 } from './maintenance-record-response.dto';
 export { UpdateMaintenanceRecordDto } from './update-maintenance-record.dto';

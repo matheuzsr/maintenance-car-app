@@ -84,6 +84,8 @@ describe('MaintenanceRecordsService', () => {
   };
   const readingDelegate = {
     create: jest.fn(),
+    delete: jest.fn(),
+    findMany: jest.fn(),
     update: jest.fn(),
   };
   const expenseDelegate = { count: jest.fn().mockResolvedValue(0) };
@@ -121,7 +123,15 @@ describe('MaintenanceRecordsService', () => {
       ...record,
       odometerReadingId: null,
     });
+    recordDelegate.findFirst.mockResolvedValue(record);
     readingDelegate.create.mockResolvedValue({ id: 'reading-1' });
+    readingDelegate.delete.mockResolvedValue({ id: 'reading-1' });
+    readingDelegate.findMany.mockResolvedValue([
+      {
+        odometerKm: vehicle.currentOdometerKm,
+        recordedAt: vehicle.currentOdometerRecordedAt,
+      },
+    ]);
     recordDelegate.update.mockResolvedValue(record);
     planDelegate.update.mockResolvedValue(plan);
     vehicleDelegate.update.mockResolvedValue(vehicle);
@@ -167,11 +177,16 @@ describe('MaintenanceRecordsService', () => {
       where: { id: recordId },
       data: { odometerReadingId: 'reading-1' },
     });
-    expect(planDelegate.update).toHaveBeenCalledWith({
+    expect(recordDelegate.findFirst).toHaveBeenCalledWith({
+      where: { userId, vehicleId, planId, deletedAt: null },
+      orderBy: [{ performedAt: 'desc' }, { createdAt: 'desc' }],
+      select: { performedAt: true, odometerKm: true },
+    });
+    expect(planDelegate.updateMany).toHaveBeenCalledWith({
       where: { id: planId, userId, vehicleId, deletedAt: null },
       data: {
-        lastPerformedAt: new Date('2026-08-12T12:00:00.000Z'),
-        lastPerformedOdometerKm: 46000,
+        lastPerformedAt: record.performedAt,
+        lastPerformedOdometerKm: record.odometerKm,
       },
     });
     expect(vehicleDelegate.update).toHaveBeenCalledWith({
@@ -225,6 +240,35 @@ describe('MaintenanceRecordsService', () => {
     expect(planDelegate.findFirst).toHaveBeenCalledWith({
       where: { id: planId, userId, vehicleId, deletedAt: null },
     });
+    expect(planDelegate.updateMany).toHaveBeenCalledWith({
+      where: { id: planId, userId, vehicleId, deletedAt: null },
+      data: {
+        lastPerformedAt: record.performedAt,
+        lastPerformedOdometerKm: record.odometerKm,
+      },
+    });
+  });
+
+  it('keeps the latest plan reference when completing a backdated record', async () => {
+    const latest = {
+      performedAt: new Date('2026-08-13T12:00:00.000Z'),
+      odometerKm: 47000,
+    };
+    recordDelegate.findFirst.mockResolvedValue(latest);
+
+    await service.completePlan(userId, vehicleId, planId, {
+      performedAt: '2026-08-11T12:00:00.000Z',
+      odometerKm: 45500,
+      totalCost: '100.00',
+    });
+
+    expect(planDelegate.updateMany).toHaveBeenCalledWith({
+      where: { id: planId, userId, vehicleId, deletedAt: null },
+      data: {
+        lastPerformedAt: latest.performedAt,
+        lastPerformedOdometerKm: latest.odometerKm,
+      },
+    });
   });
 
   it('rejects a plan outside the authenticated ownership scope', async () => {
@@ -264,6 +308,74 @@ describe('MaintenanceRecordsService', () => {
     });
   });
 
+  it('recomputes the vehicle reference when the current maintenance reading is edited downward', async () => {
+    const currentVehicle = {
+      ...vehicle,
+      currentOdometerKm: record.odometerKm,
+      currentOdometerRecordedAt: record.performedAt,
+    };
+    const fallback = {
+      odometerKm: 45000,
+      recordedAt: currentReference,
+    };
+    vehicleDelegate.findFirst.mockResolvedValue(currentVehicle);
+    recordDelegate.findFirst.mockResolvedValue(record);
+    recordDelegate.update.mockResolvedValue({
+      ...record,
+      odometerKm: 44000,
+      performedAt: new Date('2026-08-09T12:00:00.000Z'),
+    });
+    readingDelegate.findMany.mockResolvedValue([
+      fallback,
+      {
+        odometerKm: 44000,
+        recordedAt: new Date('2026-08-09T12:00:00.000Z'),
+      },
+    ]);
+
+    await service.update(userId, vehicleId, recordId, {
+      odometerKm: 44000,
+      performedAt: '2026-08-09T12:00:00.000Z',
+    });
+
+    expect(vehicleDelegate.update).toHaveBeenCalledWith({
+      where: { id: vehicleId, userId, deletedAt: null },
+      data: {
+        currentOdometerKm: fallback.odometerKm,
+        currentOdometerRecordedAt: fallback.recordedAt,
+      },
+    });
+  });
+
+  it('preserves a newer odometer reference when an older maintenance reading is edited', async () => {
+    const newer = {
+      odometerKm: 47000,
+      recordedAt: new Date('2026-08-13T12:00:00.000Z'),
+    };
+    vehicleDelegate.findFirst.mockResolvedValue({
+      ...vehicle,
+      currentOdometerKm: newer.odometerKm,
+      currentOdometerRecordedAt: newer.recordedAt,
+    });
+    readingDelegate.findMany.mockResolvedValue([
+      {
+        odometerKm: 44000,
+        recordedAt: new Date('2026-08-09T12:00:00.000Z'),
+      },
+      newer,
+    ]);
+
+    await service.update(userId, vehicleId, recordId, { odometerKm: 44000 });
+
+    expect(vehicleDelegate.update).toHaveBeenCalledWith({
+      where: { id: vehicleId, userId, deletedAt: null },
+      data: {
+        currentOdometerKm: newer.odometerKm,
+        currentOdometerRecordedAt: newer.recordedAt,
+      },
+    });
+  });
+
   it('soft-deletes only an active owned record', async () => {
     recordDelegate.findFirst.mockResolvedValue(record);
 
@@ -286,5 +398,56 @@ describe('MaintenanceRecordsService', () => {
       deletedAt: null,
     });
     expect(updateInput.data.deletedAt).toBeInstanceOf(Date);
+    expect(updateInput.data).toMatchObject({ odometerReadingId: null });
+    expect(readingDelegate.delete).toHaveBeenCalledWith({
+      where: { id: 'reading-1' },
+    });
+  });
+
+  it('recomputes the vehicle reference after deleting its current maintenance reading', async () => {
+    const fallback = {
+      odometerKm: 45000,
+      recordedAt: currentReference,
+    };
+    vehicleDelegate.findFirst.mockResolvedValue({
+      ...vehicle,
+      currentOdometerKm: record.odometerKm,
+      currentOdometerRecordedAt: record.performedAt,
+    });
+    readingDelegate.findMany.mockResolvedValue([fallback]);
+
+    await service.remove(userId, vehicleId, recordId);
+
+    expect(vehicleDelegate.update).toHaveBeenCalledWith({
+      where: { id: vehicleId, userId, deletedAt: null },
+      data: {
+        currentOdometerKm: fallback.odometerKm,
+        currentOdometerRecordedAt: fallback.recordedAt,
+      },
+    });
+  });
+
+  it('preserves a newer reading after deleting an older maintenance record', async () => {
+    const newer = {
+      odometerKm: 47000,
+      recordedAt: new Date('2026-08-13T12:00:00.000Z'),
+    };
+    readingDelegate.findMany.mockResolvedValue([
+      {
+        odometerKm: 45000,
+        recordedAt: currentReference,
+      },
+      newer,
+    ]);
+
+    await service.remove(userId, vehicleId, recordId);
+
+    expect(vehicleDelegate.update).toHaveBeenCalledWith({
+      where: { id: vehicleId, userId, deletedAt: null },
+      data: {
+        currentOdometerKm: newer.odometerKm,
+        currentOdometerRecordedAt: newer.recordedAt,
+      },
+    });
   });
 });

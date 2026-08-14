@@ -23,7 +23,10 @@ export class MaintenanceRecordFieldsDto {
   @MaxLength(500)
   description!: string;
 
-  @ApiProperty({ example: '2026-08-13T12:00:00.000Z' })
+  @ApiProperty({
+    example: '2026-08-13T12:00:00.000Z',
+    format: 'date-time',
+  })
   @IsDateString({ strict: true })
   @Matches(/^\d{4}-\d{2}-\d{2}T.+(?:Z|[+-]\d{2}:\d{2})$/, {
     message: 'performedAt must include time and UTC offset',

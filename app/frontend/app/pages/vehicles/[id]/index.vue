@@ -68,11 +68,16 @@ function confirmDelete(): void {
           <h1>{{ query.data.value.nickname }}</h1>
           <p>{{ query.data.value.brand }} {{ query.data.value.model }}</p>
         </div>
-        <NuxtLink
-          class="button-link secondary"
-          :to="`/vehicles/${id}/odometer`"
-          >{{ t('vehicles.detail.odometer') }}</NuxtLink
-        >
+        <div class="row-actions">
+          <NuxtLink class="text-link" :to="`/vehicles/${id}/history`">{{
+            t('maintenance.links.history')
+          }}</NuxtLink>
+          <NuxtLink
+            class="button-link secondary"
+            :to="`/vehicles/${id}/odometer`"
+            >{{ t('vehicles.detail.odometer') }}</NuxtLink
+          >
+        </div>
       </header>
       <VehicleForm
         :vehicle="query.data.value"

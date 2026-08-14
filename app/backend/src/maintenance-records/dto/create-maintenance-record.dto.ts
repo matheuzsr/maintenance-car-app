@@ -6,7 +6,7 @@ export class CreateMaintenanceRecordDto extends MaintenanceRecordFieldsDto {
   @ApiPropertyOptional({
     format: 'uuid',
     description:
-      'Plan associated with this record. Linking it does not complete or update the plan.',
+      'Plan associated with this record. The latest active linked record becomes the plan reference.',
   })
   @IsOptional()
   @IsUUID()

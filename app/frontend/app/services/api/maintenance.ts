@@ -1,12 +1,16 @@
 import type {
   CreateMaintenancePlanInput,
+  CreateMaintenanceRecordInput,
+  CompleteMaintenancePlanInput,
   MaintenanceAgendaEntry,
   MaintenanceCategory,
   MaintenancePlan,
+  MaintenanceRecord,
   MaintenanceTemplate,
   MaintenanceDueStatus,
   Paginated,
   UpdateMaintenancePlanInput,
+  UpdateMaintenanceRecordInput,
 } from '~/types/api';
 import { apiRequest } from './request';
 
@@ -22,6 +26,12 @@ export const maintenanceKeys = {
     ['maintenance', 'vehicles', vehicleId, 'agenda'] as const,
   agenda: (vehicleId: string, status?: MaintenanceDueStatus) =>
     ['maintenance', 'vehicles', vehicleId, 'agenda', status ?? 'all'] as const,
+  recordsBase: (vehicleId: string) =>
+    ['maintenance', 'vehicles', vehicleId, 'records'] as const,
+  records: (vehicleId: string, filters?: MaintenanceRecordFilters) =>
+    ['maintenance', 'vehicles', vehicleId, 'records', filters ?? {}] as const,
+  record: (vehicleId: string, recordId: string) =>
+    ['maintenance', 'vehicles', vehicleId, 'records', recordId] as const,
 };
 
 export interface MaintenancePlanFilters {
@@ -29,6 +39,12 @@ export interface MaintenancePlanFilters {
   limit: number;
   category?: MaintenanceCategory;
   active?: boolean;
+}
+
+export interface MaintenanceRecordFilters {
+  page: number;
+  limit: number;
+  planId?: string;
 }
 
 export const maintenancePlanQuery = (filters: MaintenancePlanFilters) => {
@@ -90,4 +106,61 @@ export const getMaintenanceAgenda = (
 ) =>
   apiRequest<MaintenanceAgendaEntry[]>(
     `/api/v1/vehicles/${vehicleId}/maintenance-agenda${status ? `?status=${status}` : ''}`,
+  );
+
+export const maintenanceRecordQuery = (filters: MaintenanceRecordFilters) => {
+  const query = new URLSearchParams({
+    page: String(filters.page),
+    limit: String(filters.limit),
+  });
+  if (filters.planId) query.set('planId', filters.planId);
+  return query.toString();
+};
+
+export const listMaintenanceRecords = (
+  vehicleId: string,
+  filters: MaintenanceRecordFilters,
+) =>
+  apiRequest<Paginated<MaintenanceRecord>>(
+    `/api/v1/vehicles/${vehicleId}/maintenance-records?${maintenanceRecordQuery(filters)}`,
+  );
+
+export const getMaintenanceRecord = (vehicleId: string, recordId: string) =>
+  apiRequest<MaintenanceRecord>(
+    `/api/v1/vehicles/${vehicleId}/maintenance-records/${recordId}`,
+  );
+
+export const createMaintenanceRecord = (
+  vehicleId: string,
+  body: CreateMaintenanceRecordInput,
+) =>
+  apiRequest<MaintenanceRecord>(
+    `/api/v1/vehicles/${vehicleId}/maintenance-records`,
+    { method: 'POST', body },
+  );
+
+export const completeMaintenancePlan = (
+  vehicleId: string,
+  planId: string,
+  body: CompleteMaintenancePlanInput,
+) =>
+  apiRequest<MaintenanceRecord>(
+    `/api/v1/vehicles/${vehicleId}/maintenance-plans/${planId}/complete`,
+    { method: 'POST', body },
+  );
+
+export const updateMaintenanceRecord = (
+  vehicleId: string,
+  recordId: string,
+  body: UpdateMaintenanceRecordInput,
+) =>
+  apiRequest<MaintenanceRecord>(
+    `/api/v1/vehicles/${vehicleId}/maintenance-records/${recordId}`,
+    { method: 'PATCH', body },
+  );
+
+export const deleteMaintenanceRecord = (vehicleId: string, recordId: string) =>
+  apiRequest<unknown>(
+    `/api/v1/vehicles/${vehicleId}/maintenance-records/${recordId}`,
+    { method: 'DELETE' },
   );

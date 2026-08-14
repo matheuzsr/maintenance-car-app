@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiExtraModels,
   ApiNoContentResponse,
@@ -21,7 +22,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  getSchemaPath,
 } from '@nestjs/swagger';
 import { CurrentUserId } from '../auth/decorators/current-user-id.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -29,6 +29,7 @@ import {
   CompleteMaintenancePlanDto,
   CreateMaintenanceRecordDto,
   ListMaintenanceRecordsQueryDto,
+  MaintenanceRecordListResponseDto,
   MaintenanceRecordPaginationMetaDto,
   MaintenanceRecordResponseDto,
   UpdateMaintenanceRecordDto,
@@ -81,15 +82,7 @@ export class MaintenanceRecordsController {
   @Get('maintenance-records')
   @ApiOperation({ summary: "Lists a vehicle's maintenance history" })
   @ApiOkResponse({
-    schema: {
-      properties: {
-        data: {
-          type: 'array',
-          items: { $ref: getSchemaPath(MaintenanceRecordResponseDto) },
-        },
-        meta: { $ref: getSchemaPath(MaintenanceRecordPaginationMetaDto) },
-      },
-    },
+    type: MaintenanceRecordListResponseDto,
   })
   @ApiNotFoundResponse({ description: 'Vehicle not found' })
   findAll(
@@ -140,6 +133,9 @@ export class MaintenanceRecordsController {
   @ApiNoContentResponse({ description: 'Maintenance record deleted' })
   @ApiNotFoundResponse({
     description: 'Vehicle or maintenance record not found',
+  })
+  @ApiConflictResponse({
+    description: 'Active expenses are linked to the maintenance record',
   })
   remove(
     @CurrentUserId() userId: string,
