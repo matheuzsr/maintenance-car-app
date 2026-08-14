@@ -4,10 +4,14 @@ services:
       context: .
       target: development
     command: npm run start:dev
-    env_file: .env
     environment:
       DATABASE_URL: postgresql://maintenance_car:maintenance_car@postgres:5432/maintenance_car?schema=public
       REDIS_URL: redis://redis:6379
+      NOTIFICATION_SCAN_INTERVAL_MS: '${NOTIFICATION_SCAN_INTERVAL_MS:-900000}'
+      VAPID_SUBJECT: '${VAPID_SUBJECT}'
+      VAPID_PUBLIC_KEY: '${VAPID_PUBLIC_KEY}'
+      VAPID_PRIVATE_KEY: '${VAPID_PRIVATE_KEY}'
+      WEB_PUSH_ALLOWED_HOSTS: '${WEB_PUSH_ALLOWED_HOSTS:-fcm.googleapis.com,updates.push.services.mozilla.com,web.push.apple.com,*.notify.windows.com}'
     ports:
       - '${PORT:-3000}:3000'
     volumes:
@@ -23,12 +27,13 @@ services:
     build:
       context: .
       target: development
-    command: npm run start:dev
+    command: npm run start:worker:dev
     env_file: .env
     environment:
       DATABASE_URL: postgresql://maintenance_car:maintenance_car@postgres:5432/maintenance_car?schema=public
       REDIS_URL: redis://redis:6379
     profiles: ['worker']
+    restart: unless-stopped
     volumes:
       - ./src:/app/src
       - ./prisma:/app/prisma

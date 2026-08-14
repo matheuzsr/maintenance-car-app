@@ -7,6 +7,10 @@ export const envValidationSchema = Joi.object({
   PORT: Joi.number().port().default(3000),
   DATABASE_URL: Joi.string().uri().required(),
   REDIS_URL: Joi.string().uri().required(),
+  NOTIFICATION_SCAN_INTERVAL_MS: Joi.number()
+    .integer()
+    .min(60_000)
+    .default(900_000),
   CORS_ORIGIN: Joi.string().required(),
   JWT_ACCESS_SECRET: Joi.string().min(32).required(),
   JWT_ACCESS_EXPIRES_IN: Joi.string().default('15m'),
@@ -18,4 +22,7 @@ export const envValidationSchema = Joi.object({
   VAPID_PUBLIC_KEY: Joi.string().allow('').default(''),
   VAPID_PRIVATE_KEY: Joi.string().allow('').default(''),
   VAPID_SUBJECT: Joi.string().allow('').default(''),
+  WEB_PUSH_ALLOWED_HOSTS: Joi.string().default(
+    'fcm.googleapis.com,updates.push.services.mozilla.com,web.push.apple.com,*.notify.windows.com',
+  ),
 });

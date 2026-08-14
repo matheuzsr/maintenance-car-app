@@ -32,21 +32,50 @@ enum ExpenseCategory {
   OTHER
 }
 
+enum NotificationTrigger {
+  DATE
+  ODOMETER
+}
+
+enum NotificationSeverity {
+  DUE_SOON
+  OVERDUE
+}
+
+enum NotificationDispatchStatus {
+  PENDING
+  QUEUED
+  DELIVERED
+  PARTIALLY_FAILED
+  FAILED
+}
+
+enum NotificationDeliveryStatus {
+  PENDING
+  PROCESSING
+  DELIVERED
+  FAILED
+  SUBSCRIPTION_DISABLED
+}
+
 model User {
-  id                 String                   @id @default(uuid()) @db.Uuid
-  name               String
-  email              String                   @unique
-  passwordHash       String                   @map("password_hash")
-  timezone           String                   @default("America/Sao_Paulo")
-  createdAt          DateTime                 @default(now()) @map("created_at")
-  updatedAt          DateTime                 @updatedAt @map("updated_at")
-  deletedAt          DateTime?                @map("deleted_at")
-  sessions           RefreshSession[]
-  vehicles           Vehicle[]
-  readings           OdometerReading[]
-  maintenancePlans   VehicleMaintenancePlan[]
-  maintenanceRecords MaintenanceRecord[]
-  expenses           Expense[]
+  id                     String                    @id @default(uuid()) @db.Uuid
+  name                   String
+  email                  String                    @unique
+  passwordHash           String                    @map("password_hash")
+  timezone               String                    @default("America/Sao_Paulo")
+  createdAt              DateTime                  @default(now()) @map("created_at")
+  updatedAt              DateTime                  @updatedAt @map("updated_at")
+  deletedAt              DateTime?                 @map("deleted_at")
+  sessions               RefreshSession[]
+  vehicles               Vehicle[]
+  readings               OdometerReading[]
+  maintenancePlans       VehicleMaintenancePlan[]
+  maintenanceRecords     MaintenanceRecord[]
+  expenses               Expense[]
+  pushSubscriptions      PushSubscription[]
+  notifications          MaintenanceNotification[]
+  notificationDeliveries NotificationDelivery[]
 
   @@index([deletedAt])
   @@map("users")
@@ -74,23 +103,24 @@ model RefreshSession {
 }
 
 model Vehicle {
-  id                        String                   @id @default(uuid()) @db.Uuid
-  userId                    String                   @map("user_id") @db.Uuid
+  id                        String                    @id @default(uuid()) @db.Uuid
+  userId                    String                    @map("user_id") @db.Uuid
   nickname                  String
   brand                     String
   model                     String
   year                      Int
-  licensePlate              String?                  @map("license_plate")
-  currentOdometerKm         Int                      @map("current_odometer_km")
-  currentOdometerRecordedAt DateTime                 @map("current_odometer_recorded_at")
-  createdAt                 DateTime                 @default(now()) @map("created_at")
-  updatedAt                 DateTime                 @updatedAt @map("updated_at")
-  deletedAt                 DateTime?                @map("deleted_at")
-  user                      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  licensePlate              String?                   @map("license_plate")
+  currentOdometerKm         Int                       @map("current_odometer_km")
+  currentOdometerRecordedAt DateTime                  @map("current_odometer_recorded_at")
+  createdAt                 DateTime                  @default(now()) @map("created_at")
+  updatedAt                 DateTime                  @updatedAt @map("updated_at")
+  deletedAt                 DateTime?                 @map("deleted_at")
+  user                      User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
   odometerReadings          OdometerReading[]
   maintenancePlans          VehicleMaintenancePlan[]
   maintenanceRecords        MaintenanceRecord[]
   expenses                  Expense[]
+  notifications             MaintenanceNotification[]
 
   @@unique([id, userId])
   @@index([userId, deletedAt])
@@ -133,27 +163,28 @@ model MaintenanceTemplate {
 }
 
 model VehicleMaintenancePlan {
-  id                      String               @id @default(uuid()) @db.Uuid
-  userId                  String               @map("user_id") @db.Uuid
-  vehicleId               String               @map("vehicle_id") @db.Uuid
-  templateId              String?              @map("template_id") @db.Uuid
+  id                      String                    @id @default(uuid()) @db.Uuid
+  userId                  String                    @map("user_id") @db.Uuid
+  vehicleId               String                    @map("vehicle_id") @db.Uuid
+  templateId              String?                   @map("template_id") @db.Uuid
   name                    String
   description             String?
   category                MaintenanceCategory
-  intervalMonths          Int?                 @map("interval_months")
-  intervalKm              Int?                 @map("interval_km")
-  alertBeforeDays         Int                  @default(30) @map("alert_before_days")
-  alertBeforeKm           Int                  @default(1000) @map("alert_before_km")
-  lastPerformedAt         DateTime?            @map("last_performed_at")
-  lastPerformedOdometerKm Int?                 @map("last_performed_odometer_km")
-  active                  Boolean              @default(true)
-  createdAt               DateTime             @default(now()) @map("created_at")
-  updatedAt               DateTime             @updatedAt @map("updated_at")
-  deletedAt               DateTime?            @map("deleted_at")
-  user                    User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  vehicle                 Vehicle              @relation(fields: [vehicleId, userId], references: [id, userId], onDelete: Cascade)
-  template                MaintenanceTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  intervalMonths          Int?                      @map("interval_months")
+  intervalKm              Int?                      @map("interval_km")
+  alertBeforeDays         Int                       @default(30) @map("alert_before_days")
+  alertBeforeKm           Int                       @default(1000) @map("alert_before_km")
+  lastPerformedAt         DateTime?                 @map("last_performed_at")
+  lastPerformedOdometerKm Int?                      @map("last_performed_odometer_km")
+  active                  Boolean                   @default(true)
+  createdAt               DateTime                  @default(now()) @map("created_at")
+  updatedAt               DateTime                  @updatedAt @map("updated_at")
+  deletedAt               DateTime?                 @map("deleted_at")
+  user                    User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle                 Vehicle                   @relation(fields: [vehicleId, userId], references: [id, userId], onDelete: Cascade)
+  template                MaintenanceTemplate?      @relation(fields: [templateId], references: [id], onDelete: SetNull)
   records                 MaintenanceRecord[]
+  notifications           MaintenanceNotification[]
 
   @@unique([id, userId, vehicleId])
   @@index([userId, vehicleId, active, deletedAt])
@@ -208,6 +239,78 @@ model Expense {
   @@index([userId, vehicleId, incurredAt])
   @@index([maintenanceRecordId])
   @@map("expenses")
+}
+
+model PushSubscription {
+  id         String                 @id @default(uuid()) @db.Uuid
+  userId     String                 @map("user_id") @db.Uuid
+  endpoint   String                 @unique
+  p256dh     String
+  auth       String
+  userAgent  String?                @map("user_agent")
+  disabledAt DateTime?              @map("disabled_at")
+  createdAt  DateTime               @default(now()) @map("created_at")
+  updatedAt  DateTime               @updatedAt @map("updated_at")
+  user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries NotificationDelivery[]
+
+  @@unique([id, userId])
+  @@index([userId, disabledAt])
+  @@map("push_subscriptions")
+}
+
+model MaintenanceNotification {
+  id            String                     @id @default(uuid()) @db.Uuid
+  userId        String                     @map("user_id") @db.Uuid
+  vehicleId     String                     @map("vehicle_id") @db.Uuid
+  planId        String                     @map("plan_id") @db.Uuid
+  dedupKey      String                     @map("dedup_key")
+  trigger       NotificationTrigger
+  severity      NotificationSeverity
+  title         String
+  body          String
+  reason        String
+  dueDate       DateTime?                  @map("due_date") @db.Date
+  dueOdometerKm Int?                       @map("due_odometer_km")
+  status        NotificationDispatchStatus @default(PENDING)
+  queuedAt      DateTime?                  @map("queued_at")
+  sentAt        DateTime?                  @map("sent_at")
+  readAt        DateTime?                  @map("read_at")
+  createdAt     DateTime                   @default(now()) @map("created_at")
+  updatedAt     DateTime                   @updatedAt @map("updated_at")
+  user          User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle       Vehicle                    @relation(fields: [vehicleId, userId], references: [id, userId], onDelete: Cascade)
+  plan          VehicleMaintenancePlan     @relation(fields: [planId, userId, vehicleId], references: [id, userId, vehicleId], onDelete: Cascade)
+  deliveries    NotificationDelivery[]
+
+  @@unique([id, userId])
+  @@unique([userId, dedupKey])
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@index([planId, trigger, severity])
+  @@map("maintenance_notifications")
+}
+
+model NotificationDelivery {
+  id                  String                     @id @default(uuid()) @db.Uuid
+  userId              String                     @map("user_id") @db.Uuid
+  notificationId      String                     @map("notification_id") @db.Uuid
+  subscriptionId      String                     @map("subscription_id") @db.Uuid
+  status              NotificationDeliveryStatus @default(PENDING)
+  attempts            Int                        @default(0)
+  processingToken     String?                    @map("processing_token") @db.Uuid
+  processingStartedAt DateTime?                  @map("processing_started_at")
+  lastError           String?                    @map("last_error")
+  deliveredAt         DateTime?                  @map("delivered_at")
+  createdAt           DateTime                   @default(now()) @map("created_at")
+  updatedAt           DateTime                   @updatedAt @map("updated_at")
+  user                User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notification        MaintenanceNotification    @relation(fields: [notificationId, userId], references: [id, userId], onDelete: Cascade)
+  subscription        PushSubscription           @relation(fields: [subscriptionId, userId], references: [id, userId], onDelete: Cascade)
+
+  @@unique([notificationId, subscriptionId])
+  @@index([userId, status, createdAt])
+  @@map("notification_deliveries")
 }
 
 model SystemMetadata {

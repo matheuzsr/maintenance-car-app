@@ -26,16 +26,27 @@ interface AgendaEntryBody {
   status: { overallStatus: string };
 }
 
+interface PushSubscriptionBody {
+  id: string;
+  endpoint: string;
+  disabledAt: string | null;
+}
+
 describe('Core journeys (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let server: Server;
+  let registrationIpSequence = 10;
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
     app = module.createNestApplication();
+    const expressInstance = app.getHttpAdapter().getInstance() as {
+      set(name: string, value: boolean): void;
+    };
+    expressInstance.set('trust proxy', true);
     app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
     app.setGlobalPrefix('api');
     app.useGlobalPipes(
@@ -51,6 +62,9 @@ describe('Core journeys (e2e)', () => {
   });
 
   beforeEach(async () => {
+    await prisma.notificationDelivery.deleteMany();
+    await prisma.maintenanceNotification.deleteMany();
+    await prisma.pushSubscription.deleteMany();
     await prisma.expense.deleteMany();
     await prisma.maintenanceRecord.deleteMany();
     await prisma.vehicleMaintenancePlan.deleteMany();
@@ -209,9 +223,112 @@ describe('Core journeys (e2e)', () => {
     );
   });
 
+  it('registers, isolates and disables Web Push subscriptions', async () => {
+    const first = await register('push-first@example.com');
+    const second = await register('push-second@example.com');
+    const endpoint = 'https://fcm.googleapis.com/subscriptions/browser-one';
+
+    const created = await request(server)
+      .post('/api/v1/push-subscriptions')
+      .set('Authorization', `Bearer ${first}`)
+      .send({ endpoint, p256dh: 'public-key', auth: 'auth-secret' })
+      .expect(201);
+    const subscription = created.body as PushSubscriptionBody;
+    expect(subscription.endpoint).toBe(endpoint);
+
+    await request(server)
+      .post('/api/v1/push-subscriptions')
+      .set('Authorization', `Bearer ${second}`)
+      .send({ endpoint, p256dh: 'other-public-key', auth: 'other-secret' })
+      .expect(409);
+
+    await request(server)
+      .delete(`/api/v1/push-subscriptions/${subscription.id}`)
+      .set('Authorization', `Bearer ${second}`)
+      .expect(404);
+
+    await request(server)
+      .delete(`/api/v1/push-subscriptions/${subscription.id}`)
+      .set('Authorization', `Bearer ${first}`)
+      .expect(204);
+
+    const listed = await request(server)
+      .get('/api/v1/push-subscriptions')
+      .set('Authorization', `Bearer ${first}`)
+      .expect(200);
+    expect(
+      (listed.body as PushSubscriptionBody[])[0]?.disabledAt,
+    ).not.toBeNull();
+  });
+
+  it('lists owned alerts and marks one as read', async () => {
+    const email = 'alerts@example.com';
+    const accessToken = await register(email);
+    const anotherUserToken = await register('other-alerts@example.com');
+    const createdVehicle = await request(server)
+      .post('/api/v1/vehicles')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        nickname: 'Alert vehicle',
+        brand: 'Toyota',
+        model: 'Corolla',
+        year: 2024,
+        currentOdometerKm: 20000,
+        currentOdometerRecordedAt: '2026-08-01T12:00:00.000Z',
+      })
+      .expect(201);
+    const vehicle = createdVehicle.body as VehicleBody;
+    const createdPlan = await request(server)
+      .post(`/api/v1/vehicles/${vehicle.id}/maintenance-plans`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        name: 'Brake inspection',
+        category: 'BRAKES',
+        intervalKm: 10000,
+      })
+      .expect(201);
+    const plan = createdPlan.body as PlanBody;
+    const user = await prisma.user.findUniqueOrThrow({ where: { email } });
+    const notification = await prisma.maintenanceNotification.create({
+      data: {
+        userId: user.id,
+        vehicleId: vehicle.id,
+        planId: plan.id,
+        dedupKey: `${plan.id}:ODOMETER:DUE_SOON:30000`,
+        trigger: 'ODOMETER',
+        severity: 'DUE_SOON',
+        title: 'Maintenance alert: Brake inspection',
+        body: 'Brake inspection is due in 1,000 km.',
+        reason: '1,000 km remaining until the limit',
+        dueOdometerKm: 30000,
+      },
+    });
+
+    const listed = await request(server)
+      .get('/api/v1/notifications')
+      .query({ unreadOnly: true })
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    expect((listed.body as { data: Array<{ id: string }> }).data[0]?.id).toBe(
+      notification.id,
+    );
+
+    await request(server)
+      .patch(`/api/v1/notifications/${notification.id}/read`)
+      .set('Authorization', `Bearer ${anotherUserToken}`)
+      .expect(404);
+
+    const read = await request(server)
+      .patch(`/api/v1/notifications/${notification.id}/read`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    expect((read.body as { readAt: string | null }).readAt).not.toBeNull();
+  });
+
   async function register(email: string): Promise<string> {
     const response = await request(server)
       .post('/api/v1/auth/register')
+      .set('X-Forwarded-For', `198.51.100.${registrationIpSequence++}`)
       .send({ name: 'Test User', email, password: 'strong-password-123' })
       .expect(201);
     return (response.body as AuthBody).accessToken;

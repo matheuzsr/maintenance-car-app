@@ -1,0 +1,1 @@
+ALTER TYPE "NotificationDeliveryStatus" ADD VALUE 'PROCESSING' AFTER 'PENDING';

@@ -14,6 +14,7 @@ import { MaintenanceRecordsModule } from './maintenance-records/maintenance-reco
 import { RemindersModule } from './reminders/reminders.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { ReportsModule } from './reports/reports.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ReportsModule } from './reports/reports.module';
     RemindersModule,
     ExpensesModule,
     ReportsModule,
+    NotificationsModule,
     HealthModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

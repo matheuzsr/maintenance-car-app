@@ -75,6 +75,9 @@ jobs:
       - name: Seed maintenance templates
         run: npm run prisma:seed
 
+      - name: Check formatting
+        run: npm run format:check
+
       - name: Lint
         run: npm run lint
 

@@ -111,6 +111,7 @@ Insomnia. Refresh tokens belong only in `/auth/refresh` and `/auth/logout`.
 
 ```bash
 npm run lint
+npm run format:check
 npm run typecheck
 npm test -- --runInBand
 DATABASE_URL='postgresql://maintenance_car:maintenance_car@localhost:5433/maintenance_car_test?schema=public' npm run test:e2e -- --runInBand
@@ -120,6 +121,42 @@ npm run build
 The testing pyramid consists of many colocated unit tests (`*.spec.ts`), focused
 PostgreSQL integration coverage for constraints and transactions, and a small
 set of HTTP journeys under `test/`.
+
+## Background worker and notifications
+
+Phase 4 runs notification generation and delivery outside the HTTP process. The
+worker schedules scans, records notification work, consumes the Redis-backed
+queues, and delivers Web Push messages. PostgreSQL remains the source of truth for
+subscriptions, notification history, and deduplication.
+
+For local development, configure `VAPID_SUBJECT`, `VAPID_PUBLIC_KEY`, and
+`VAPID_PRIVATE_KEY` in `.env`. Keep the private key out of source control and
+use a distinct VAPID key pair for each deployment.
+
+Generate a development key pair with:
+
+```bash
+npx web-push generate-vapid-keys
+```
+
+`WEB_PUSH_ALLOWED_HOSTS` restricts delivery to trusted browser push services.
+Add a provider deliberately instead of accepting arbitrary notification URLs.
+
+Start the API, PostgreSQL, Redis, and worker together with:
+
+```bash
+docker compose --profile worker up --build
+```
+
+To run only the worker after its dependencies are already available:
+
+```bash
+npm run start:worker:dev
+```
+
+The worker has no HTTP port. Queue and delivery failures are recorded by the
+application and must be monitored through logs and notification delivery data.
+Production readiness checks are part of Phase 5 observability work.
 
 ## Security and operations
 
@@ -155,12 +192,12 @@ Idempotent starter templates, customizable vehicle plans, independent calendar
 and mileage status calculations, agenda, service history, and transactional plan
 completion.
 
-### Phase 3 — Costs and reports (next)
+### Phase 3 — Costs and reports (complete)
 
 Maintenance expenses, optional service linkage, controlled categories, monthly
 and yearly totals, and protection against double-counting service costs.
 
-### Phase 4 — Alerts
+### Phase 4 — Alerts (complete)
 
 BullMQ scheduling, Redis-backed jobs, Web Push subscriptions, deduplication,
 retry with backoff, and delivery history.
