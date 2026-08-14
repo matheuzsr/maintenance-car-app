@@ -15,6 +15,32 @@ export type CreateVehicleInput = ApiSchemas['CreateVehicleDto'];
 export type UpdateVehicleInput = ApiSchemas['UpdateVehicleDto'];
 export type OdometerReading = ApiSchemas['OdometerReadingResponseDto'];
 export type CreateOdometerReadingInput = ApiSchemas['CreateOdometerReadingDto'];
+export type MaintenanceTemplate = ApiSchemas['MaintenanceTemplateResponseDto'];
+export type MaintenancePlan = ApiSchemas['MaintenancePlanResponseDto'];
+export type MaintenanceCategory = MaintenancePlan['category'];
+type GeneratedCreateMaintenancePlanInput =
+  ApiSchemas['CreateMaintenancePlanDto'];
+export type CreateMaintenancePlanInput = Omit<
+  GeneratedCreateMaintenancePlanInput,
+  'description' | 'intervalMonths' | 'intervalKm'
+> & {
+  description?: string | null;
+  intervalMonths?: number | null;
+  intervalKm?: number | null;
+};
+export type UpdateMaintenancePlanInput = Partial<
+  Omit<CreateMaintenancePlanInput, 'templateId'>
+>;
+export type MaintenanceDueStatus =
+  'NOT_CONFIGURED' | 'UNKNOWN' | 'ON_TRACK' | 'DUE_SOON' | 'OVERDUE';
+export type MaintenanceAgendaTimeStatus =
+  ApiSchemas['MaintenanceAgendaTimeStatusResponseDto'];
+export type MaintenanceAgendaOdometerStatus =
+  ApiSchemas['MaintenanceAgendaOdometerStatusResponseDto'];
+export type MaintenanceAgendaDimension =
+  MaintenanceAgendaTimeStatus | MaintenanceAgendaOdometerStatus;
+export type MaintenanceAgendaEntry =
+  ApiSchemas['MaintenanceAgendaEntryResponseDto'];
 export type PaginationMeta = ApiSchemas['PaginationMetaDto'];
 export interface Paginated<T> {
   data: T[];

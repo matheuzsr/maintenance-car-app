@@ -31,7 +31,7 @@ export class CreateMaintenancePlanDto {
   @MaxLength(120)
   name?: string;
 
-  @ApiPropertyOptional({ nullable: true, maxLength: 1000 })
+  @ApiPropertyOptional({ type: String, nullable: true, maxLength: 1000 })
   @Transform(trim)
   @IsOptional()
   @IsString()
@@ -43,7 +43,12 @@ export class CreateMaintenancePlanDto {
   @IsEnum(MaintenanceCategory)
   category?: MaintenanceCategory;
 
-  @ApiPropertyOptional({ example: 12, nullable: true, minimum: 1 })
+  @ApiPropertyOptional({
+    type: Number,
+    example: 12,
+    nullable: true,
+    minimum: 1,
+  })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -51,7 +56,12 @@ export class CreateMaintenancePlanDto {
   @Max(1200)
   intervalMonths?: number | null;
 
-  @ApiPropertyOptional({ example: 10000, nullable: true, minimum: 1 })
+  @ApiPropertyOptional({
+    type: Number,
+    example: 10000,
+    nullable: true,
+    minimum: 1,
+  })
   @IsOptional()
   @Type(() => Number)
   @IsInt()

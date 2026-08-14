@@ -576,7 +576,7 @@ export interface components {
        * @description Confirms recording a reading below the current reference without lowering it.
        * @default false
        */
-      confirmLowerReading: boolean;
+      confirmLowerReading?: boolean;
     };
     MaintenanceTemplateResponseDto: {
       /** Format: uuid */
@@ -585,7 +585,7 @@ export interface components {
       slug: string;
       /** @example Engine oil change */
       name: string;
-      description?: Record<string, never> | null;
+      description: string | null;
       /** @enum {string} */
       category:
         | 'ENGINE'
@@ -598,9 +598,9 @@ export interface components {
         | 'COOLING'
         | 'OTHER';
       /** @example 12 */
-      suggestedIntervalMonths?: Record<string, never> | null;
+      suggestedIntervalMonths: number | null;
       /** @example 10000 */
-      suggestedIntervalKm?: Record<string, never> | null;
+      suggestedIntervalKm: number | null;
       /** @example true */
       active: boolean;
       /** Format: date-time */
@@ -616,9 +616,9 @@ export interface components {
       /** Format: uuid */
       vehicleId: string;
       /** Format: uuid */
-      templateId?: Record<string, never> | null;
+      templateId: string | null;
       name: string;
-      description?: Record<string, never> | null;
+      description: string | null;
       /** @enum {string} */
       category:
         | 'ENGINE'
@@ -630,13 +630,13 @@ export interface components {
         | 'ELECTRICAL'
         | 'COOLING'
         | 'OTHER';
-      intervalMonths?: Record<string, never> | null;
-      intervalKm?: Record<string, never> | null;
+      intervalMonths: number | null;
+      intervalKm: number | null;
       alertBeforeDays: number;
       alertBeforeKm: number;
       /** Format: date-time */
-      lastPerformedAt?: Record<string, never> | null;
-      lastPerformedOdometerKm?: Record<string, never> | null;
+      lastPerformedAt: string | null;
+      lastPerformedOdometerKm: number | null;
       /** @example true */
       active: boolean;
       /** Format: date-time */
@@ -655,7 +655,7 @@ export interface components {
       templateId?: string;
       /** @example Engine oil change */
       name?: string;
-      description?: Record<string, never> | null;
+      description?: string | null;
       /** @enum {string} */
       category?:
         | 'ENGINE'
@@ -668,20 +668,20 @@ export interface components {
         | 'COOLING'
         | 'OTHER';
       /** @example 12 */
-      intervalMonths?: Record<string, never> | null;
+      intervalMonths?: number | null;
       /** @example 10000 */
-      intervalKm?: Record<string, never> | null;
+      intervalKm?: number | null;
       /** @default 30 */
-      alertBeforeDays: number;
+      alertBeforeDays?: number;
       /** @default 1000 */
-      alertBeforeKm: number;
+      alertBeforeKm?: number;
       /** @default true */
-      active: boolean;
+      active?: boolean;
     };
     UpdateMaintenancePlanDto: {
       /** @example Engine oil change */
       name?: string;
-      description?: Record<string, never> | null;
+      description?: string | null;
       /** @enum {string} */
       category?:
         | 'ENGINE'
@@ -694,15 +694,15 @@ export interface components {
         | 'COOLING'
         | 'OTHER';
       /** @example 12 */
-      intervalMonths?: Record<string, never> | null;
+      intervalMonths?: number | null;
       /** @example 10000 */
-      intervalKm?: Record<string, never> | null;
+      intervalKm?: number | null;
       /** @default 30 */
-      alertBeforeDays: number;
+      alertBeforeDays?: number;
       /** @default 1000 */
-      alertBeforeKm: number;
+      alertBeforeKm?: number;
       /** @default true */
-      active: boolean;
+      active?: boolean;
     };
     MaintenanceRecordResponseDto: {
       /** Format: uuid */
@@ -801,6 +801,50 @@ export interface components {
        * @description Plan associated with this record. Linking it does not complete or update the plan.
        */
       planId?: string;
+    };
+    MaintenanceAgendaTimeStatusResponseDto: {
+      /** @enum {string} */
+      status:
+        'NOT_CONFIGURED' | 'UNKNOWN' | 'ON_TRACK' | 'DUE_SOON' | 'OVERDUE';
+      /**
+       * Format: date
+       * @example 2026-08-31
+       */
+      dueDate?: string;
+      /** @example 17 */
+      remainingDays?: number;
+      /** @example 4 */
+      overdueByDays?: number;
+    };
+    MaintenanceAgendaOdometerStatusResponseDto: {
+      /** @enum {string} */
+      status:
+        'NOT_CONFIGURED' | 'UNKNOWN' | 'ON_TRACK' | 'DUE_SOON' | 'OVERDUE';
+      /** @example 60000 */
+      dueAtKm?: number;
+      /** @example 500 */
+      remainingKm?: number;
+      /** @example 250 */
+      overdueByKm?: number;
+    };
+    MaintenanceAgendaStatusResponseDto: {
+      /** @enum {string} */
+      overallStatus:
+        'NOT_CONFIGURED' | 'UNKNOWN' | 'ON_TRACK' | 'DUE_SOON' | 'OVERDUE';
+      timeStatus: components['schemas']['MaintenanceAgendaTimeStatusResponseDto'];
+      odometerStatus: components['schemas']['MaintenanceAgendaOdometerStatusResponseDto'];
+      /**
+       * @description Calendar and odometer reasons, in that order when both dimensions provide a reason.
+       * @example [
+       *       "Overdue by 4 day(s)",
+       *       "500 km remaining until the limit"
+       *     ]
+       */
+      reasons: string[];
+    };
+    MaintenanceAgendaEntryResponseDto: {
+      plan: components['schemas']['MaintenancePlanResponseDto'];
+      status: components['schemas']['MaintenanceAgendaStatusResponseDto'];
     };
     CreateExpenseDto: {
       /**
@@ -1416,8 +1460,8 @@ export interface operations {
   MaintenancePlansController_findAll_v1: {
     parameters: {
       query?: {
-        page?: components['schemas']['Object'];
-        limit?: components['schemas']['Object'];
+        page?: number;
+        limit?: number;
         category?:
           | 'ENGINE'
           | 'FILTERS'
@@ -1445,8 +1489,8 @@ export interface operations {
         };
         content: {
           'application/json': {
-            data?: components['schemas']['MaintenancePlanResponseDto'][];
-            meta?: components['schemas']['MaintenancePlanPaginationMetaDto'];
+            data: components['schemas']['MaintenancePlanResponseDto'][];
+            meta: components['schemas']['MaintenancePlanPaginationMetaDto'];
           };
         };
       };
@@ -1787,6 +1831,15 @@ export interface operations {
     responses: {
       /** @description Plans with separate time and mileage statuses */
       200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MaintenanceAgendaEntryResponseDto'][];
+        };
+      };
+      /** @description Vehicle not found */
+      404: {
         headers: {
           [name: string]: unknown;
         };

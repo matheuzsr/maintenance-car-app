@@ -63,6 +63,8 @@ export class MaintenancePlansController {
   @ApiOperation({ summary: "Lists a vehicle's maintenance plans" })
   @ApiOkResponse({
     schema: {
+      type: 'object',
+      required: ['data', 'meta'],
       properties: {
         data: {
           type: 'array',

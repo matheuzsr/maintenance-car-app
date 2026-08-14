@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
 import { CarFront, CircleGauge } from 'lucide-vue-next';
+import {
+  getMaintenanceAgenda,
+  maintenanceKeys,
+} from '~/services/api/maintenance';
 import { listVehicles, vehicleKeys } from '~/services/api/vehicles';
+import { sortAgendaByUrgency } from '~/utils/maintenance';
 
 definePageMeta({ middleware: 'auth' });
-const { t, n } = useI18n();
+const { t, n, locale } = useI18n();
+const today = computed(() =>
+  new Intl.DateTimeFormat(locale.value, { dateStyle: 'full' }).format(
+    new Date(),
+  ),
+);
 const selection = useVehicleSelectionStore();
 useHead({ title: computed(() => t('dashboard.metaTitle')) });
 const query = useQuery({ queryKey: vehicleKeys.all, queryFn: listVehicles });
@@ -12,6 +22,20 @@ const vehicle = computed(
   () =>
     query.data.value?.data.find(({ id }) => id === selection.selectedId) ??
     query.data.value?.data[0],
+);
+const agenda = useQuery({
+  queryKey: computed(() => maintenanceKeys.agenda(vehicle.value?.id ?? 'none')),
+  queryFn: () => getMaintenanceAgenda(vehicle.value!.id),
+  enabled: computed(() => Boolean(vehicle.value)),
+});
+const urgent = computed(() =>
+  sortAgendaByUrgency(agenda.data.value ?? []).slice(0, 3),
+);
+const overdueCount = computed(
+  () =>
+    (agenda.data.value ?? []).filter(
+      (entry) => entry.status.overallStatus === 'OVERDUE',
+    ).length,
 );
 watch(
   () => query.data.value?.data,
@@ -25,7 +49,7 @@ watch(
   <div class="entity-page">
     <header class="entity-heading">
       <div>
-        <p class="eyebrow">{{ t('dashboard.eyebrow') }}</p>
+        <p class="eyebrow">{{ today }}</p>
         <h1>{{ t('dashboard.title') }}</h1>
         <p>{{ t('dashboard.realSubtitle') }}</p>
       </div>
@@ -73,11 +97,36 @@ watch(
           >{{ t('actions.seeDetails') }}</NuxtLink
         >
       </div>
-      <section class="future-panel" aria-disabled="true">
+      <section class="maintenance-panel">
         <p class="eyebrow">{{ t('dashboard.timeline.eyebrow') }}</p>
         <h2>{{ t('dashboard.timeline.title') }}</h2>
-        <p>{{ t('dashboard.futureModules') }}</p>
-        <button type="button" disabled>{{ t('actions.disabled') }}</button>
+        <p class="attention">
+          {{ t('dashboard.timeline.attention', overdueCount) }}
+        </p>
+        <AppSkeleton v-if="agenda.isPending.value" />
+        <AppErrorState
+          v-else-if="agenda.isError.value"
+          :title="t('maintenance.agenda.errorTitle')"
+          :description="t('maintenance.agenda.errorDescription')"
+          :retry-label="t('actions.tryAgain')"
+          @retry="agenda.refetch()"
+        />
+        <AppEmptyState
+          v-else-if="!urgent.length"
+          :title="t('maintenance.agenda.emptyTitle')"
+          :description="t('maintenance.agenda.emptyDescription')"
+        />
+        <div v-else>
+          <MaintenanceStatus
+            v-for="entry in urgent"
+            :key="entry.plan.id"
+            :entry="entry"
+            compact
+          />
+        </div>
+        <NuxtLink class="text-link" :to="`/vehicles/${vehicle.id}/agenda`">{{
+          t('dashboard.timeline.openAgenda')
+        }}</NuxtLink>
       </section>
     </template>
   </div>
@@ -111,16 +160,17 @@ watch(
   gap: 0.75rem;
   flex-wrap: wrap;
 }
-.future-panel {
+.maintenance-panel {
   padding: 1.5rem;
-  border: 1px dashed var(--border-strong);
-  opacity: 0.72;
+  border: 1px solid var(--border);
+  border-top: 0.25rem solid var(--primary);
+  background: var(--surface);
 }
-.future-panel h2 {
+.maintenance-panel h2 {
   margin: 0.25rem 0;
 }
-.future-panel button {
-  padding: 0.5rem;
+.attention {
+  color: var(--text-muted);
 }
 @media (max-width: 40rem) {
   .vehicle-summary {

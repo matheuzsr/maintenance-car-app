@@ -39,10 +39,27 @@ watch(
   () => vehiclesQuery.data.value?.data,
   (items) => {
     if (!items) return;
+    const routeId =
+      typeof route.params.id === 'string' ? route.params.id : undefined;
     selection.reconcile(
       items.map(({ id }) => id),
-      typeof route.query.vehicle === 'string' ? route.query.vehicle : undefined,
+      routeId ??
+        (typeof route.query.vehicle === 'string'
+          ? route.query.vehicle
+          : undefined),
     );
+  },
+  { immediate: true },
+);
+
+watch(
+  () => route.params.id,
+  (routeId) => {
+    if (
+      typeof routeId === 'string' &&
+      vehicles.value.some(({ id }) => id === routeId)
+    )
+      selection.select(routeId);
   },
   { immediate: true },
 );

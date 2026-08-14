@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { MaintenanceCategory } from '@prisma/client';
 
 export class MaintenanceTemplateResponseDto {
@@ -11,16 +11,16 @@ export class MaintenanceTemplateResponseDto {
   @ApiProperty({ example: 'Engine oil change' })
   name!: string;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiProperty({ type: String, nullable: true })
   description!: string | null;
 
   @ApiProperty({ enum: MaintenanceCategory })
   category!: MaintenanceCategory;
 
-  @ApiPropertyOptional({ example: 12, nullable: true })
+  @ApiProperty({ type: Number, example: 12, nullable: true })
   suggestedIntervalMonths!: number | null;
 
-  @ApiPropertyOptional({ example: 10000, nullable: true })
+  @ApiProperty({ type: Number, example: 10000, nullable: true })
   suggestedIntervalKm!: number | null;
 
   @ApiProperty({ example: true })

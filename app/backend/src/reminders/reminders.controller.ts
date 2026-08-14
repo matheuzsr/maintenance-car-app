@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -15,6 +16,7 @@ import {
 import { CurrentUserId } from '../auth/decorators/current-user-id.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AgendaQueryDto } from './agenda-query.dto';
+import { MaintenanceAgendaEntryResponseDto } from './maintenance-agenda-response.dto';
 import { RemindersService } from './reminders.service';
 
 @ApiTags('maintenance-agenda')
@@ -30,7 +32,10 @@ export class RemindersController {
   })
   @ApiOkResponse({
     description: 'Plans with separate time and mileage statuses',
+    type: MaintenanceAgendaEntryResponseDto,
+    isArray: true,
   })
+  @ApiNotFoundResponse({ description: 'Vehicle not found' })
   getAgenda(
     @CurrentUserId() userId: string,
     @Param('vehicleId', ParseUUIDPipe) vehicleId: string,

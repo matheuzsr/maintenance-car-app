@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { MaintenanceCategory } from '@prisma/client';
 
 export class MaintenancePlanResponseDto {
@@ -11,22 +11,22 @@ export class MaintenancePlanResponseDto {
   @ApiProperty({ format: 'uuid' })
   vehicleId!: string;
 
-  @ApiPropertyOptional({ format: 'uuid', nullable: true })
+  @ApiProperty({ type: String, format: 'uuid', nullable: true })
   templateId!: string | null;
 
   @ApiProperty()
   name!: string;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiProperty({ type: String, nullable: true })
   description!: string | null;
 
   @ApiProperty({ enum: MaintenanceCategory })
   category!: MaintenanceCategory;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiProperty({ type: Number, nullable: true })
   intervalMonths!: number | null;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiProperty({ type: Number, nullable: true })
   intervalKm!: number | null;
 
   @ApiProperty()
@@ -35,10 +35,10 @@ export class MaintenancePlanResponseDto {
   @ApiProperty()
   alertBeforeKm!: number;
 
-  @ApiPropertyOptional({ format: 'date-time', nullable: true })
+  @ApiProperty({ type: String, format: 'date-time', nullable: true })
   lastPerformedAt!: Date | null;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiProperty({ type: Number, nullable: true })
   lastPerformedOdometerKm!: number | null;
 
   @ApiProperty({ example: true })

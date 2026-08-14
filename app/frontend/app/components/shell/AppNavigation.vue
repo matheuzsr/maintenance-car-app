@@ -14,11 +14,18 @@ import {
 withDefaults(defineProps<{ mobile?: boolean }>(), { mobile: false });
 defineEmits<{ create: [] }>();
 const { t } = useI18n();
+const selection = useVehicleSelectionStore();
 
 const links = computed(() => [
   { to: '/', label: t('navigation.dashboard'), icon: Gauge },
   { to: '/vehicles', label: t('navigation.vehicles'), icon: CarFront },
-  { to: '/#agenda', label: t('navigation.agenda'), icon: CalendarClock },
+  {
+    to: selection.selectedId
+      ? `/vehicles/${selection.selectedId}/agenda`
+      : '/vehicles',
+    label: t('navigation.agenda'),
+    icon: CalendarClock,
+  },
   { to: '/#costs', label: t('navigation.expenses'), icon: ReceiptText },
   { to: '/componentes', label: t('navigation.components'), icon: Shapes },
   { to: '/logout', label: t('navigation.logout'), icon: LogOut },

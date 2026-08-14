@@ -3,15 +3,19 @@
   "a11y": { "skipToContent": "Ir para o conteúdo principal" },
   "actions": {
     "cancel": "Cancelar",
+    "back": "Voltar",
     "close": "Fechar",
     "confirm": "Confirmar",
     "delete": "Excluir",
+    "edit": "Editar",
     "disabled": "Indisponível",
     "save": "Salvar alterações",
     "saving": "Salvando…",
     "seeAll": "Ver histórico",
     "seeDetails": "Ver detalhes",
-    "tryAgain": "Tentar novamente"
+    "tryAgain": "Tentar novamente",
+    "previous": "Anterior",
+    "next": "Próxima"
   },
   "theme": {
     "label": "Aparência",
@@ -128,7 +132,8 @@
     "timeline": {
       "eyebrow": "Próximos cuidados",
       "title": "Agenda de manutenção",
-      "attention": "Nenhuma pendência | Uma pendência | {count} pendências"
+      "attention": "Nenhuma pendência | Uma pendência | {count} pendências",
+      "openAgenda": "Abrir agenda completa"
     },
     "items": {
       "oil": {
@@ -166,6 +171,134 @@
       "title": "Atividade recente",
       "item": "Substituição do filtro de cabine",
       "detail": "Oficina Central · R$ 128,00 · 83.940 km"
+    }
+  },
+  "maintenance": {
+    "vehicleNavigation": "Navegação de manutenção do veículo",
+    "links": { "vehicle": "Veículo", "plans": "Planos", "agenda": "Agenda" },
+    "categories": {
+      "ENGINE": "Motor",
+      "FILTERS": "Filtros",
+      "BRAKES": "Freios",
+      "TRANSMISSION": "Transmissão",
+      "SUSPENSION": "Suspensão",
+      "TIRES": "Pneus",
+      "ELECTRICAL": "Elétrica",
+      "COOLING": "Arrefecimento",
+      "OTHER": "Outros"
+    },
+    "status": {
+      "overall": {
+        "NOT_CONFIGURED": "Sem intervalo",
+        "UNKNOWN": "Precisa de referência",
+        "ON_TRACK": "Em dia",
+        "DUE_SOON": "Em breve",
+        "OVERDUE": "Atrasada"
+      },
+      "timeLabel": "Por data",
+      "odometerLabel": "Por quilometragem",
+      "dimension": {
+        "time": {
+          "overdue": "Atrasada há {count} dia | Atrasada há {count} dias",
+          "soon": "Vence em {count} dia | Vence em {count} dias",
+          "onTrack": "Dentro do prazo: {count} dia restante | Dentro do prazo: {count} dias restantes",
+          "unknown": "Informe a data da última execução",
+          "notConfigured": "Intervalo por data não configurado"
+        },
+        "odometer": {
+          "overdue": "Limite excedido em {km} km",
+          "reached": "Limite de quilometragem atingido",
+          "soon": "Faltam {km} km",
+          "onTrack": "Dentro do intervalo: {km} km restantes",
+          "unknown": "Informe a quilometragem da última execução",
+          "notConfigured": "Intervalo por quilometragem não configurado"
+        }
+      }
+    },
+    "interval": {
+      "months": "A cada {count} mês | A cada {count} meses",
+      "km": "A cada {km} km",
+      "summary": "Intervalo: {months} meses · {km} km"
+    },
+    "filters": {
+      "status": "Situação",
+      "category": "Categoria",
+      "activity": "Exibição",
+      "allStatuses": "Todas as situações",
+      "allCategories": "Todas as categorias",
+      "active": "Ativos",
+      "inactive": "Inativos",
+      "all": "Todos"
+    },
+    "agenda": {
+      "metaTitle": "Agenda de manutenção · Garagem em Dia",
+      "eyebrow": "Próximos cuidados",
+      "title": "Agenda de manutenção",
+      "description": "Prazos de calendário e quilometragem avaliados de forma independente.",
+      "listLabel": "Manutenções do veículo",
+      "errorTitle": "Não foi possível carregar a agenda",
+      "errorDescription": "Verifique a conexão e tente novamente.",
+      "emptyTitle": "Nenhum plano ativo na agenda",
+      "emptyDescription": "Crie um plano com intervalo para começar a acompanhar os prazos.",
+      "filteredEmptyTitle": "Nenhum item nesta situação",
+      "filteredEmptyDescription": "Altere o filtro para consultar os outros planos."
+    },
+    "plans": {
+      "metaTitle": "Planos de manutenção · Garagem em Dia",
+      "eyebrow": "Rotina preventiva",
+      "title": "Planos de manutenção",
+      "description": "Defina intervalos próprios ou comece por uma referência pronta.",
+      "create": "Criar plano",
+      "active": "Ativo",
+      "inactive": "Inativo",
+      "deleteConfirm": "Deseja excluir este plano de manutenção?",
+      "deleteError": "Não foi possível excluir o plano. Tente novamente.",
+      "errorTitle": "Não foi possível carregar os planos",
+      "errorDescription": "Verifique a conexão e tente novamente.",
+      "emptyTitle": "Nenhum plano encontrado",
+      "emptyDescription": "Crie um plano ou altere os filtros aplicados.",
+      "page": "Página {page} de {total}",
+      "pagination": "Paginação dos planos"
+    },
+    "templates": {
+      "title": "Modelos de manutenção",
+      "search": "Buscar modelo",
+      "category": "Categoria",
+      "allCategories": "Todas as categorias",
+      "emptyTitle": "Nenhum modelo encontrado",
+      "emptyDescription": "Altere a busca ou crie um plano personalizado.",
+      "errorTitle": "Não foi possível carregar os modelos",
+      "errorDescription": "Verifique a conexão e tente novamente."
+    },
+    "create": {
+      "metaTitle": "Criar plano · Garagem em Dia",
+      "eyebrow": "Novo acompanhamento",
+      "title": "Criar plano de manutenção",
+      "description": "Comece por um modelo ou defina seu próprio intervalo.",
+      "modeLabel": "Origem do plano",
+      "fromTemplate": "Usar modelo",
+      "custom": "Plano personalizado",
+      "action": "Salvar plano"
+    },
+    "edit": {
+      "metaTitle": "Editar plano · Garagem em Dia",
+      "eyebrow": "Ajustar rotina",
+      "title": "Editar plano",
+      "description": "Atualize os intervalos e alertas deste veículo.",
+      "errorTitle": "Plano não encontrado",
+      "errorDescription": "Não foi possível carregar este plano."
+    },
+    "form": {
+      "name": "Nome do plano",
+      "description": "Descrição (opcional)",
+      "category": "Categoria",
+      "intervalMonths": "Intervalo em meses (opcional)",
+      "intervalKm": "Intervalo em quilômetros (opcional)",
+      "alertBeforeDays": "Alertar com antecedência (dias)",
+      "alertBeforeKm": "Alertar com antecedência (km)",
+      "active": "Manter plano ativo",
+      "validation": "Informe nome, categoria e pelo menos um intervalo válido.",
+      "saveError": "Não foi possível salvar o plano. Revise os dados e tente novamente."
     }
   },
   "gallery": {

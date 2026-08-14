@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "generate": "openapi-typescript openapi.json -o src/generated.ts && prettier --write openapi.json src/generated.ts",
+    "generate": "openapi-typescript openapi.json -o src/generated.ts --default-non-nullable false && prettier --write openapi.json src/generated.ts",
     "format": "prettier --write \"{src/**/*.ts,openapi.json}\"",
     "format:check": "prettier --check \"{src/**/*.ts,openapi.json}\"",
     "typecheck": "tsc --noEmit"
