@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import tailwindcss from '@tailwindcss/vite';
 
 const environment = z
   .object({
@@ -9,13 +10,16 @@ const environment = z
 export default defineNuxtConfig({
   compatibilityDate: '2026-08-14',
   devtools: { enabled: true },
-  modules: ['@nuxt/eslint', '@nuxtjs/i18n'],
+  modules: ['@nuxt/eslint', '@nuxtjs/i18n', '@pinia/nuxt'],
   ssr: false,
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     public: {
       apiBaseUrl: environment.NUXT_PUBLIC_API_BASE_URL,
     },
+  },
+  vite: {
+    plugins: [tailwindcss()],
   },
   typescript: {
     strict: true,

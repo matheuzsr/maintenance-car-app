@@ -1,11 +1,187 @@
 {
-  "app": {
-    "name": "Garagem em Dia"
+  "app": { "name": "Garagem em Dia" },
+  "a11y": { "skipToContent": "Ir para o conteúdo principal" },
+  "actions": {
+    "cancel": "Cancelar",
+    "close": "Fechar",
+    "confirm": "Confirmar",
+    "delete": "Excluir",
+    "disabled": "Indisponível",
+    "save": "Salvar alteração",
+    "saving": "Salvando…",
+    "seeAll": "Ver histórico",
+    "seeDetails": "Ver detalhes",
+    "tryAgain": "Tentar novamente"
+  },
+  "theme": {
+    "label": "Aparência",
+    "system": "Usar sistema",
+    "light": "Tema claro",
+    "dark": "Tema escuro"
+  },
+  "navigation": {
+    "dashboard": "Visão geral",
+    "agenda": "Agenda",
+    "add": "Adicionar",
+    "expenses": "Despesas",
+    "more": "Mais",
+    "components": "Componentes",
+    "quickAction": "Registro rápido",
+    "notifications": "Notificações",
+    "unreadNotifications": "Nenhuma notificação não lida | Uma notificação não lida | {count} notificações não lidas",
+    "mobileLabel": "Navegação principal para celular",
+    "desktopLabel": "Navegação principal"
+  },
+  "shell": {
+    "version": "Fundação visual · F1",
+    "publicFooter": "Controle de manutenção veicular, sem ruído.",
+    "demoVehicles": {
+      "civic": "Honda Civic · BRA 2E19",
+      "corolla": "Toyota Corolla · RIO 8A42"
+    }
+  },
+  "vehicles": { "switcherLabel": "Veículo em contexto" },
+  "quickAction": {
+    "title": "O que deseja registrar?",
+    "description": "A ação será vinculada ao veículo selecionado.",
+    "odometer": "Atualização do odômetro",
+    "maintenance": "Manutenção concluída",
+    "expense": "Nova despesa",
+    "futureHint": "Os fluxos de registro serão liberados nas próximas etapas."
+  },
+  "states": {
+    "loading": "Carregando informações…",
+    "empty": {
+      "title": "Nenhum plano de manutenção",
+      "description": "Cadastre o primeiro intervalo para acompanhar revisões por data e quilometragem.",
+      "action": "Criar plano"
+    },
+    "error": {
+      "title": "Não foi possível carregar a agenda",
+      "description": "Sua seleção foi preservada. Verifique a conexão e tente novamente."
+    },
+    "offline": {
+      "description": "Você está sem conexão. Consultas podem estar desatualizadas e novos registros ficam desabilitados."
+    }
+  },
+  "dashboard": {
+    "metaTitle": "Visão geral · Garagem em Dia",
+    "eyebrow": "Sexta-feira, 14 de agosto",
+    "title": "Seu carro pede atenção.",
+    "subtitle": "Uma pendência e duas manutenções se aproximando.",
+    "synced": "Dados atualizados",
+    "summaryLabel": "Resumo do veículo selecionado",
+    "odometer": {
+      "label": "Odômetro atual",
+      "updated": "Atualizado há 6 dias",
+      "action": "Atualizar quilometragem"
+    },
+    "vehicle": { "model": "Veículo", "year": "Ano", "plate": "Placa" },
+    "timeline": {
+      "eyebrow": "Próximos cuidados",
+      "title": "Agenda de manutenção",
+      "attention": "Nenhuma pendência | Uma pendência | {count} pendências"
+    },
+    "items": {
+      "oil": {
+        "title": "Troca de óleo e filtro",
+        "description": "O intervalo por quilometragem está próximo.",
+        "date": "em 18 dias",
+        "distance": "faltam 680 km",
+        "badge": "Em breve"
+      },
+      "brakes": {
+        "title": "Inspeção do fluido de freio",
+        "description": "O prazo por calendário venceu; a quilometragem segue dentro do intervalo.",
+        "date": "há 12 dias",
+        "distance": "faltam 3.420 km",
+        "badge": "Atrasada por data"
+      },
+      "alignment": {
+        "title": "Alinhamento e balanceamento",
+        "description": "Revisão preventiva programada.",
+        "date": "em 43 dias",
+        "distance": "faltam 4.680 km",
+        "badge": "Programada"
+      }
+    },
+    "cost": {
+      "eyebrow": "Agosto",
+      "title": "Custo de manutenção",
+      "comparison": "18% abaixo do mês anterior",
+      "chartSummary": "Custos dos últimos seis meses com maior valor em junho e segundo maior em agosto.",
+      "axisStart": "mar",
+      "axisEnd": "ago"
+    },
+    "recent": {
+      "eyebrow": "Caderno de bordo",
+      "title": "Atividade recente",
+      "item": "Substituição do filtro de cabine",
+      "detail": "Oficina Central · R$ 128,00 · 83.940 km"
+    }
+  },
+  "gallery": {
+    "metaTitle": "Componentes · Garagem em Dia",
+    "eyebrow": "Fundação visual",
+    "title": "Peças feitas para a oficina.",
+    "description": "Contratos visuais e de interação do produto, construídos sobre primitivas acessíveis e tokens semânticos.",
+    "actions": {
+      "title": "Ações",
+      "description": "Hierarquia contida, estados explícitos e alvos de toque de 44 px."
+    },
+    "fields": {
+      "title": "Campos",
+      "description": "Rótulos persistentes, ajuda próxima e erro ligado ao campo.",
+      "name": "Nome do plano",
+      "placeholder": "Ex.: troca de correia",
+      "hint": "Use um nome fácil de reconhecer na agenda.",
+      "odometer": "Quilometragem da execução",
+      "error": "O valor não pode ser menor que o odômetro atual.",
+      "category": "Categoria",
+      "options": {
+        "preventive": "Manutenção preventiva",
+        "corrective": "Manutenção corretiva"
+      }
+    },
+    "status": {
+      "title": "Estados de manutenção",
+      "description": "Cor, texto e marcador trabalham juntos.",
+      "ok": "Em dia",
+      "soon": "Próxima",
+      "overdue": "Atrasada",
+      "scheduled": "Programada"
+    },
+    "states": {
+      "title": "Estados de conteúdo",
+      "description": "A tela sempre explica o que está acontecendo e o próximo passo útil.",
+      "switcherLabel": "Escolher estado de demonstração",
+      "empty": "Vazio",
+      "loading": "Carregando",
+      "error": "Erro"
+    },
+    "dialog": {
+      "title": "Diálogo",
+      "description": "Foco contido e decisão curta, sem esconder contexto desnecessariamente.",
+      "open": "Abrir diálogo",
+      "sampleTitle": "Confirmar atualização",
+      "sampleDescription": "O odômetro do veículo será atualizado para 84.320 km. Esta demonstração não envia dados."
+    }
+  },
+  "login": {
+    "metaTitle": "Entrar · Garagem em Dia",
+    "eyebrow": "Acesso à garagem",
+    "title": "Manutenção sob controle.",
+    "description": "Histórico, agenda e custos de cada veículo em um só lugar.",
+    "email": "E-mail",
+    "emailPlaceholder": "voce{'@'}exemplo.com",
+    "password": "Senha",
+    "action": "Entrar",
+    "futureHint": "O acesso será habilitado na etapa de autenticação."
   },
   "health": {
     "eyebrow": "Conexão do sistema",
     "title": "Sua manutenção começa com uma base confiável.",
-    "description": "Esta primeira tela confirma, em tempo real, a comunicação entre o aplicativo e a API de manutenção veicular.",
+    "description": "Esta tela confirma a comunicação entre o aplicativo e a API de manutenção veicular.",
     "apiLabel": "API principal",
     "checking": "Verificando conexão…",
     "online": "Operacional",
@@ -13,8 +189,6 @@
     "onlineDetail": "O frontend está pronto para consumir os dados do backend.",
     "offlineDetail": "Não foi possível falar com a API. Confirme se o backend está em execução e tente novamente.",
     "retry": "Verificar novamente",
-    "technicalDetail": "Detalhe técnico",
-    "foundation": "Fundação F0",
-    "foundationDetail": "Nuxt, TypeScript estrito e contrato OpenAPI compartilhado."
+    "technicalDetail": "Detalhe técnico"
   }
 }
