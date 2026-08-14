@@ -320,7 +320,7 @@ export interface paths {
     };
     /**
      * Reports vehicle costs by calendar month or year
-     * @description Separates maintenance record costs from standalone and maintenance-linked itemized expenses to prevent double counting.
+     * @description Separates maintenance record costs, standalone expenses, and linked itemized expenses. Linked itemized expenses are excluded from the total to prevent double counting.
      */
     get: operations['ReportsController_getCosts_v1'];
     put?: never;
@@ -862,7 +862,10 @@ export interface components {
       category: 'LABOR' | 'PARTS' | 'DIAGNOSTICS' | 'TOWING' | 'OTHER';
       /** @example Replacement brake pads */
       description: string;
-      /** @example 2026-08-13T12:00:00.000-03:00 */
+      /**
+       * Format: date-time
+       * @example 2026-08-13T12:00:00.000-03:00
+       */
       incurredAt: string;
       /**
        * @description Non-negative decimal value sent as a string with up to two decimal places.
@@ -870,12 +873,12 @@ export interface components {
        */
       amount: string;
       /** @example Purchased directly from the manufacturer */
-      notes?: string;
+      notes?: string | null;
       /**
        * Format: uuid
        * @description Maintenance record associated with this expense. It must belong to the same user and vehicle.
        */
-      maintenanceRecordId?: Record<string, never> | null;
+      maintenanceRecordId?: string | null;
     };
     ExpenseResponseDto: {
       /** Format: uuid */
@@ -885,7 +888,7 @@ export interface components {
       /** Format: uuid */
       vehicleId: string;
       /** Format: uuid */
-      maintenanceRecordId?: Record<string, never> | null;
+      maintenanceRecordId: string | null;
       /** @enum {string} */
       category: 'LABOR' | 'PARTS' | 'DIAGNOSTICS' | 'TOWING' | 'OTHER';
       /** @example Replacement brake pads */
@@ -894,7 +897,7 @@ export interface components {
       incurredAt: string;
       /** @example 249.90 */
       amount: string;
-      notes?: Record<string, never> | null;
+      notes: string | null;
       /** Format: date-time */
       createdAt: string;
       /** Format: date-time */
@@ -922,7 +925,10 @@ export interface components {
       category?: 'LABOR' | 'PARTS' | 'DIAGNOSTICS' | 'TOWING' | 'OTHER';
       /** @example Replacement brake pads */
       description?: string;
-      /** @example 2026-08-13T12:00:00.000-03:00 */
+      /**
+       * Format: date-time
+       * @example 2026-08-13T12:00:00.000-03:00
+       */
       incurredAt?: string;
       /**
        * @description Non-negative decimal value sent as a string with up to two decimal places.
@@ -930,12 +936,12 @@ export interface components {
        */
       amount?: string;
       /** @example Purchased directly from the manufacturer */
-      notes?: string;
+      notes?: string | null;
       /**
        * Format: uuid
        * @description Maintenance record associated with this expense. It must belong to the same user and vehicle.
        */
-      maintenanceRecordId?: Record<string, never> | null;
+      maintenanceRecordId?: string | null;
     };
     ExpenseCategoryTotalDto: {
       /**
@@ -953,17 +959,17 @@ export interface components {
        */
       serviceCost: string;
       /**
-       * @description Sum of standalone and maintenance-linked itemized expenses.
+       * @description Sum of standalone itemized expenses.
        * @example 125.50
        */
       additionalExpenses: string;
       /**
-       * @description Itemized expenses linked to a maintenance record. Shown for detail and not added to total again.
+       * @description Itemized expenses linked to a maintenance record. Shown for detail and excluded from total to prevent double counting.
        * @example 125.50
        */
       linkedItemizedExpenses: string;
       /**
-       * @description Service cost plus additional expenses.
+       * @description Service cost plus standalone itemized expenses.
        * @example 475.50
        */
       total: string;
@@ -976,17 +982,17 @@ export interface components {
        */
       serviceCost: string;
       /**
-       * @description Sum of standalone and maintenance-linked itemized expenses.
+       * @description Sum of standalone itemized expenses.
        * @example 125.50
        */
       additionalExpenses: string;
       /**
-       * @description Itemized expenses linked to a maintenance record. Shown for detail and not added to total again.
+       * @description Itemized expenses linked to a maintenance record. Shown for detail and excluded from total to prevent double counting.
        * @example 125.50
        */
       linkedItemizedExpenses: string;
       /**
-       * @description Service cost plus additional expenses.
+       * @description Service cost plus standalone itemized expenses.
        * @example 475.50
        */
       total: string;
@@ -1008,12 +1014,12 @@ export interface components {
        * Format: date-time
        * @description Inclusive start instant normalized to UTC.
        */
-      from?: Record<string, never> | null;
+      from: string | null;
       /**
        * Format: date-time
        * @description Inclusive end instant normalized to UTC.
        */
-      to?: Record<string, never> | null;
+      to: string | null;
       summary: components['schemas']['CostTotalsDto'];
       buckets: components['schemas']['CostReportBucketDto'][];
     };
@@ -1862,8 +1868,8 @@ export interface operations {
   ExpensesController_findAll_v1: {
     parameters: {
       query?: {
-        page?: components['schemas']['Object'];
-        limit?: components['schemas']['Object'];
+        page?: number;
+        limit?: number;
         category?: 'LABOR' | 'PARTS' | 'DIAGNOSTICS' | 'TOWING' | 'OTHER';
         /** @description Includes expenses incurred at or after this timestamp. */
         incurredFrom?: string;

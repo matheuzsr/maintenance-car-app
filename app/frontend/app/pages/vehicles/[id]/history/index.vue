@@ -69,6 +69,9 @@ useHead({ title: computed(() => t('maintenance.records.list.metaTitle')) });
       <NuxtLink :to="`/vehicles/${id}/plans`">{{
         t('maintenance.links.plans')
       }}</NuxtLink>
+      <NuxtLink :to="`/vehicles/${id}/expenses`">{{
+        t('maintenance.links.expenses')
+      }}</NuxtLink>
     </nav>
     <AppSelect
       id="record-plan-filter"

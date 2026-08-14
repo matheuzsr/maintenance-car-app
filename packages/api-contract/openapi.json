@@ -1229,11 +1229,7 @@
             "schema": {
               "minimum": 1,
               "default": 1,
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/Object"
-                }
-              ]
+              "type": "number"
             }
           },
           {
@@ -1244,11 +1240,7 @@
               "minimum": 1,
               "maximum": 100,
               "default": 20,
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/Object"
-                }
-              ]
+              "type": "number"
             }
           },
           {
@@ -1441,7 +1433,7 @@
     },
     "/api/v1/reports/costs": {
       "get": {
-        "description": "Separates maintenance record costs from standalone and maintenance-linked itemized expenses to prevent double counting.",
+        "description": "Separates maintenance record costs, standalone expenses, and linked itemized expenses. Linked itemized expenses are excluded from the total to prevent double counting.",
         "operationId": "ReportsController_getCosts_v1",
         "parameters": [
           {
@@ -2756,6 +2748,7 @@
           },
           "incurredAt": {
             "type": "string",
+            "format": "date-time",
             "example": "2026-08-13T12:00:00.000-03:00"
           },
           "amount": {
@@ -2766,11 +2759,12 @@
           },
           "notes": {
             "type": "string",
+            "nullable": true,
             "example": "Purchased directly from the manufacturer",
             "maxLength": 2000
           },
           "maintenanceRecordId": {
-            "type": "object",
+            "type": "string",
             "format": "uuid",
             "nullable": true,
             "description": "Maintenance record associated with this expense. It must belong to the same user and vehicle."
@@ -2794,7 +2788,7 @@
             "format": "uuid"
           },
           "maintenanceRecordId": {
-            "type": "object",
+            "type": "string",
             "format": "uuid",
             "nullable": true
           },
@@ -2815,7 +2809,7 @@
             "example": "249.90"
           },
           "notes": {
-            "type": "object",
+            "type": "string",
             "nullable": true
           },
           "createdAt": {
@@ -2831,10 +2825,12 @@
           "id",
           "userId",
           "vehicleId",
+          "maintenanceRecordId",
           "category",
           "description",
           "incurredAt",
           "amount",
+          "notes",
           "createdAt",
           "updatedAt"
         ]
@@ -2891,6 +2887,7 @@
           },
           "incurredAt": {
             "type": "string",
+            "format": "date-time",
             "example": "2026-08-13T12:00:00.000-03:00"
           },
           "amount": {
@@ -2901,11 +2898,12 @@
           },
           "notes": {
             "type": "string",
+            "nullable": true,
             "example": "Purchased directly from the manufacturer",
             "maxLength": 2000
           },
           "maintenanceRecordId": {
-            "type": "object",
+            "type": "string",
             "format": "uuid",
             "nullable": true,
             "description": "Maintenance record associated with this expense. It must belong to the same user and vehicle."
@@ -2938,17 +2936,17 @@
           "additionalExpenses": {
             "type": "string",
             "example": "125.50",
-            "description": "Sum of standalone and maintenance-linked itemized expenses."
+            "description": "Sum of standalone itemized expenses."
           },
           "linkedItemizedExpenses": {
             "type": "string",
             "example": "125.50",
-            "description": "Itemized expenses linked to a maintenance record. Shown for detail and not added to total again."
+            "description": "Itemized expenses linked to a maintenance record. Shown for detail and excluded from total to prevent double counting."
           },
           "total": {
             "type": "string",
             "example": "475.50",
-            "description": "Service cost plus additional expenses."
+            "description": "Service cost plus standalone itemized expenses."
           },
           "expensesByCategory": {
             "type": "array",
@@ -2976,17 +2974,17 @@
           "additionalExpenses": {
             "type": "string",
             "example": "125.50",
-            "description": "Sum of standalone and maintenance-linked itemized expenses."
+            "description": "Sum of standalone itemized expenses."
           },
           "linkedItemizedExpenses": {
             "type": "string",
             "example": "125.50",
-            "description": "Itemized expenses linked to a maintenance record. Shown for detail and not added to total again."
+            "description": "Itemized expenses linked to a maintenance record. Shown for detail and excluded from total to prevent double counting."
           },
           "total": {
             "type": "string",
             "example": "475.50",
-            "description": "Service cost plus additional expenses."
+            "description": "Service cost plus standalone itemized expenses."
           },
           "expensesByCategory": {
             "type": "array",
@@ -3025,13 +3023,13 @@
             "example": "America/Sao_Paulo"
           },
           "from": {
-            "type": "object",
+            "type": "string",
             "format": "date-time",
             "nullable": true,
             "description": "Inclusive start instant normalized to UTC."
           },
           "to": {
-            "type": "object",
+            "type": "string",
             "format": "date-time",
             "nullable": true,
             "description": "Inclusive end instant normalized to UTC."
@@ -3046,7 +3044,15 @@
             }
           }
         },
-        "required": ["vehicleId", "period", "timezone", "summary", "buckets"]
+        "required": [
+          "vehicleId",
+          "period",
+          "timezone",
+          "from",
+          "to",
+          "summary",
+          "buckets"
+        ]
       },
       "VapidPublicKeyResponseDto": {
         "type": "object",

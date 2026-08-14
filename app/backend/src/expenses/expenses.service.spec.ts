@@ -68,11 +68,22 @@ describe('ExpensesService', () => {
     count: jest.fn(),
     update: jest.fn(),
   };
-  const prisma = {
+  const transactionClient = {
     vehicle: vehicleDelegate,
     maintenanceRecord: recordDelegate,
     expense: expenseDelegate,
-    $transaction: jest.fn((input: Promise<unknown>[]) => Promise.all(input)),
+  };
+  const prisma = {
+    ...transactionClient,
+    $transaction: jest.fn(
+      (
+        input:
+          Promise<unknown>[] | ((transaction: unknown) => Promise<unknown>),
+      ): Promise<unknown> =>
+        typeof input === 'function'
+          ? input(transactionClient)
+          : Promise.all(input),
+    ),
   };
   const service = new ExpensesService(prisma as unknown as PrismaService);
 
@@ -111,6 +122,9 @@ describe('ExpensesService', () => {
     >;
     const createCall = createCalls[0][0];
     expect(createCall.data.amount.toString()).toBe('249.9');
+    expect(prisma.$transaction).toHaveBeenCalledWith(expect.any(Function), {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+    });
   });
 
   it('rejects a linked record outside the owner and vehicle scope', async () => {
@@ -126,6 +140,35 @@ describe('ExpensesService', () => {
       }),
     ).rejects.toThrow(NotFoundException);
     expect(expenseDelegate.create).not.toHaveBeenCalled();
+  });
+
+  it('retries a serializable write conflict with validation inside the transaction', async () => {
+    prisma.$transaction
+      .mockRejectedValueOnce(
+        new Prisma.PrismaClientKnownRequestError('Write conflict', {
+          code: 'P2034',
+          clientVersion: '6.19.3',
+        }),
+      )
+      .mockImplementationOnce((input: unknown) =>
+        typeof input === 'function'
+          ? (input as (transaction: unknown) => Promise<unknown>)(
+              transactionClient,
+            )
+          : Promise.all(input as Promise<unknown>[]),
+      );
+
+    await service.create(userId, vehicleId, {
+      maintenanceRecordId,
+      category: ExpenseCategory.PARTS,
+      description: 'Brake pads',
+      incurredAt: '2026-08-13T12:00:00.000Z',
+      amount: '249.90',
+    });
+
+    expect(prisma.$transaction).toHaveBeenCalledTimes(2);
+    expect(recordDelegate.findFirst).toHaveBeenCalledTimes(1);
+    expect(expenseDelegate.create).toHaveBeenCalledTimes(1);
   });
 
   it('lists only active expenses using pagination and inclusive filters', async () => {
@@ -169,6 +212,9 @@ describe('ExpensesService', () => {
       where: { id: expenseId, userId, vehicleId, deletedAt: null },
       data: { maintenanceRecordId: null },
     });
+    expect(prisma.$transaction).toHaveBeenCalledWith(expect.any(Function), {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+    });
   });
 
   it('soft-deletes only an active owned expense', async () => {
@@ -190,6 +236,9 @@ describe('ExpensesService', () => {
       deletedAt: null,
     });
     expect(updateCall.data.deletedAt).toBeInstanceOf(Date);
+    expect(prisma.$transaction).toHaveBeenCalledWith(expect.any(Function), {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+    });
   });
 
   it('does not expose an expense from another ownership scope', async () => {

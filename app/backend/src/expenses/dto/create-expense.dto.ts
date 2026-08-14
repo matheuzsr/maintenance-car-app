@@ -4,6 +4,7 @@ import { ExpenseFieldsDto } from './expense-fields.dto';
 
 export class CreateExpenseDto extends ExpenseFieldsDto {
   @ApiPropertyOptional({
+    type: String,
     format: 'uuid',
     nullable: true,
     description:

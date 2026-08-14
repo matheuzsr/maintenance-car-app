@@ -1,5 +1,5 @@
 import { ExpenseCategory } from '@prisma/client';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { CostReportPeriod } from './cost-report-query.dto';
 
 export class ExpenseCategoryTotalDto {
@@ -21,7 +21,7 @@ export class CostTotalsDto {
   @ApiProperty({
     type: String,
     example: '125.50',
-    description: 'Sum of standalone and maintenance-linked itemized expenses.',
+    description: 'Sum of standalone itemized expenses.',
   })
   additionalExpenses!: string;
 
@@ -29,14 +29,14 @@ export class CostTotalsDto {
     type: String,
     example: '125.50',
     description:
-      'Itemized expenses linked to a maintenance record. Shown for detail and not added to total again.',
+      'Itemized expenses linked to a maintenance record. Shown for detail and excluded from total to prevent double counting.',
   })
   linkedItemizedExpenses!: string;
 
   @ApiProperty({
     type: String,
     example: '475.50',
-    description: 'Service cost plus additional expenses.',
+    description: 'Service cost plus standalone itemized expenses.',
   })
   total!: string;
 
@@ -63,14 +63,16 @@ export class CostReportResponseDto {
   @ApiProperty({ example: 'America/Sao_Paulo' })
   timezone!: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
+    type: String,
     format: 'date-time',
     nullable: true,
     description: 'Inclusive start instant normalized to UTC.',
   })
   from!: string | null;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
+    type: String,
     format: 'date-time',
     nullable: true,
     description: 'Inclusive end instant normalized to UTC.',

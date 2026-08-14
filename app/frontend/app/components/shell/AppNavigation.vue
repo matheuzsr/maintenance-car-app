@@ -6,6 +6,7 @@ import {
   LayoutGrid,
   MoreHorizontal,
   ReceiptText,
+  ChartNoAxesColumnIncreasing,
   Shapes,
   CarFront,
   LogOut,
@@ -26,10 +27,24 @@ const links = computed(() => [
     label: t('navigation.agenda'),
     icon: CalendarClock,
   },
-  { to: '/#costs', label: t('navigation.expenses'), icon: ReceiptText },
+  {
+    to: selection.selectedId
+      ? `/vehicles/${selection.selectedId}/expenses`
+      : '/vehicles',
+    label: t('navigation.expenses'),
+    icon: ReceiptText,
+  },
+  {
+    to: '/reports',
+    label: t('navigation.reports'),
+    icon: ChartNoAxesColumnIncreasing,
+  },
   { to: '/componentes', label: t('navigation.components'), icon: Shapes },
   { to: '/logout', label: t('navigation.logout'), icon: LogOut },
 ]);
+const mobilePrimaryLinks = computed(() =>
+  links.value.filter((_, index) => index === 0 || index === 2),
+);
 </script>
 
 <template>
@@ -41,7 +56,7 @@ const links = computed(() => [
   >
     <template v-if="mobile">
       <NuxtLink
-        v-for="link in links.slice(0, 2)"
+        v-for="link in mobilePrimaryLinks"
         :key="link.to"
         :to="link.to"
         class="navigation-link"
@@ -63,9 +78,9 @@ const links = computed(() => [
         <CirclePlus :size="25" :stroke-width="1.75" aria-hidden="true" />
         <span>{{ t('navigation.add') }}</span>
       </button>
-      <NuxtLink :to="links[2]!.to" class="navigation-link">
+      <NuxtLink :to="links[3]!.to" class="navigation-link">
         <ReceiptText :size="21" :stroke-width="1.75" aria-hidden="true" />
-        <span>{{ links[2]!.label }}</span>
+        <span>{{ links[3]!.label }}</span>
       </NuxtLink>
       <NuxtLink to="/componentes" class="navigation-link">
         <MoreHorizontal :size="21" :stroke-width="1.75" aria-hidden="true" />

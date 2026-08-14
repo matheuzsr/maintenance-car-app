@@ -28,6 +28,7 @@
     "agenda": "Agenda",
     "add": "Adicionar",
     "expenses": "Despesas",
+    "reports": "Relatórios",
     "more": "Mais",
     "components": "Componentes",
     "vehicles": "Veículos",
@@ -94,7 +95,7 @@
     "odometer": "Atualização do odômetro",
     "maintenance": "Manutenção concluída",
     "expense": "Nova despesa",
-    "futureHint": "O registro de despesas será liberado na próxima etapa."
+    "futureHint": "Escolha um veículo para registrar esta informação."
   },
   "states": {
     "loading": "Carregando informações…",
@@ -179,7 +180,8 @@
       "vehicle": "Veículo",
       "plans": "Planos",
       "agenda": "Agenda",
-      "history": "Histórico"
+      "history": "Histórico",
+      "expenses": "Despesas"
     },
     "categories": {
       "ENGINE": "Motor",
@@ -382,6 +384,112 @@
       "validation": "Informe nome, categoria e pelo menos um intervalo válido.",
       "saveError": "Não foi possível salvar o plano. Revise os dados e tente novamente."
     }
+  },
+  "expenses": {
+    "categories": {
+      "LABOR": "Mão de obra",
+      "PARTS": "Peças",
+      "DIAGNOSTICS": "Diagnóstico",
+      "TOWING": "Guincho",
+      "OTHER": "Outros"
+    },
+    "filters": {
+      "category": "Categoria",
+      "allCategories": "Todas as categorias",
+      "from": "Ocorrida a partir de",
+      "to": "Ocorrida até"
+    },
+    "list": {
+      "metaTitle": "Despesas · Garagem em Dia",
+      "eyebrow": "Custos do veículo",
+      "title": "Despesas de manutenção",
+      "description": "Registre peças, mão de obra e outros custos relacionados à manutenção.",
+      "create": "Nova despesa",
+      "label": "Despesas registradas",
+      "linked": "Vinculada a uma manutenção",
+      "errorTitle": "Não foi possível carregar as despesas",
+      "errorDescription": "Verifique a conexão e os filtros informados.",
+      "emptyTitle": "Nenhuma despesa encontrada",
+      "emptyDescription": "Registre um custo ou altere os filtros aplicados.",
+      "pagination": "Paginação das despesas",
+      "page": "Página {page} de {total}"
+    },
+    "create": {
+      "metaTitle": "Nova despesa · Garagem em Dia",
+      "eyebrow": "Novo lançamento",
+      "title": "Registrar despesa",
+      "description": "Informe o valor exato e, se fizer parte de um serviço, vincule ao registro correspondente.",
+      "action": "Salvar despesa"
+    },
+    "edit": {
+      "metaTitle": "Editar despesa · Garagem em Dia",
+      "eyebrow": "Ajustar lançamento",
+      "title": "Editar despesa",
+      "description": "Atualize os dados ou altere o vínculo com a manutenção."
+    },
+    "detail": {
+      "metaTitle": "Detalhes da despesa · Garagem em Dia",
+      "link": "Vínculo",
+      "openRecord": "Abrir manutenção relacionada",
+      "standalone": "Despesa avulsa",
+      "errorTitle": "Despesa não encontrada",
+      "errorDescription": "Não foi possível carregar este lançamento."
+    },
+    "form": {
+      "category": "Categoria",
+      "description": "Descrição",
+      "incurredAt": "Data e hora da despesa",
+      "amount": "Valor (R$)",
+      "record": "Manutenção relacionada (opcional)",
+      "noRecord": "Despesa avulsa, sem manutenção",
+      "recordHint": "Itens vinculados detalham a manutenção e não são somados novamente no relatório.",
+      "notes": "Observações (opcional)",
+      "validation": "Revise a descrição, a data e o valor. Use no máximo duas casas decimais.",
+      "saveError": "Não foi possível salvar a despesa. O vínculo pode não estar mais disponível.",
+      "loadErrorTitle": "Não foi possível preparar a despesa",
+      "loadErrorDescription": "Os dados da despesa ou do histórico não puderam ser carregados."
+    },
+    "delete": {
+      "confirm": "Deseja excluir esta despesa?",
+      "error": "Não foi possível excluir a despesa.",
+      "conflict": "A despesa foi alterada ou possui um vínculo que impede esta operação. Atualize a página e tente novamente."
+    }
+  },
+  "reports": {
+    "metaTitle": "Relatórios · Garagem em Dia",
+    "eyebrow": "Custos sem duplicidade",
+    "title": "Relatório de manutenção",
+    "description": "Analise os custos mensais ou anuais do veículo selecionado.",
+    "filters": {
+      "period": "Agrupamento",
+      "monthly": "Mensal",
+      "yearly": "Anual",
+      "from": "Data inicial",
+      "to": "Data final",
+      "timezone": "Datas inclusivas calculadas em {timezone}."
+    },
+    "summary": {
+      "total": "Total sem duplicidade",
+      "service": "Total das manutenções",
+      "standalone": "Despesas avulsas",
+      "linked": "Itens detalhados já incluídos",
+      "noDoubleCount": "Total das manutenções + despesas avulsas. Itens vinculados já fazem parte do valor completo da manutenção."
+    },
+    "chart": {
+      "title": "Evolução dos custos",
+      "description": "Total sem duplicidade por período, com os valores exatos ao lado das barras.",
+      "summary": "Comparação dos custos por período. Cada barra possui seu valor monetário em texto.",
+      "omittedBuckets": "Períodos sem lançamentos podem não aparecer."
+    },
+    "categories": {
+      "title": "Lançamentos detalhados por categoria",
+      "description": "Soma de todos os itens de despesa, avulsos e vinculados.",
+      "disclaimer": "Esta lista detalha lançamentos e não representa a composição do total: itens vinculados já estão incluídos no custo completo da manutenção e não são somados novamente."
+    },
+    "emptyTitle": "Nenhum custo no período",
+    "emptyDescription": "Ajuste as datas ou registre uma manutenção ou despesa.",
+    "errorTitle": "Não foi possível gerar o relatório",
+    "errorDescription": "Revise o intervalo de datas e tente novamente."
   },
   "gallery": {
     "metaTitle": "Componentes · Garagem em Dia",

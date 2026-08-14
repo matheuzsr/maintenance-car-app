@@ -23,7 +23,7 @@ export class ReportsController {
   @ApiOperation({
     summary: 'Reports vehicle costs by calendar month or year',
     description:
-      'Separates maintenance record costs from standalone and maintenance-linked itemized expenses to prevent double counting.',
+      'Separates maintenance record costs, standalone expenses, and linked itemized expenses. Linked itemized expenses are excluded from the total to prevent double counting.',
   })
   @ApiOkResponse({ type: CostReportResponseDto })
   @ApiBadRequestResponse({

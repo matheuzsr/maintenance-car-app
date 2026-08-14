@@ -49,7 +49,13 @@ const quickActions = computed(() => [
       : '/vehicles',
     disabled: !selection.selectedId || !isOnline.value,
   },
-  { id: 'expense', to: '/#costs', disabled: true },
+  {
+    id: 'expense',
+    to: selection.selectedId
+      ? `/vehicles/${selection.selectedId}/expenses/new`
+      : '/vehicles',
+    disabled: !selection.selectedId || !isOnline.value,
+  },
 ]);
 async function openQuickAction(to: string): Promise<void> {
   createOpen.value = false;

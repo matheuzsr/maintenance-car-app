@@ -48,6 +48,12 @@ export type CompleteMaintenancePlanInput =
   ApiSchemas['CompleteMaintenancePlanDto'];
 export type UpdateMaintenanceRecordInput =
   ApiSchemas['UpdateMaintenanceRecordDto'];
+export type Expense = ApiSchemas['ExpenseResponseDto'];
+export type ExpenseCategory = Expense['category'];
+export type CreateExpenseInput = ApiSchemas['CreateExpenseDto'];
+export type UpdateExpenseInput = ApiSchemas['UpdateExpenseDto'];
+export type CostReport = ApiSchemas['CostReportResponseDto'];
+export type CostReportPeriod = CostReport['period'];
 export type PaginationMeta = ApiSchemas['PaginationMetaDto'];
 export interface Paginated<T> {
   data: T[];

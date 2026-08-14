@@ -29,7 +29,10 @@ export class ExpenseFieldsDto {
   @MaxLength(500)
   description!: string;
 
-  @ApiProperty({ example: '2026-08-13T12:00:00.000-03:00' })
+  @ApiProperty({
+    format: 'date-time',
+    example: '2026-08-13T12:00:00.000-03:00',
+  })
   @IsDateString({ strict: true })
   @Matches(TIMESTAMP_WITH_OFFSET_PATTERN, {
     message: 'incurredAt must include time and UTC offset',
@@ -48,6 +51,8 @@ export class ExpenseFieldsDto {
   amount!: string;
 
   @ApiPropertyOptional({
+    type: String,
+    nullable: true,
     example: 'Purchased directly from the manufacturer',
     maxLength: 2000,
   })
@@ -57,5 +62,5 @@ export class ExpenseFieldsDto {
   @IsOptional()
   @IsString()
   @MaxLength(2000)
-  notes?: string;
+  notes?: string | null;
 }

@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { ExpenseCategory } from '@prisma/client';
 
 export class ExpenseResponseDto {
@@ -11,7 +11,7 @@ export class ExpenseResponseDto {
   @ApiProperty({ format: 'uuid' })
   vehicleId!: string;
 
-  @ApiPropertyOptional({ format: 'uuid', nullable: true })
+  @ApiProperty({ type: String, format: 'uuid', nullable: true })
   maintenanceRecordId!: string | null;
 
   @ApiProperty({ enum: ExpenseCategory })
@@ -26,7 +26,7 @@ export class ExpenseResponseDto {
   @ApiProperty({ type: String, example: '249.90' })
   amount!: string;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiProperty({ type: String, nullable: true })
   notes!: string | null;
 
   @ApiProperty({ format: 'date-time' })
