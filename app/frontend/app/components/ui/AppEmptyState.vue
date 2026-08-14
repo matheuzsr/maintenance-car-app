@@ -12,9 +12,15 @@ defineEmits<{ action: [] }>();
       <h3>{{ title }}</h3>
       <p>{{ description }}</p>
     </div>
-    <AppButton v-if="actionLabel" variant="secondary" @click="$emit('action')">
-      {{ actionLabel }}
-    </AppButton>
+    <slot>
+      <AppButton
+        v-if="actionLabel"
+        variant="secondary"
+        @click="$emit('action')"
+      >
+        {{ actionLabel }}
+      </AppButton>
+    </slot>
   </section>
 </template>
 

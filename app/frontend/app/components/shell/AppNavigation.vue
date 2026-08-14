@@ -7,6 +7,8 @@ import {
   MoreHorizontal,
   ReceiptText,
   Shapes,
+  CarFront,
+  LogOut,
 } from 'lucide-vue-next';
 
 withDefaults(defineProps<{ mobile?: boolean }>(), { mobile: false });
@@ -15,9 +17,11 @@ const { t } = useI18n();
 
 const links = computed(() => [
   { to: '/', label: t('navigation.dashboard'), icon: Gauge },
+  { to: '/vehicles', label: t('navigation.vehicles'), icon: CarFront },
   { to: '/#agenda', label: t('navigation.agenda'), icon: CalendarClock },
   { to: '/#costs', label: t('navigation.expenses'), icon: ReceiptText },
   { to: '/componentes', label: t('navigation.components'), icon: Shapes },
+  { to: '/logout', label: t('navigation.logout'), icon: LogOut },
 ]);
 </script>
 

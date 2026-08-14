@@ -11,4 +11,14 @@ export interface RequestMetadata {
 export interface TokenPair {
   accessToken: string;
   refreshToken: string;
+  refreshTokenExpiresAt: Date;
+}
+
+export interface AuthenticationResult extends TokenPair {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    timezone: string;
+  };
 }

@@ -12,6 +12,20 @@ export const envValidationSchema = Joi.object({
     .min(60_000)
     .default(900_000),
   CORS_ORIGIN: Joi.string().required(),
+  TRUST_PROXY_HOPS: Joi.number()
+    .integer()
+    .min(0)
+    .max(3)
+    .when('NODE_ENV', {
+      is: 'production',
+      then: Joi.number().min(1).required(),
+      otherwise: Joi.number().default(0),
+    }),
+  AUTH_COOKIE_SECURE: Joi.boolean().when('NODE_ENV', {
+    is: 'production',
+    then: Joi.valid(true).required(),
+    otherwise: Joi.boolean().default(false),
+  }),
   JWT_ACCESS_SECRET: Joi.string().min(32).required(),
   JWT_ACCESS_EXPIRES_IN: Joi.string().default('15m'),
   JWT_REFRESH_SECRET: Joi.string()

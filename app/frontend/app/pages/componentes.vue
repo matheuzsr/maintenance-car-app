@@ -1,4 +1,5 @@
 <script setup lang="ts">
+definePageMeta({ middleware: 'auth' });
 const { t } = useI18n();
 useHead({ title: computed(() => t('gallery.metaTitle')) });
 const name = ref('');

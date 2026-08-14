@@ -11,6 +11,7 @@ import { Server } from 'node:http';
 
 interface AuthBody {
   accessToken: string;
+  refreshToken?: string;
 }
 
 interface VehicleBody {
@@ -106,6 +107,76 @@ describe('Core journeys (e2e)', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
     expect((fetched.body as VehicleBody).nickname).toBe('My car');
+  });
+
+  it('keeps refresh tokens in a rotating HttpOnly cookie and revokes on logout', async () => {
+    const agent = request.agent(server);
+    const registration = await agent
+      .post('/api/v1/auth/register')
+      .set('Origin', 'http://localhost:3001')
+      .send({
+        name: 'Cookie User',
+        email: 'cookies@example.com',
+        password: 'strong-password-123',
+      })
+      .expect(201);
+
+    expect((registration.body as AuthBody).refreshToken).toBeUndefined();
+    const registrationCookie = cookieHeader(registration.headers['set-cookie']);
+    expect(registrationCookie).toContain('maintenance_refresh=');
+    expect(registrationCookie).toContain('Path=/api/v1/auth');
+    expect(registrationCookie).toContain('HttpOnly');
+    expect(registrationCookie).toContain('SameSite=Strict');
+    expect(registrationCookie).not.toContain('Domain=');
+    expect(registrationCookie).not.toContain('Secure');
+
+    const refreshed = await agent
+      .post('/api/v1/auth/refresh')
+      .set('Origin', 'http://localhost:3001')
+      .send()
+      .expect(200);
+    expect((refreshed.body as AuthBody).accessToken).toEqual(
+      expect.any(String),
+    );
+    expect((refreshed.body as AuthBody).refreshToken).toBeUndefined();
+    const rotatedCookie = cookieHeader(refreshed.headers['set-cookie']);
+    expect(rotatedCookie).toContain('maintenance_refresh=');
+    expect(rotatedCookie.split(';')[0]).not.toBe(
+      registrationCookie.split(';')[0],
+    );
+
+    const sessionsBeforeLogout = await prisma.refreshSession.findMany({
+      orderBy: { createdAt: 'asc' },
+    });
+    expect(sessionsBeforeLogout).toHaveLength(2);
+    expect(sessionsBeforeLogout[0]?.revokedAt).not.toBeNull();
+    expect(sessionsBeforeLogout[1]?.revokedAt).toBeNull();
+
+    const logout = await agent
+      .post('/api/v1/auth/logout')
+      .set('Origin', 'http://localhost:3001')
+      .send()
+      .expect(200);
+    expect(logout.body).toEqual({ success: true });
+    const clearedCookie = cookieHeader(logout.headers['set-cookie']);
+    expect(clearedCookie).toContain('maintenance_refresh=;');
+    expect(clearedCookie).toContain('Path=/api/v1/auth');
+    expect(clearedCookie).toContain('HttpOnly');
+    expect(clearedCookie).toContain('SameSite=Strict');
+
+    await agent.post('/api/v1/auth/refresh').send().expect(401);
+    expect(
+      await prisma.refreshSession.count({ where: { revokedAt: null } }),
+    ).toBe(0);
+  });
+
+  it('rejects refresh without a cookie and cross-origin auth requests', async () => {
+    await request(server).post('/api/v1/auth/refresh').send().expect(401);
+    await request(server)
+      .post('/api/v1/auth/login')
+      .set('Origin', 'https://evil.example')
+      .send({ email: 'missing@example.com', password: 'strong-password-123' })
+      .expect(403);
   });
 
   it('hides another user vehicle as not found', async () => {
@@ -332,5 +403,10 @@ describe('Core journeys (e2e)', () => {
       .send({ name: 'Test User', email, password: 'strong-password-123' })
       .expect(201);
     return (response.body as AuthBody).accessToken;
+  }
+
+  function cookieHeader(value: string[] | string | undefined): string {
+    if (!value) throw new Error('Expected a Set-Cookie response header');
+    return Array.isArray(value) ? (value[0] ?? '') : value;
   }
 });

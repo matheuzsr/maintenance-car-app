@@ -10,7 +10,7 @@ import * as argon2 from 'argon2';
 import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
-import { RequestMetadata, TokenPair } from './auth.types';
+import { AuthenticationResult, RequestMetadata, TokenPair } from './auth.types';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
@@ -114,7 +114,10 @@ export class AuthService {
     });
   }
 
-  private async authenticationResponse(user: User, metadata: RequestMetadata) {
+  private async authenticationResponse(
+    user: User,
+    metadata: RequestMetadata,
+  ): Promise<AuthenticationResult> {
     const tokens = await this.createSession(user, metadata);
     return {
       user: {
@@ -133,7 +136,6 @@ export class AuthService {
   ): Promise<TokenPair> {
     const sessionId = randomUUID();
     const tokens = await this.signTokens(user, sessionId);
-    const refreshPayload = await this.verifyRefreshToken(tokens.refreshToken);
     await this.prisma.refreshSession.create({
       data: {
         id: sessionId,
@@ -142,7 +144,7 @@ export class AuthService {
         tokenHash: await argon2.hash(tokens.refreshToken, {
           type: argon2.argon2id,
         }),
-        expiresAt: new Date(refreshPayload.exp * 1000),
+        expiresAt: tokens.refreshTokenExpiresAt,
         ipAddress: metadata.ipAddress,
         userAgent: metadata.userAgent,
       },
@@ -158,7 +160,6 @@ export class AuthService {
   ): Promise<TokenPair> {
     const nextSessionId = randomUUID();
     const tokens = await this.signTokens(user, nextSessionId);
-    const payload = await this.verifyRefreshToken(tokens.refreshToken);
     const tokenHash = await argon2.hash(tokens.refreshToken, {
       type: argon2.argon2id,
     });
@@ -176,7 +177,7 @@ export class AuthService {
             userId: user.id,
             familyId,
             tokenHash,
-            expiresAt: new Date(payload.exp * 1000),
+            expiresAt: tokens.refreshTokenExpiresAt,
             ipAddress: metadata.ipAddress,
             userAgent: metadata.userAgent,
           },
@@ -226,7 +227,12 @@ export class AuthService {
         },
       ),
     ]);
-    return { accessToken, refreshToken };
+    const refreshPayload = await this.verifyRefreshToken(refreshToken);
+    return {
+      accessToken,
+      refreshToken,
+      refreshTokenExpiresAt: new Date(refreshPayload.exp * 1000),
+    };
   }
 
   private async verifyRefreshToken(

@@ -1,5 +1,6 @@
 import { Controller, Get, NotFoundException, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { AuthenticatedUserDto } from '../auth/dto/auth-response.dto';
 import { CurrentUserId } from '../auth/decorators/current-user-id.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UsersService } from './users.service';
@@ -12,7 +13,8 @@ export class UsersController {
   constructor(private readonly users: UsersService) {}
 
   @Get('me')
-  async me(@CurrentUserId() userId: string) {
+  @ApiOkResponse({ type: AuthenticatedUserDto })
+  async me(@CurrentUserId() userId: string): Promise<AuthenticatedUserDto> {
     const user = await this.users.findPublicProfile(userId);
     if (!user) throw new NotFoundException('User not found');
     return user;

@@ -1,17 +1,58 @@
 <script setup lang="ts">
 import { Bell, CarFront, ChevronRight } from 'lucide-vue-next';
+import { useQuery } from '@tanstack/vue-query';
+import { listVehicles, vehicleKeys } from '~/services/api/vehicles';
+import { vehicleSelectionTarget } from '~/utils/vehicle-navigation';
 
 const { t } = useI18n();
 const preferences = usePreferencesStore();
 const { isOnline } = useOnlineStatus();
-const selectedVehicle = ref('civic');
 const createOpen = ref(false);
-const vehicles = computed(() => [
-  { id: 'civic', label: t('shell.demoVehicles.civic') },
-  { id: 'corolla', label: t('shell.demoVehicles.corolla') },
-]);
+const session = useSessionStore();
+const selection = useVehicleSelectionStore();
+const route = useRoute();
+const vehiclesQuery = useQuery({
+  queryKey: vehicleKeys.all,
+  queryFn: listVehicles,
+  enabled: computed(() => session.authenticated),
+});
+const vehicles = computed(() =>
+  (vehiclesQuery.data.value?.data ?? []).map((vehicle) => ({
+    id: vehicle.id,
+    label: `${vehicle.nickname} · ${vehicle.brand} ${vehicle.model}`,
+  })),
+);
+const selectedVehicle = computed({
+  get: () => selection.selectedId,
+  set: async (id) => {
+    if (!id) return;
+    selection.select(id);
+    const routeId =
+      typeof route.params.id === 'string' ? route.params.id : undefined;
+    await navigateTo(
+      vehicleSelectionTarget(route.path, { ...route.query }, routeId, id),
+    );
+  },
+});
 
-onMounted(preferences.initialize);
+watch(
+  () => vehiclesQuery.data.value?.data,
+  (items) => {
+    if (!items) return;
+    selection.reconcile(
+      items.map(({ id }) => id),
+      typeof route.query.vehicle === 'string' ? route.query.vehicle : undefined,
+    );
+  },
+  { immediate: true },
+);
+
+onMounted(() => {
+  preferences.initialize();
+  selection.initialize(
+    typeof route.query.vehicle === 'string' ? route.query.vehicle : undefined,
+  );
+});
 onUnmounted(preferences.dispose);
 </script>
 
@@ -47,9 +88,9 @@ onUnmounted(preferences.dispose);
         />
         <div class="header-actions">
           <NuxtLink
-            to="/componentes"
+            to="/vehicles"
             class="icon-action"
-            :aria-label="t('navigation.components')"
+            :aria-label="t('navigation.vehicles')"
           >
             <CarFront :size="20" :stroke-width="1.75" aria-hidden="true" />
           </NuxtLink>

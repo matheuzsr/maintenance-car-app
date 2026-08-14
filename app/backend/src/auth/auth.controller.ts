@@ -6,9 +6,12 @@ import {
   Ip,
   Post,
   Req,
+  Res,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   ApiConflictResponse,
+  ApiCookieAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
@@ -16,22 +19,27 @@ import {
   ApiUnauthorizedResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
+import { AuthCookieService } from './auth-cookie.service';
+import { AuthOriginService } from './auth-origin.service';
 import { LoginDto } from './dto/login.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RegisterDto } from './dto/register.dto';
 import {
+  AccessTokenResponseDto,
   AuthResponseDto,
   LogoutResponseDto,
-  TokenPairResponseDto,
 } from './dto/auth-response.dto';
 
 @ApiTags('auth')
 @Controller({ path: 'auth', version: '1' })
 export class AuthController {
-  constructor(private readonly auth: AuthService) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly cookies: AuthCookieService,
+    private readonly origins: AuthOriginService,
+  ) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Creates an account and starts a session' })
@@ -39,15 +47,23 @@ export class AuthController {
   @ApiConflictResponse({ description: 'Email is already registered' })
   @ApiTooManyRequestsResponse({ description: 'Too many attempts' })
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
-  register(
+  async register(
     @Body() dto: RegisterDto,
     @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
     @Ip() ipAddress: string,
   ) {
-    return this.auth.register(dto, {
+    this.origins.assertAllowed(request);
+    const result = await this.auth.register(dto, {
       ipAddress,
       userAgent: request.get('user-agent'),
     });
+    this.cookies.set(
+      response,
+      result.refreshToken,
+      result.refreshTokenExpiresAt,
+    );
+    return { user: result.user, accessToken: result.accessToken };
   }
 
   @Post('login')
@@ -57,44 +73,79 @@ export class AuthController {
   @ApiTooManyRequestsResponse({ description: 'Too many attempts' })
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
-  login(
+  async login(
     @Body() dto: LoginDto,
     @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
     @Ip() ipAddress: string,
   ) {
-    return this.auth.login(dto, {
+    this.origins.assertAllowed(request);
+    const result = await this.auth.login(dto, {
       ipAddress,
       userAgent: request.get('user-agent'),
     });
+    this.cookies.set(
+      response,
+      result.refreshToken,
+      result.refreshTokenExpiresAt,
+    );
+    return { user: result.user, accessToken: result.accessToken };
   }
 
   @Post('refresh')
-  @ApiOperation({ summary: 'Rotates the refresh token and issues new tokens' })
-  @ApiOkResponse({ type: TokenPairResponseDto })
+  @ApiOperation({
+    summary: 'Rotates the refresh cookie and issues a new access token',
+    description:
+      'The browser sends the HttpOnly refresh cookie automatically. The response replaces it with a rotated cookie.',
+  })
+  @ApiCookieAuth('refresh-token')
+  @ApiOkResponse({ type: AccessTokenResponseDto })
   @ApiUnauthorizedResponse({
     description: 'Invalid or reused refresh token',
   })
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
-  refresh(
-    @Body() dto: RefreshTokenDto,
+  async refresh(
     @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
     @Ip() ipAddress: string,
   ) {
-    return this.auth.refresh(dto.refreshToken, {
+    this.origins.assertAllowed(request);
+    const refreshToken = this.cookies.read(request);
+    if (!refreshToken) throw new UnauthorizedException('Invalid refresh token');
+
+    const tokens = await this.auth.refresh(refreshToken, {
       ipAddress,
       userAgent: request.get('user-agent'),
     });
+    this.cookies.set(
+      response,
+      tokens.refreshToken,
+      tokens.refreshTokenExpiresAt,
+    );
+    return { accessToken: tokens.accessToken };
   }
 
   @Post('logout')
   @ApiOperation({
     summary: 'Revokes the session associated with a refresh token',
+    description:
+      'Revokes the session from the HttpOnly refresh cookie and expires the cookie in the browser.',
   })
+  @ApiCookieAuth('refresh-token')
   @ApiOkResponse({ type: LogoutResponseDto })
   @HttpCode(HttpStatus.OK)
-  async logout(@Body() dto: RefreshTokenDto): Promise<{ success: true }> {
-    await this.auth.logout(dto.refreshToken);
-    return { success: true };
+  async logout(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{ success: true }> {
+    this.origins.assertAllowed(request);
+    const refreshToken = this.cookies.read(request);
+    try {
+      if (refreshToken) await this.auth.logout(refreshToken);
+      return { success: true };
+    } finally {
+      this.cookies.clear(response);
+    }
   }
 }

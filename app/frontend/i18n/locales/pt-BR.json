@@ -7,7 +7,7 @@
     "confirm": "Confirmar",
     "delete": "Excluir",
     "disabled": "Indisponível",
-    "save": "Salvar alteração",
+    "save": "Salvar alterações",
     "saving": "Salvando…",
     "seeAll": "Ver histórico",
     "seeDetails": "Ver detalhes",
@@ -26,6 +26,8 @@
     "expenses": "Despesas",
     "more": "Mais",
     "components": "Componentes",
+    "vehicles": "Veículos",
+    "logout": "Sair",
     "quickAction": "Registro rápido",
     "notifications": "Notificações",
     "unreadNotifications": "Nenhuma notificação não lida | Uma notificação não lida | {count} notificações não lidas",
@@ -40,7 +42,48 @@
       "corolla": "Toyota Corolla · RIO 8A42"
     }
   },
-  "vehicles": { "switcherLabel": "Veículo em contexto" },
+  "vehicles": {
+    "switcherLabel": "Veículo em contexto",
+    "fields": {
+      "nickname": "Apelido",
+      "brand": "Marca",
+      "model": "Modelo",
+      "year": "Ano",
+      "licensePlate": "Placa (opcional)",
+      "odometer": "Quilometragem atual",
+      "recordedAt": "Data da leitura"
+    },
+    "list": {
+      "metaTitle": "Veículos · Garagem em Dia",
+      "eyebrow": "Sua garagem",
+      "title": "Veículos",
+      "description": "Gerencie os veículos e mantenha cada histórico separado.",
+      "create": "Adicionar veículo",
+      "emptyTitle": "Sua garagem está vazia",
+      "emptyDescription": "Adicione o primeiro veículo para começar a registrar o histórico.",
+      "errorTitle": "Não foi possível carregar os veículos",
+      "errorDescription": "Verifique a conexão e tente novamente."
+    },
+    "create": {
+      "metaTitle": "Adicionar veículo · Garagem em Dia",
+      "eyebrow": "Primeiro passo",
+      "title": "Adicione um veículo",
+      "description": "Esses dados formam a referência inicial do histórico.",
+      "action": "Salvar veículo",
+      "error": "Não foi possível salvar o veículo. Revise os dados e tente novamente."
+    },
+    "detail": {
+      "metaTitle": "Detalhes do veículo · Garagem em Dia",
+      "eyebrow": "Ficha do veículo",
+      "odometer": "Histórico do odômetro",
+      "errorTitle": "Veículo não encontrado",
+      "errorDescription": "Não foi possível carregar os dados deste veículo.",
+      "updateError": "Não foi possível salvar as alterações.",
+      "dangerTitle": "Excluir veículo",
+      "dangerDescription": "O veículo deixará de aparecer na garagem.",
+      "deleteConfirm": "Deseja mesmo excluir este veículo?"
+    }
+  },
   "quickAction": {
     "title": "O que deseja registrar?",
     "description": "A ação será vinculada ao veículo selecionado.",
@@ -69,6 +112,11 @@
     "eyebrow": "Sexta-feira, 14 de agosto",
     "title": "Seu carro pede atenção.",
     "subtitle": "Uma pendência e duas manutenções se aproximando.",
+    "realSubtitle": "Consulte os dados reais do veículo selecionado.",
+    "vehicleSelected": "Veículo selecionado",
+    "loadErrorTitle": "Não foi possível carregar sua garagem",
+    "loadErrorDescription": "Verifique a conexão e tente novamente.",
+    "futureModules": "Agenda, custos e atividade serão liberados nas próximas etapas.",
     "synced": "Dados atualizados",
     "summaryLabel": "Resumo do veículo selecionado",
     "odometer": {
@@ -176,7 +224,53 @@
     "emailPlaceholder": "voce{'@'}exemplo.com",
     "password": "Senha",
     "action": "Entrar",
-    "futureHint": "O acesso será habilitado na etapa de autenticação."
+    "error": "E-mail ou senha inválidos.",
+    "noAccount": "Ainda não tem uma conta?",
+    "register": "Criar conta"
+  },
+  "register": {
+    "metaTitle": "Criar conta · Garagem em Dia",
+    "eyebrow": "Nova garagem",
+    "title": "Comece seu histórico.",
+    "description": "Crie sua conta e cadastre o primeiro veículo.",
+    "name": "Nome",
+    "passwordHint": "Use pelo menos 12 caracteres.",
+    "passwordError": "A senha precisa ter pelo menos 12 caracteres.",
+    "action": "Criar conta",
+    "error": "Não foi possível criar a conta. O e-mail pode já estar em uso.",
+    "hasAccount": "Já tem uma conta?",
+    "login": "Entrar"
+  },
+  "logout": {
+    "metaTitle": "Saindo · Garagem em Dia",
+    "progress": "Encerrando sua sessão…",
+    "error": "Não foi possível confirmar a saída no servidor. Sua sessão continua ativa neste dispositivo.",
+    "tryAgain": "Tentar sair novamente",
+    "back": "Voltar à garagem"
+  },
+  "validation": { "reviewFields": "Revise os campos informados." },
+  "odometer": {
+    "metaTitle": "Odômetro · Garagem em Dia",
+    "eyebrow": "Caderno de bordo",
+    "title": "Histórico do odômetro",
+    "description": "Registre leituras para manter as previsões precisas.",
+    "back": "Voltar ao veículo",
+    "fields": {
+      "value": "Quilometragem",
+      "recordedAt": "Data da leitura",
+      "confirmLower": "Confirmo que esta leitura é menor que a referência atual"
+    },
+    "action": "Registrar leitura",
+    "createError": "Não foi possível registrar a leitura.",
+    "history": "Leituras registradas",
+    "errorTitle": "Não foi possível carregar as leituras",
+    "errorDescription": "Verifique a conexão e tente novamente.",
+    "emptyTitle": "Nenhuma leitura adicional",
+    "emptyDescription": "As novas leituras aparecerão aqui.",
+    "source": {
+      "MANUAL": "Manual",
+      "MAINTENANCE_RECORD": "Registro de manutenção"
+    }
   },
   "health": {
     "eyebrow": "Conexão do sistema",

@@ -1,9 +1,26 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'public' });
+definePageMeta({ layout: 'public', middleware: 'guest' });
 const { t } = useI18n();
 useHead({ title: computed(() => t('login.metaTitle')) });
 const email = ref('');
 const password = ref('');
+const error = ref('');
+const submitting = ref(false);
+async function submit(): Promise<void> {
+  submitting.value = true;
+  error.value = '';
+  try {
+    await useSessionStore().establish('login', {
+      email: email.value,
+      password: password.value,
+    });
+    await navigateTo('/');
+  } catch {
+    error.value = t('login.error');
+  } finally {
+    submitting.value = false;
+  }
+}
 </script>
 
 <template>
@@ -13,7 +30,7 @@ const password = ref('');
       <h1 id="login-title">{{ t('login.title') }}</h1>
       <span>{{ t('login.description') }}</span>
     </div>
-    <form @submit.prevent>
+    <form @submit.prevent="submit">
       <AppInput
         id="email"
         v-model="email"
@@ -29,10 +46,14 @@ const password = ref('');
         autocomplete="current-password"
         :label="t('login.password')"
       />
-      <AppButton block disabled type="submit">{{
+      <p v-if="error" class="form-error" role="alert">{{ error }}</p>
+      <AppButton block :loading="submitting" type="submit">{{
         t('login.action')
       }}</AppButton>
-      <p role="note">{{ t('login.futureHint') }}</p>
+      <p>
+        {{ t('login.noAccount') }}
+        <NuxtLink to="/register">{{ t('login.register') }}</NuxtLink>
+      </p>
     </form>
   </section>
 </template>

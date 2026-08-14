@@ -4,6 +4,7 @@ import {
   type OpenAPIObject,
   SwaggerModule,
 } from '@nestjs/swagger';
+import { REFRESH_COOKIE_NAME } from './auth/auth-cookie.service';
 
 export function createOpenApiDocument(app: INestApplication): OpenAPIObject {
   const config = new DocumentBuilder()
@@ -18,6 +19,16 @@ export function createOpenApiDocument(app: INestApplication): OpenAPIObject {
         description: 'Enter only the accessToken returned by login.',
       },
       'access-token',
+    )
+    .addCookieAuth(
+      REFRESH_COOKIE_NAME,
+      {
+        type: 'apiKey',
+        in: 'cookie',
+        description:
+          'HttpOnly rotating refresh cookie set by register/login and sent automatically by browsers. It is host-only, SameSite=Strict, and limited to /api/v1/auth.',
+      },
+      'refresh-token',
     )
     .build();
 

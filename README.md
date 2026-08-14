@@ -38,7 +38,8 @@ visible as a planned capability until S3-compatible storage is available.
 - Node.js 22 LTS, NestJS, strict TypeScript, and versioned REST endpoints;
 - PostgreSQL with Prisma and versioned migrations;
 - Redis and BullMQ for scheduled work and notifications;
-- short-lived JWT access tokens and rotating, revocable refresh tokens;
+- short-lived JWT access tokens and rotating, revocable refresh tokens carried
+  only in a host-only HttpOnly cookie;
 - Argon2id password hashing;
 - Swagger/OpenAPI;
 - Jest, Supertest, ESLint, and Prettier;
@@ -114,14 +115,17 @@ conflicts with local installations that commonly use `5432`.
 
 Open `http://localhost:3000/docs` after starting the API:
 
-1. Run `POST /api/v1/auth/register` or `POST /api/v1/auth/login`.
+1. Run `POST /api/v1/auth/register` or `POST /api/v1/auth/login`. Swagger keeps
+   the returned HttpOnly refresh cookie automatically.
 2. Copy the returned `accessToken`.
 3. Select **Authorize**, paste only the access token, and confirm.
 4. Exercise the protected user, vehicle, maintenance, and odometer endpoints.
 
-Authorization persists across page reloads. The OpenAPI JSON document is at
+Authorization persists across page reloads. `POST /api/v1/auth/refresh` and
+`POST /api/v1/auth/logout` have empty request bodies and use the cookie set by
+register/login. The OpenAPI JSON document is at
 `http://localhost:3000/docs/openapi.json` and can be imported into Postman or
-Insomnia. Refresh tokens belong only in `/auth/refresh` and `/auth/logout`.
+Insomnia. Non-browser clients must retain and resend the refresh cookie.
 
 ## Quality checks
 
@@ -193,6 +197,12 @@ Production readiness checks are part of Phase 5 observability work.
 - authentication endpoints have stricter rate limits;
 - access and refresh secrets must be long and independent;
 - refresh tokens are stored only as Argon2 hashes and rotated by family;
+- refresh cookies use `SameSite=Strict`, have no `Domain`, and are restricted to
+  `/api/v1/auth`; production requires `AUTH_COOKIE_SECURE=true`;
+- auth POST requests reject browser origins outside `CORS_ORIGIN`; clients send
+  JSON and use credentialed requests for refresh/logout;
+- production behind the same-site Caddy proxy uses `TRUST_PROXY_HOPS=1`, and
+  the API port must not be exposed directly;
 - every owned resource is filtered by the authenticated `userId`;
 - compound database constraints reinforce multi-user isolation;
 - money uses decimal columns and decimal strings, never floating point;

@@ -51,7 +51,7 @@ export class CreateVehicleDto {
   @Max(2200)
   year!: number;
 
-  @ApiPropertyOptional({ example: 'ABC1D23' })
+  @ApiPropertyOptional({ example: 'ABC1D23', nullable: true, type: String })
   @Transform(({ value }): unknown =>
     typeof value === 'string'
       ? value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
@@ -60,7 +60,7 @@ export class CreateVehicleDto {
   @IsOptional()
   @IsString()
   @MaxLength(20)
-  licensePlate?: string;
+  licensePlate?: string | null;
 
   @ApiProperty({ example: 45000, minimum: 0 })
   @Type(() => Number)

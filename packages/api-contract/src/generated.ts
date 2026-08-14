@@ -47,7 +47,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Rotates the refresh token and issues new tokens */
+    /**
+     * Rotates the refresh cookie and issues a new access token
+     * @description The browser sends the HttpOnly refresh cookie automatically. The response replaces it with a rotated cookie.
+     */
     post: operations['AuthController_refresh_v1'];
     delete?: never;
     options?: never;
@@ -64,7 +67,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Revokes the session associated with a refresh token */
+    /**
+     * Revokes the session associated with a refresh token
+     * @description Revokes the session from the HttpOnly refresh cookie and expires the cookie in the browser.
+     */
     post: operations['AuthController_logout_v1'];
     delete?: never;
     options?: never;
@@ -470,22 +476,15 @@ export interface components {
       user: components['schemas']['AuthenticatedUserDto'];
       /** @description Use this value in the Swagger Authorize dialog. */
       accessToken: string;
-      /** @description Use only for refresh and logout. */
-      refreshToken: string;
     };
     LoginDto: {
       /** @example matheus@example.com */
       email: string;
       password: string;
     };
-    RefreshTokenDto: {
-      refreshToken: string;
-    };
-    TokenPairResponseDto: {
+    AccessTokenResponseDto: {
       /** @description New access token. */
       accessToken: string;
-      /** @description New refresh token; the previous one was revoked. */
-      refreshToken: string;
     };
     LogoutResponseDto: {
       /** @example true */
@@ -549,7 +548,7 @@ export interface components {
       /** @example 2022 */
       year: number;
       /** @example ABC1D23 */
-      licensePlate?: string;
+      licensePlate?: string | null;
       /** @example 45000 */
       currentOdometerKm: number;
       /** @example 2026-08-13T12:00:00.000Z */
@@ -566,7 +565,7 @@ export interface components {
       /** @example 2022 */
       year?: number;
       /** @example ABC1D23 */
-      licensePlate?: string;
+      licensePlate?: string | null;
     };
     CreateOdometerReadingDto: {
       /** @example 45500 */
@@ -1126,18 +1125,14 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['RefreshTokenDto'];
-      };
-    };
+    requestBody?: never;
     responses: {
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TokenPairResponseDto'];
+          'application/json': components['schemas']['AccessTokenResponseDto'];
         };
       };
       /** @description Invalid or reused refresh token */
@@ -1156,11 +1151,7 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['RefreshTokenDto'];
-      };
-    };
+    requestBody?: never;
     responses: {
       200: {
         headers: {
@@ -1185,7 +1176,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['AuthenticatedUserDto'];
+        };
       };
     };
   };

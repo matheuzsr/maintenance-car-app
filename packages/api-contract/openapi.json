@@ -75,25 +75,16 @@
     },
     "/api/v1/auth/refresh": {
       "post": {
+        "description": "The browser sends the HttpOnly refresh cookie automatically. The response replaces it with a rotated cookie.",
         "operationId": "AuthController_refresh_v1",
         "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshTokenDto"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TokenPairResponseDto"
+                  "$ref": "#/components/schemas/AccessTokenResponseDto"
                 }
               }
             }
@@ -102,24 +93,20 @@
             "description": "Invalid or reused refresh token"
           }
         },
-        "summary": "Rotates the refresh token and issues new tokens",
+        "security": [
+          {
+            "refresh-token": []
+          }
+        ],
+        "summary": "Rotates the refresh cookie and issues a new access token",
         "tags": ["auth"]
       }
     },
     "/api/v1/auth/logout": {
       "post": {
+        "description": "Revokes the session from the HttpOnly refresh cookie and expires the cookie in the browser.",
         "operationId": "AuthController_logout_v1",
         "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshTokenDto"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "",
@@ -132,6 +119,11 @@
             }
           }
         },
+        "security": [
+          {
+            "refresh-token": []
+          }
+        ],
         "summary": "Revokes the session associated with a refresh token",
         "tags": ["auth"]
       }
@@ -142,7 +134,14 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticatedUserDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1805,6 +1804,12 @@
         "bearerFormat": "JWT",
         "type": "http",
         "description": "Enter only the accessToken returned by login."
+      },
+      "refresh-token": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "maintenance_refresh",
+        "description": "HttpOnly rotating refresh cookie set by register/login and sent automatically by browsers. It is host-only, SameSite=Strict, and limited to /api/v1/auth."
       }
     },
     "schemas": {
@@ -1858,13 +1863,9 @@
           "accessToken": {
             "type": "string",
             "description": "Use this value in the Swagger Authorize dialog."
-          },
-          "refreshToken": {
-            "type": "string",
-            "description": "Use only for refresh and logout."
           }
         },
-        "required": ["user", "accessToken", "refreshToken"]
+        "required": ["user", "accessToken"]
       },
       "LoginDto": {
         "type": "object",
@@ -1879,28 +1880,15 @@
         },
         "required": ["email", "password"]
       },
-      "RefreshTokenDto": {
-        "type": "object",
-        "properties": {
-          "refreshToken": {
-            "type": "string"
-          }
-        },
-        "required": ["refreshToken"]
-      },
-      "TokenPairResponseDto": {
+      "AccessTokenResponseDto": {
         "type": "object",
         "properties": {
           "accessToken": {
             "type": "string",
             "description": "New access token."
-          },
-          "refreshToken": {
-            "type": "string",
-            "description": "New refresh token; the previous one was revoked."
           }
         },
-        "required": ["accessToken", "refreshToken"]
+        "required": ["accessToken"]
       },
       "LogoutResponseDto": {
         "type": "object",
@@ -2056,7 +2044,8 @@
           },
           "licensePlate": {
             "type": "string",
-            "example": "ABC1D23"
+            "example": "ABC1D23",
+            "nullable": true
           },
           "currentOdometerKm": {
             "type": "number",
@@ -2104,7 +2093,8 @@
           },
           "licensePlate": {
             "type": "string",
-            "example": "ABC1D23"
+            "example": "ABC1D23",
+            "nullable": true
           }
         }
       },

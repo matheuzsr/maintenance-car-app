@@ -8,6 +8,13 @@ import { configureOpenApi } from './openapi';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
+  const trustProxyHops = config.getOrThrow<number>('TRUST_PROXY_HOPS');
+  if (trustProxyHops > 0) {
+    const expressInstance = app.getHttpAdapter().getInstance() as {
+      set(name: string, value: number): void;
+    };
+    expressInstance.set('trust proxy', trustProxyHops);
+  }
 
   app.use(
     helmet({
@@ -22,7 +29,10 @@ async function bootstrap(): Promise<void> {
     }),
   );
   app.enableCors({
-    origin: config.getOrThrow<string>('CORS_ORIGIN').split(','),
+    origin: config
+      .getOrThrow<string>('CORS_ORIGIN')
+      .split(',')
+      .map((origin) => origin.trim()),
     credentials: true,
   });
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
