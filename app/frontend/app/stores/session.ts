@@ -5,11 +5,13 @@ import type { AuthenticatedUser, LoginInput, RegisterInput } from '~/types/api';
 import { useAuthTransport } from '~/services/api/auth-transport';
 import { runRefreshExclusive } from '~/services/api/refresh-lock';
 import { useVehicleSelectionStore } from '~/stores/vehicle-selection';
+import { disableCurrentBrowserPushSubscription } from '~/services/api/notifications';
 
 export const useSessionStore = defineStore('session', () => {
   const accessToken = ref<string>();
   const user = ref<AuthenticatedUser>();
   const initialized = ref(false);
+  const pushSubscriptionConflict = ref(false);
   let refreshRequest: Promise<boolean> | undefined;
 
   const authenticated = computed(() =>
@@ -31,6 +33,7 @@ export const useSessionStore = defineStore('session', () => {
         ? await transport.login(input as LoginInput)
         : await transport.register(input as RegisterInput);
     clearAuthenticatedClientState();
+    pushSubscriptionConflict.value = false;
     accessToken.value = response.accessToken;
     user.value = response.user;
     initialized.value = true;
@@ -49,6 +52,7 @@ export const useSessionStore = defineStore('session', () => {
         clearAuthenticatedClientState();
         accessToken.value = undefined;
         user.value = undefined;
+        pushSubscriptionConflict.value = false;
         return false;
       } finally {
         initialized.value = true;
@@ -63,22 +67,34 @@ export const useSessionStore = defineStore('session', () => {
     await refresh();
   }
 
-  async function logout(): Promise<void> {
+  async function logout(): Promise<{ pushCleanupSucceeded: boolean }> {
+    let pushCleanupSucceeded = true;
+    try {
+      await disableCurrentBrowserPushSubscription();
+    } catch {
+      pushCleanupSucceeded = false;
+    }
     await useAuthTransport().logout();
     clearAuthenticatedClientState();
     accessToken.value = undefined;
     user.value = undefined;
+    pushSubscriptionConflict.value = false;
     initialized.value = true;
+    return { pushCleanupSucceeded };
   }
 
   return {
     accessToken,
     authenticated,
     initialized,
+    pushSubscriptionConflict,
     user,
     establish,
     initialize,
     logout,
     refresh,
+    setPushSubscriptionConflict: (conflict: boolean) => {
+      pushSubscriptionConflict.value = conflict;
+    },
   };
 });

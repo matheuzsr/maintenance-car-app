@@ -74,7 +74,24 @@ export class PushSubscriptionsService {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2002'
       ) {
-        throw new ConflictException('This push endpoint is already registered');
+        const raced = await this.prisma.pushSubscription.findUnique({
+          where: { endpoint: dto.endpoint },
+        });
+        if (!raced || raced.userId !== userId) {
+          throw new ConflictException(
+            'This push endpoint is already registered',
+          );
+        }
+        return this.prisma.pushSubscription.update({
+          where: { id: raced.id, userId },
+          data: {
+            p256dh: dto.p256dh,
+            auth: dto.auth,
+            userAgent: dto.userAgent,
+            disabledAt: null,
+          },
+          select: publicSubscriptionSelect,
+        });
       }
       throw error;
     }

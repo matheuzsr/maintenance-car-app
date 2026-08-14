@@ -1,4 +1,5 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { PushSubscriptionsService } from './push-subscriptions.service';
@@ -7,8 +8,8 @@ describe('PushSubscriptionsService', () => {
   const userId = 'user-1';
   const dto = {
     endpoint: 'https://push.example.test/subscription',
-    p256dh: 'public-key',
-    auth: 'auth-secret',
+    p256dh: Buffer.alloc(65).toString('base64url'),
+    auth: Buffer.alloc(16).toString('base64url'),
     userAgent: 'Test browser',
   };
   const pushSubscription = {
@@ -71,6 +72,26 @@ describe('PushSubscriptionsService', () => {
       ConflictException,
     );
     expect(pushSubscription.update).not.toHaveBeenCalled();
+  });
+
+  it('recovers an owned endpoint created concurrently', async () => {
+    pushSubscription.findUnique
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ id: 'subscription-1', userId });
+    pushSubscription.create.mockRejectedValue(
+      new Prisma.PrismaClientKnownRequestError('Unique constraint', {
+        code: 'P2002',
+        clientVersion: '6.19.3',
+      }),
+    );
+    pushSubscription.update.mockResolvedValue({ id: 'subscription-1' });
+
+    await expect(service.register(userId, dto)).resolves.toEqual({
+      id: 'subscription-1',
+    });
+    expect(pushSubscription.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'subscription-1', userId } }),
+    );
   });
 
   it('only disables an active subscription owned by the user', async () => {

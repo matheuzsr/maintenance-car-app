@@ -57,13 +57,13 @@ describe('MaintenanceAlertGeneratorService', () => {
           trigger: 'DATE',
           severity: 'DUE_SOON',
           dedupKey: 'plan-1:DATE:DUE_SOON:2026-08-28',
-          reason: '14 day(s) remaining until due',
+          reason: 'Vence em 14 dias',
         }),
         expect.objectContaining({
           trigger: 'ODOMETER',
           severity: 'DUE_SOON',
           dedupKey: 'plan-1:ODOMETER:DUE_SOON:30000',
-          reason: '500 km remaining until the limit',
+          reason: 'Faltam 500 km',
         }),
       ]),
     );

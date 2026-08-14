@@ -42,4 +42,35 @@ describe('environment validation', () => {
     expect(value.AUTH_COOKIE_SECURE).toBe(false);
     expect(value.TRUST_PROXY_HOPS).toBe(0);
   });
+
+  it('accepts only complete VAPID credentials with canonical key shapes', () => {
+    const publicKey = Buffer.concat([
+      Buffer.from([0x04]),
+      Buffer.alloc(64),
+    ]).toString('base64url');
+    const privateKey = Buffer.alloc(32).toString('base64url');
+    expect(
+      envValidationSchema.validate({
+        ...base,
+        VAPID_PUBLIC_KEY: publicKey,
+        VAPID_PRIVATE_KEY: privateKey,
+        VAPID_SUBJECT: 'mailto:alerts@example.test',
+      }).error,
+    ).toBeUndefined();
+
+    expect(
+      envValidationSchema.validate({
+        ...base,
+        VAPID_PUBLIC_KEY: publicKey,
+      }).error,
+    ).toBeDefined();
+    expect(
+      envValidationSchema.validate({
+        ...base,
+        VAPID_PUBLIC_KEY: Buffer.alloc(65).toString('base64url'),
+        VAPID_PRIVATE_KEY: privateKey,
+        VAPID_SUBJECT: 'mailto:alerts@example.test',
+      }).error,
+    ).toBeDefined();
+  });
 });

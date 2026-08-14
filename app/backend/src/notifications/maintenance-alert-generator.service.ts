@@ -89,20 +89,22 @@ export class MaintenanceAlertGeneratorService {
     status: ReturnType<typeof calculateMaintenanceStatus>,
   ): AlertCandidate[] {
     const candidates: AlertCandidate[] = [];
-    const title = `Maintenance alert: ${plan.name}`;
-
     if (
       (status.timeStatus.status === DueStatus.DUE_SOON ||
         status.timeStatus.status === DueStatus.OVERDUE) &&
       status.timeStatus.dueDate
     ) {
       const severity = this.toSeverity(status.timeStatus.status);
+      const title =
+        severity === NotificationSeverity.OVERDUE
+          ? 'Manutenção atrasada'
+          : 'Manutenção próxima';
       const reason =
         severity === NotificationSeverity.OVERDUE
-          ? `Overdue by ${status.timeStatus.overdueByDays ?? 0} day(s)`
+          ? `Atrasada há ${status.timeStatus.overdueByDays ?? 0} ${(status.timeStatus.overdueByDays ?? 0) === 1 ? 'dia' : 'dias'}`
           : status.timeStatus.remainingDays === 0
-            ? 'Due today based on the time interval'
-            : `${status.timeStatus.remainingDays ?? 0} day(s) remaining until due`;
+            ? 'Vence hoje pelo intervalo de tempo'
+            : `Vence em ${status.timeStatus.remainingDays ?? 0} ${(status.timeStatus.remainingDays ?? 0) === 1 ? 'dia' : 'dias'}`;
       candidates.push({
         userId: plan.userId,
         vehicleId: plan.vehicleId,
@@ -111,7 +113,7 @@ export class MaintenanceAlertGeneratorService {
         trigger: NotificationTrigger.DATE,
         severity,
         title,
-        body: `${plan.name} for ${plan.vehicle.nickname}: ${reason}.`,
+        body: `${plan.name} — ${plan.vehicle.nickname}: ${reason}.`,
         reason,
         dueDate: DateTime.fromISO(status.timeStatus.dueDate, {
           zone: 'utc',
@@ -126,12 +128,16 @@ export class MaintenanceAlertGeneratorService {
       status.odometerStatus.dueAtKm !== undefined
     ) {
       const severity = this.toSeverity(status.odometerStatus.status);
+      const title =
+        severity === NotificationSeverity.OVERDUE
+          ? 'Manutenção atrasada'
+          : 'Manutenção próxima';
       const reason =
         severity === NotificationSeverity.OVERDUE
           ? status.odometerStatus.overdueByKm === 0
-            ? 'Reached the mileage limit'
-            : `Exceeded the mileage limit by ${status.odometerStatus.overdueByKm ?? 0} km`
-          : `${status.odometerStatus.remainingKm ?? 0} km remaining until the limit`;
+            ? 'Limite de quilometragem atingido'
+            : `Limite excedido em ${status.odometerStatus.overdueByKm ?? 0} km`
+          : `Faltam ${status.odometerStatus.remainingKm ?? 0} km`;
       candidates.push({
         userId: plan.userId,
         vehicleId: plan.vehicleId,
@@ -140,7 +146,7 @@ export class MaintenanceAlertGeneratorService {
         trigger: NotificationTrigger.ODOMETER,
         severity,
         title,
-        body: `${plan.name} for ${plan.vehicle.nickname}: ${reason}.`,
+        body: `${plan.name} — ${plan.vehicle.nickname}: ${reason}.`,
         reason,
         dueDate: null,
         dueOdometerKm: status.odometerStatus.dueAtKm,

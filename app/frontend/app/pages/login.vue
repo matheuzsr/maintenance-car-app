@@ -1,6 +1,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'public', middleware: 'guest' });
 const { t } = useI18n();
+const route = useRoute();
 useHead({ title: computed(() => t('login.metaTitle')) });
 const email = ref('');
 const password = ref('');
@@ -31,6 +32,13 @@ async function submit(): Promise<void> {
       <span>{{ t('login.description') }}</span>
     </div>
     <form @submit.prevent="submit">
+      <p
+        v-if="route.query.pushCleanup === 'failed'"
+        class="login-warning"
+        role="status"
+      >
+        {{ t('login.pushCleanupWarning') }}
+      </p>
       <AppInput
         id="email"
         v-model="email"
@@ -96,6 +104,12 @@ form p {
   margin: 0;
   color: var(--text-muted);
   font-size: 0.75rem;
+}
+.login-warning {
+  padding: 0.75rem;
+  color: var(--warning);
+  background: var(--warning-soft);
+  border-left: 0.1875rem solid var(--warning);
 }
 @media (max-width: 42rem) {
   .login-panel {

@@ -9,8 +9,11 @@ async function logout(): Promise<void> {
   submitting.value = true;
   error.value = '';
   try {
-    await useSessionStore().logout();
-    await navigateTo('/login', { replace: true });
+    const result = await useSessionStore().logout();
+    await navigateTo(
+      result.pushCleanupSucceeded ? '/login' : '/login?pushCleanup=failed',
+      { replace: true },
+    );
   } catch {
     error.value = t('logout.error');
   } finally {

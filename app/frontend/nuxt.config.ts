@@ -10,7 +10,7 @@ const environment = z
 export default defineNuxtConfig({
   compatibilityDate: '2026-08-14',
   devtools: { enabled: true },
-  modules: ['@nuxt/eslint', '@nuxtjs/i18n', '@pinia/nuxt'],
+  modules: ['@nuxt/eslint', '@nuxtjs/i18n', '@pinia/nuxt', '@vite-pwa/nuxt'],
   ssr: false,
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
@@ -36,5 +36,70 @@ export default defineNuxtConfig({
         name: 'Português (Brasil)',
       },
     ],
+  },
+  pwa: {
+    strategies: 'injectManifest',
+    srcDir: '../service-worker',
+    filename: 'sw.ts',
+    registerType: 'prompt',
+    injectRegister: 'auto',
+    includeAssets: [
+      'icons/app-icon.svg',
+      'icons/pwa-64x64.png',
+      'icons/notification-badge-96x96.png',
+      'icons/apple-touch-icon-180x180.png',
+    ],
+    manifest: {
+      id: '/',
+      name: 'Garagem em Dia',
+      short_name: 'Garagem',
+      description: 'Histórico, agenda e custos de manutenção veicular.',
+      lang: 'pt-BR',
+      start_url: '/',
+      scope: '/',
+      display: 'standalone',
+      orientation: 'any',
+      background_color: '#f3efea',
+      theme_color: '#6f1d2b',
+      categories: ['automotive', 'utilities'],
+      icons: [
+        {
+          src: '/icons/pwa-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'any',
+        },
+        {
+          src: '/icons/pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any',
+        },
+        {
+          src: '/icons/maskable-icon-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable',
+        },
+      ],
+      shortcuts: [
+        {
+          name: 'Notificações',
+          short_name: 'Alertas',
+          url: '/notifications',
+        },
+      ],
+    },
+    injectManifest: {
+      globPatterns: ['**/*.{js,css,html,svg,ico,woff2}'],
+      maximumFileSizeToCacheInBytes: 3_000_000,
+    },
+    client: {
+      installPrompt: 'garage-em-dia:hide-install',
+      periodicSyncForUpdates: 3600,
+    },
+    devOptions: {
+      enabled: false,
+    },
   },
 });

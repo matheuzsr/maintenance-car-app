@@ -1042,15 +1042,15 @@ export interface components {
       body: string;
       reason: string;
       /** Format: date */
-      dueDate?: Record<string, never> | null;
-      dueOdometerKm?: Record<string, never> | null;
+      dueDate?: string | null;
+      dueOdometerKm?: number | null;
       /** @enum {string} */
       status:
         'PENDING' | 'QUEUED' | 'DELIVERED' | 'PARTIALLY_FAILED' | 'FAILED';
       /** Format: date-time */
-      sentAt?: Record<string, never> | null;
+      sentAt?: string | null;
       /** Format: date-time */
-      readAt?: Record<string, never> | null;
+      readAt?: string | null;
       /** Format: date-time */
       createdAt: string;
     };
@@ -1081,9 +1081,9 @@ export interface components {
       /** Format: uuid */
       id: string;
       endpoint: string;
-      userAgent?: Record<string, never> | null;
+      userAgent?: string | null;
       /** Format: date-time */
-      disabledAt?: Record<string, never> | null;
+      disabledAt?: string | null;
       /** Format: date-time */
       createdAt: string;
       /** Format: date-time */
@@ -2094,8 +2094,8 @@ export interface operations {
   NotificationsController_findAll_v1: {
     parameters: {
       query?: {
-        page?: components['schemas']['Object'];
-        limit?: components['schemas']['Object'];
+        page?: number;
+        limit?: number;
         /** @description When true, returns only notifications not marked as read. */
         unreadOnly?: boolean;
       };

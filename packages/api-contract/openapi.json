@@ -1545,11 +1545,7 @@
             "schema": {
               "minimum": 1,
               "default": 1,
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/Object"
-                }
-              ]
+              "type": "number"
             }
           },
           {
@@ -1560,11 +1556,7 @@
               "minimum": 1,
               "maximum": 100,
               "default": 20,
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/Object"
-                }
-              ]
+              "type": "number"
             }
           },
           {
@@ -3097,12 +3089,12 @@
             "type": "string"
           },
           "dueDate": {
-            "type": "object",
+            "type": "string",
             "format": "date",
             "nullable": true
           },
           "dueOdometerKm": {
-            "type": "object",
+            "type": "number",
             "nullable": true
           },
           "status": {
@@ -3116,12 +3108,12 @@
             ]
           },
           "sentAt": {
-            "type": "object",
+            "type": "string",
             "format": "date-time",
             "nullable": true
           },
           "readAt": {
-            "type": "object",
+            "type": "string",
             "format": "date-time",
             "nullable": true
           },
@@ -3210,11 +3202,11 @@
             "type": "string"
           },
           "userAgent": {
-            "type": "object",
+            "type": "string",
             "nullable": true
           },
           "disabledAt": {
-            "type": "object",
+            "type": "string",
             "format": "date-time",
             "nullable": true
           },

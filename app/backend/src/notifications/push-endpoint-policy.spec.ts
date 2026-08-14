@@ -2,7 +2,7 @@ import { isAllowedPushEndpoint } from './push-endpoint-policy';
 
 describe('isAllowedPushEndpoint', () => {
   const hosts =
-    'fcm.googleapis.com,updates.push.services.mozilla.com,*.notify.windows.com';
+    'fcm.googleapis.com,updates.push.services.mozilla.com,*.push.apple.com,*.notify.windows.com';
 
   it('accepts exact and wildcard push-service hosts over HTTPS', () => {
     expect(
@@ -10,6 +10,12 @@ describe('isAllowedPushEndpoint', () => {
     ).toBe(true);
     expect(
       isAllowedPushEndpoint('https://wns2.notify.windows.com/push/abc', hosts),
+    ).toBe(true);
+    expect(
+      isAllowedPushEndpoint(
+        'https://web.push.apple.com/QH26Y2YFZAFRUGZE7FQR6L',
+        hosts,
+      ),
     ).toBe(true);
   });
 

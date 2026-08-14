@@ -35,12 +35,13 @@
     "logout": "Sair",
     "quickAction": "Registro rápido",
     "notifications": "Notificações",
+    "settings": "Preferências",
     "unreadNotifications": "Nenhuma notificação não lida | Uma notificação não lida | {count} notificações não lidas",
     "mobileLabel": "Navegação principal para celular",
     "desktopLabel": "Navegação principal"
   },
   "shell": {
-    "version": "Fundação visual · F1",
+    "version": "Aplicativo instalável · F6",
     "publicFooter": "Controle de manutenção veicular, sem ruído.",
     "demoVehicles": {
       "civic": "Honda Civic · BRA 2E19",
@@ -491,6 +492,98 @@
     "errorTitle": "Não foi possível gerar o relatório",
     "errorDescription": "Revise o intervalo de datas e tente novamente."
   },
+  "notifications": {
+    "severity": {
+      "DUE_SOON": "Em breve",
+      "OVERDUE": "Atrasada"
+    },
+    "inbox": {
+      "metaTitle": "Notificações · Garagem em Dia",
+      "eyebrow": "Central de alertas",
+      "title": "Notificações",
+      "description": "Acompanhe os avisos de manutenção mesmo sem ativar alertas do navegador.",
+      "settings": "Configurar alertas",
+      "unreadOnly": "Mostrar somente não lidas",
+      "unread": "Não lida",
+      "listLabel": "Alertas de manutenção",
+      "errorTitle": "Não foi possível carregar as notificações",
+      "errorDescription": "Verifique a conexão e tente novamente.",
+      "readError": "Não foi possível abrir e marcar esta notificação como lida.",
+      "emptyTitle": "Nenhuma notificação",
+      "emptyDescription": "Os próximos avisos de prazo e quilometragem aparecerão aqui.",
+      "noUnreadDescription": "Você já leu todos os alertas disponíveis.",
+      "pagination": "Paginação das notificações",
+      "page": "Página {page} de {total}"
+    },
+    "settings": {
+      "metaTitle": "Alertas no dispositivo · Garagem em Dia",
+      "eyebrow": "Este dispositivo",
+      "title": "Alertas no dispositivo",
+      "description": "Escolha se este navegador pode avisar quando uma manutenção estiver próxima ou atrasada.",
+      "openInbox": "Abrir central de notificações"
+    },
+    "push": {
+      "eyebrow": "Web Push",
+      "privacy": "O nome da manutenção e do veículo pode aparecer na tela bloqueada. Ative somente em um dispositivo de confiança.",
+      "enable": "Ativar alertas neste dispositivo",
+      "disable": "Desativar neste dispositivo",
+      "reset": "Redefinir alertas neste dispositivo",
+      "error": "Não foi possível atualizar os alertas. A central de notificações continua disponível.",
+      "offline": "Conecte-se à internet para alterar esta configuração.",
+      "states": {
+        "unsupported": {
+          "title": "Alertas não compatíveis",
+          "description": "Este navegador não oferece os recursos necessários para alertas no dispositivo."
+        },
+        "install-required": {
+          "title": "Instale o app primeiro",
+          "description": "No iPhone ou iPad, adicione o Garagem em Dia à Tela de Início e abra o app instalado para ativar alertas."
+        },
+        "denied": {
+          "title": "Permissão bloqueada",
+          "description": "A permissão foi negada nas configurações do navegador. Libere-a por lá e volte a esta tela."
+        },
+        "prompt": {
+          "title": "Receba avisos no momento certo",
+          "description": "Depois da sua confirmação, o navegador perguntará se pode mostrar alertas de prazo e quilometragem."
+        },
+        "unsubscribed": {
+          "title": "Alertas disponíveis",
+          "description": "A permissão está liberada, mas este dispositivo ainda não está registrado para receber avisos."
+        },
+        "subscribed": {
+          "title": "Alertas ativos",
+          "description": "Este dispositivo está registrado para receber avisos de manutenção."
+        }
+      }
+    }
+  },
+  "settings": {
+    "navigation": "Preferências",
+    "attachments": {
+      "metaTitle": "Anexos · Garagem em Dia",
+      "eyebrow": "Funcionalidade futura",
+      "title": "Anexos",
+      "description": "A área já está prevista para manter a navegação estável quando o armazenamento for integrado.",
+      "link": "Consultar anexos planejados",
+      "settingTitle": "Fotos e comprovantes",
+      "planned": "Planejado",
+      "futureExplanation": "No futuro, será possível anexar notas fiscais e fotos aos registros. A configuração permanece desabilitada até existir um armazenamento seguro, política de retenção e controle de acesso.",
+      "configure": "Configurar armazenamento"
+    }
+  },
+  "pwa": {
+    "offlineReady": "O aplicativo está pronto para abrir sem conexão. Registros continuam exigindo internet.",
+    "update": {
+      "description": "Uma nova versão está pronta.",
+      "action": "Atualizar agora"
+    },
+    "install": {
+      "description": "Instale o Garagem em Dia para acesso rápido e uma experiência mais integrada.",
+      "action": "Instalar",
+      "dismiss": "Agora não"
+    }
+  },
   "gallery": {
     "metaTitle": "Componentes · Garagem em Dia",
     "eyebrow": "Fundação visual",
@@ -549,7 +642,8 @@
     "action": "Entrar",
     "error": "E-mail ou senha inválidos.",
     "noAccount": "Ainda não tem uma conta?",
-    "register": "Criar conta"
+    "register": "Criar conta",
+    "pushCleanupWarning": "Sua sessão foi encerrada, mas não foi possível remover os alertas deste dispositivo. Entre novamente e desative-os nas preferências se ainda aparecerem."
   },
   "register": {
     "metaTitle": "Criar conta · Garagem em Dia",

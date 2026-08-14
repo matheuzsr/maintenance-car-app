@@ -1,9 +1,5 @@
 import * as Joi from 'joi';
-
-const vapidKey = Joi.string()
-  .pattern(/^[A-Za-z0-9_-]+$/)
-  .min(20)
-  .required();
+import { vapidKeySchema } from './vapid-key.validation';
 
 export const workerEnvValidationSchema = Joi.object({
   NODE_ENV: Joi.string()
@@ -15,12 +11,12 @@ export const workerEnvValidationSchema = Joi.object({
     .integer()
     .min(60_000)
     .default(900_000),
-  VAPID_PUBLIC_KEY: vapidKey,
-  VAPID_PRIVATE_KEY: vapidKey,
+  VAPID_PUBLIC_KEY: vapidKeySchema(65, { publicKey: true }).required(),
+  VAPID_PRIVATE_KEY: vapidKeySchema(32).required(),
   VAPID_SUBJECT: Joi.string()
     .pattern(/^(mailto:|https:\/\/)/)
     .required(),
   WEB_PUSH_ALLOWED_HOSTS: Joi.string().default(
-    'fcm.googleapis.com,updates.push.services.mozilla.com,web.push.apple.com,*.notify.windows.com',
+    'fcm.googleapis.com,updates.push.services.mozilla.com,*.push.apple.com,*.notify.windows.com',
   ),
 });

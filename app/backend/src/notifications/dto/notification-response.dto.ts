@@ -12,10 +12,10 @@ export class PushSubscriptionResponseDto {
   @ApiProperty()
   endpoint!: string;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiPropertyOptional({ type: String, nullable: true })
   userAgent!: string | null;
 
-  @ApiPropertyOptional({ format: 'date-time', nullable: true })
+  @ApiPropertyOptional({ type: String, format: 'date-time', nullable: true })
   disabledAt!: Date | null;
 
   @ApiProperty({ format: 'date-time' })
@@ -50,19 +50,19 @@ export class MaintenanceNotificationResponseDto {
   @ApiProperty()
   reason!: string;
 
-  @ApiPropertyOptional({ format: 'date', nullable: true })
+  @ApiPropertyOptional({ type: String, format: 'date', nullable: true })
   dueDate!: Date | null;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiPropertyOptional({ type: Number, nullable: true })
   dueOdometerKm!: number | null;
 
   @ApiProperty({ enum: NotificationDispatchStatus })
   status!: NotificationDispatchStatus;
 
-  @ApiPropertyOptional({ format: 'date-time', nullable: true })
+  @ApiPropertyOptional({ type: String, format: 'date-time', nullable: true })
   sentAt!: Date | null;
 
-  @ApiPropertyOptional({ format: 'date-time', nullable: true })
+  @ApiPropertyOptional({ type: String, format: 'date-time', nullable: true })
   readAt!: Date | null;
 
   @ApiProperty({ format: 'date-time' })

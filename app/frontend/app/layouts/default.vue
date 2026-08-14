@@ -2,6 +2,10 @@
 import { Bell, CarFront, ChevronRight } from 'lucide-vue-next';
 import { useQuery } from '@tanstack/vue-query';
 import { listVehicles, vehicleKeys } from '~/services/api/vehicles';
+import {
+  listNotifications,
+  notificationKeys,
+} from '~/services/api/notifications';
 import { vehicleSelectionTarget } from '~/utils/vehicle-navigation';
 
 const { t } = useI18n();
@@ -16,6 +20,13 @@ const vehiclesQuery = useQuery({
   queryFn: listVehicles,
   enabled: computed(() => session.authenticated),
 });
+const unreadQuery = useQuery({
+  queryKey: notificationKeys.unread(),
+  queryFn: () => listNotifications({ page: 1, limit: 1, unreadOnly: true }),
+  enabled: computed(() => session.authenticated),
+  refetchInterval: 60_000,
+});
+const unreadTotal = computed(() => unreadQuery.data.value?.meta.total ?? 0);
 const vehicles = computed(() =>
   (vehiclesQuery.data.value?.data ?? []).map((vehicle) => ({
     id: vehicle.id,
@@ -138,18 +149,18 @@ onUnmounted(preferences.dispose);
           >
             <CarFront :size="20" :stroke-width="1.75" aria-hidden="true" />
           </NuxtLink>
-          <button
-            type="button"
+          <NuxtLink
+            to="/notifications"
             class="icon-action"
             :aria-label="t('navigation.notifications')"
           >
             <Bell :size="20" :stroke-width="1.75" aria-hidden="true" />
-            <span class="notification-dot"
+            <span v-if="unreadTotal > 0" class="notification-dot"
               ><span class="sr-only">{{
-                t('navigation.unreadNotifications', 2)
+                t('navigation.unreadNotifications', unreadTotal)
               }}</span></span
             >
-          </button>
+          </NuxtLink>
         </div>
       </header>
       <main id="main-content" class="app-main" tabindex="-1"><slot /></main>

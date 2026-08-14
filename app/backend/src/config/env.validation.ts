@@ -1,4 +1,8 @@
 import * as Joi from 'joi';
+import {
+  requireCompleteVapidConfiguration,
+  vapidKeySchema,
+} from './vapid-key.validation';
 
 export const envValidationSchema = Joi.object({
   NODE_ENV: Joi.string()
@@ -33,10 +37,16 @@ export const envValidationSchema = Joi.object({
     .invalid(Joi.ref('JWT_ACCESS_SECRET'))
     .required(),
   JWT_REFRESH_EXPIRES_IN: Joi.string().default('30d'),
-  VAPID_PUBLIC_KEY: Joi.string().allow('').default(''),
-  VAPID_PRIVATE_KEY: Joi.string().allow('').default(''),
-  VAPID_SUBJECT: Joi.string().allow('').default(''),
+  VAPID_PUBLIC_KEY: vapidKeySchema(65, {
+    publicKey: true,
+    allowEmpty: true,
+  }).default(''),
+  VAPID_PRIVATE_KEY: vapidKeySchema(32, { allowEmpty: true }).default(''),
+  VAPID_SUBJECT: Joi.string()
+    .pattern(/^(mailto:|https:\/\/)/)
+    .allow('')
+    .default(''),
   WEB_PUSH_ALLOWED_HOSTS: Joi.string().default(
-    'fcm.googleapis.com,updates.push.services.mozilla.com,web.push.apple.com,*.notify.windows.com',
+    'fcm.googleapis.com,updates.push.services.mozilla.com,*.push.apple.com,*.notify.windows.com',
   ),
-});
+}).custom(requireCompleteVapidConfiguration, 'complete VAPID configuration');

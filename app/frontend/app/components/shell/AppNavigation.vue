@@ -10,6 +10,8 @@ import {
   Shapes,
   CarFront,
   LogOut,
+  Bell,
+  Settings,
 } from 'lucide-vue-next';
 
 withDefaults(defineProps<{ mobile?: boolean }>(), { mobile: false });
@@ -40,6 +42,12 @@ const links = computed(() => [
     icon: ChartNoAxesColumnIncreasing,
   },
   { to: '/componentes', label: t('navigation.components'), icon: Shapes },
+  { to: '/notifications', label: t('navigation.notifications'), icon: Bell },
+  {
+    to: '/settings/notifications',
+    label: t('navigation.settings'),
+    icon: Settings,
+  },
   { to: '/logout', label: t('navigation.logout'), icon: LogOut },
 ]);
 const mobilePrimaryLinks = computed(() =>
@@ -82,7 +90,7 @@ const mobilePrimaryLinks = computed(() =>
         <ReceiptText :size="21" :stroke-width="1.75" aria-hidden="true" />
         <span>{{ links[3]!.label }}</span>
       </NuxtLink>
-      <NuxtLink to="/componentes" class="navigation-link">
+      <NuxtLink to="/notifications" class="navigation-link">
         <MoreHorizontal :size="21" :stroke-width="1.75" aria-hidden="true" />
         <span>{{ t('navigation.more') }}</span>
       </NuxtLink>

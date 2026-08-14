@@ -298,11 +298,13 @@ describe('Core journeys (e2e)', () => {
     const first = await register('push-first@example.com');
     const second = await register('push-second@example.com');
     const endpoint = 'https://fcm.googleapis.com/subscriptions/browser-one';
+    const p256dh = Buffer.alloc(65).toString('base64url');
+    const auth = Buffer.alloc(16).toString('base64url');
 
     const created = await request(server)
       .post('/api/v1/push-subscriptions')
       .set('Authorization', `Bearer ${first}`)
-      .send({ endpoint, p256dh: 'public-key', auth: 'auth-secret' })
+      .send({ endpoint, p256dh, auth })
       .expect(201);
     const subscription = created.body as PushSubscriptionBody;
     expect(subscription.endpoint).toBe(endpoint);
@@ -310,7 +312,7 @@ describe('Core journeys (e2e)', () => {
     await request(server)
       .post('/api/v1/push-subscriptions')
       .set('Authorization', `Bearer ${second}`)
-      .send({ endpoint, p256dh: 'other-public-key', auth: 'other-secret' })
+      .send({ endpoint, p256dh, auth })
       .expect(409);
 
     await request(server)

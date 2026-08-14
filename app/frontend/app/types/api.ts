@@ -54,6 +54,11 @@ export type CreateExpenseInput = ApiSchemas['CreateExpenseDto'];
 export type UpdateExpenseInput = ApiSchemas['UpdateExpenseDto'];
 export type CostReport = ApiSchemas['CostReportResponseDto'];
 export type CostReportPeriod = CostReport['period'];
+export type MaintenanceNotification =
+  ApiSchemas['MaintenanceNotificationResponseDto'];
+export type PushSubscriptionRecord = ApiSchemas['PushSubscriptionResponseDto'];
+export type CreatePushSubscriptionInput =
+  ApiSchemas['CreatePushSubscriptionDto'];
 export type PaginationMeta = ApiSchemas['PaginationMetaDto'];
 export interface Paginated<T> {
   data: T[];
