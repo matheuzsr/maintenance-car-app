@@ -5,15 +5,10 @@ services:
       dockerfile: app/backend/Dockerfile
       target: development
     command: npm run start:dev
-    env_file: .env
+    env_file: app/backend/.env
     environment:
       DATABASE_URL: postgresql://maintenance_car:maintenance_car@postgres:5432/maintenance_car?schema=public
       REDIS_URL: redis://redis:6379
-      NOTIFICATION_SCAN_INTERVAL_MS: '${NOTIFICATION_SCAN_INTERVAL_MS:-900000}'
-      VAPID_SUBJECT: '${VAPID_SUBJECT}'
-      VAPID_PUBLIC_KEY: '${VAPID_PUBLIC_KEY}'
-      VAPID_PRIVATE_KEY: '${VAPID_PRIVATE_KEY}'
-      WEB_PUSH_ALLOWED_HOSTS: '${WEB_PUSH_ALLOWED_HOSTS:-fcm.googleapis.com,updates.push.services.mozilla.com,web.push.apple.com,*.notify.windows.com}'
     ports:
       - '${PORT:-3000}:3000'
     volumes:
@@ -31,7 +26,7 @@ services:
       dockerfile: app/backend/Dockerfile
       target: development
     command: npm run start:worker:dev
-    env_file: .env
+    env_file: app/backend/.env
     environment:
       DATABASE_URL: postgresql://maintenance_car:maintenance_car@postgres:5432/maintenance_car?schema=public
       REDIS_URL: redis://redis:6379
@@ -52,8 +47,7 @@ services:
       dockerfile: app/frontend/Dockerfile
       target: development
     command: npm run dev
-    environment:
-      NUXT_PUBLIC_API_BASE_URL: '${NUXT_PUBLIC_API_BASE_URL:-http://localhost:3000}'
+    env_file: app/frontend/.env
     ports:
       - '${FRONTEND_PORT:-3001}:3001'
     volumes:

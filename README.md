@@ -96,7 +96,8 @@ Example:
 ## Local setup
 
 ```bash
-cp .env.example .env
+cp app/backend/.env.example app/backend/.env
+cp app/frontend/.env.example app/frontend/.env
 docker compose up -d postgres redis
 npm ci
 npm run prisma:migrate:deploy
@@ -163,8 +164,8 @@ queues, and delivers Web Push messages. PostgreSQL remains the source of truth f
 subscriptions, notification history, and deduplication.
 
 For local development, configure `VAPID_SUBJECT`, `VAPID_PUBLIC_KEY`, and
-`VAPID_PRIVATE_KEY` in `.env`. Keep the private key out of source control and
-use a distinct VAPID key pair for each deployment.
+`VAPID_PRIVATE_KEY` in `app/backend/.env`. Keep the private key out of source
+control and use a distinct VAPID key pair for each deployment.
 
 Generate a development key pair with:
 
