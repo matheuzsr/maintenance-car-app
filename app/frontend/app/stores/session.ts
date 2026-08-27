@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
-import { useQueryClient } from '@tanstack/vue-query';
 import { computed, ref } from 'vue';
 import type { AuthenticatedUser, LoginInput, RegisterInput } from '~/types/api';
 import { useAuthTransport } from '~/services/api/auth-transport';
+import { queryClient } from '~/services/query-client';
 import { runRefreshExclusive } from '~/services/api/refresh-lock';
 import { useVehicleSelectionStore } from '~/stores/vehicle-selection';
 import { disableCurrentBrowserPushSubscription } from '~/services/api/notifications';
@@ -19,7 +19,7 @@ export const useSessionStore = defineStore('session', () => {
   );
 
   function clearAuthenticatedClientState(): void {
-    useQueryClient().clear();
+    queryClient.clear();
     useVehicleSelectionStore().select(undefined);
   }
 

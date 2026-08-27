@@ -1,14 +1,13 @@
-import { useQueryClient } from '@tanstack/vue-query';
 import {
   markNotificationAsRead,
   notificationKeys,
 } from '~/services/api/notifications';
+import { queryClient } from '~/services/query-client';
 import { isNotificationId } from '~/utils/notifications';
 
 export default defineNuxtPlugin(() => {
   const session = useSessionStore();
   const route = useRoute();
-  const queryClient = useQueryClient();
   const processed = new Set<string>();
 
   watch(

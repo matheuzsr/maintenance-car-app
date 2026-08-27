@@ -80,6 +80,20 @@ useHead({ title: computed(() => t('expenses.detail.metaTitle')) });
           <dd>{{ query.data.value.notes }}</dd>
         </div>
       </dl>
+      <section class="expense-items">
+        <h2>{{ t('expenses.detail.items') }}</h2>
+        <ol>
+          <li v-for="item in query.data.value.items" :key="item.id">
+            <div>
+              <span>{{ t(`expenses.categories.${item.category}`) }}</span>
+              <strong>{{ item.description }}</strong>
+            </div>
+            <span class="tabular">{{
+              formatDecimalCurrency(item.amount, locale)
+            }}</span>
+          </li>
+        </ol>
+      </section>
       <p v-if="error" class="form-error" role="alert">{{ error }}</p>
       <div class="row-actions">
         <NuxtLink
@@ -109,6 +123,38 @@ useHead({ title: computed(() => t('expenses.detail.metaTitle')) });
 .detail-list div {
   padding: 1rem 0;
   border-bottom: 1px solid var(--border);
+}
+.expense-items {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+.expense-items h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+.expense-items ol {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+.expense-items li {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+.expense-items li div {
+  display: grid;
+  gap: 0.2rem;
+}
+.expense-items span {
+  color: var(--text-muted);
 }
 dt {
   color: var(--text-muted);

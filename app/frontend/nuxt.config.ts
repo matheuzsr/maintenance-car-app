@@ -4,18 +4,21 @@ import tailwindcss from '@tailwindcss/vite';
 const environment = z
   .object({
     NUXT_PUBLIC_API_BASE_URL: z.string().url().default('http://localhost:3000'),
+    NUXT_PUBLIC_PRIMEUI_LICENSE_KEY: z.string().default(''),
   })
   .parse(process.env);
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-08-14',
   devtools: { enabled: true },
+  components: [{ path: '~/components', pathPrefix: false }],
   modules: ['@nuxt/eslint', '@nuxtjs/i18n', '@pinia/nuxt', '@vite-pwa/nuxt'],
   ssr: false,
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     public: {
       apiBaseUrl: environment.NUXT_PUBLIC_API_BASE_URL,
+      primeUiLicenseKey: environment.NUXT_PUBLIC_PRIMEUI_LICENSE_KEY,
     },
   },
   vite: {

@@ -3,9 +3,9 @@ import {
   CalendarClock,
   CirclePlus,
   Gauge,
+  History,
   LayoutGrid,
   MoreHorizontal,
-  ReceiptText,
   ChartNoAxesColumnIncreasing,
   Shapes,
   CarFront,
@@ -31,10 +31,10 @@ const links = computed(() => [
   },
   {
     to: selection.selectedId
-      ? `/vehicles/${selection.selectedId}/expenses`
+      ? `/vehicles/${selection.selectedId}/history`
       : '/vehicles',
-    label: t('navigation.expenses'),
-    icon: ReceiptText,
+    label: t('navigation.history'),
+    icon: History,
   },
   {
     to: '/reports',
@@ -87,7 +87,7 @@ const mobilePrimaryLinks = computed(() =>
         <span>{{ t('navigation.add') }}</span>
       </button>
       <NuxtLink :to="links[3]!.to" class="navigation-link">
-        <ReceiptText :size="21" :stroke-width="1.75" aria-hidden="true" />
+        <History :size="21" :stroke-width="1.75" aria-hidden="true" />
         <span>{{ links[3]!.label }}</span>
       </NuxtLink>
       <NuxtLink to="/notifications" class="navigation-link">
@@ -96,6 +96,10 @@ const mobilePrimaryLinks = computed(() =>
       </NuxtLink>
     </template>
     <template v-else>
+      <button class="desktop-create" type="button" @click="$emit('create')">
+        <LayoutGrid :size="20" :stroke-width="1.75" aria-hidden="true" />
+        <span>{{ t('navigation.quickAction') }}</span>
+      </button>
       <NuxtLink
         v-for="link in links"
         :key="link.to"
@@ -110,10 +114,6 @@ const mobilePrimaryLinks = computed(() =>
         />
         <span>{{ link.label }}</span>
       </NuxtLink>
-      <button class="desktop-create" type="button" @click="$emit('create')">
-        <LayoutGrid :size="20" :stroke-width="1.75" aria-hidden="true" />
-        <span>{{ t('navigation.quickAction') }}</span>
-      </button>
     </template>
   </nav>
 </template>
@@ -157,9 +157,9 @@ const mobilePrimaryLinks = computed(() =>
 
 .desktop-create {
   width: 100%;
-  margin-top: 1rem;
+  margin-bottom: 1rem;
   color: var(--primary);
-  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   border-radius: 0;
 }
 

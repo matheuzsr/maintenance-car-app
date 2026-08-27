@@ -7,6 +7,13 @@ import type {
   MaintenanceRecord,
 } from '~/types/api';
 import { localDateTimeToIso, toLocalDateTimeInput } from '~/utils/date-time';
+import { decimalToMinorUnits, formatDecimalCurrency } from '~/utils/formatters';
+
+interface ExpenseItemForm {
+  category: ExpenseCategory;
+  description: string;
+  amount: string;
+}
 
 const props = withDefaults(
   defineProps<{
@@ -39,7 +46,9 @@ const categories: ExpenseCategory[] = [
 const category = ref<ExpenseCategory>('PARTS');
 const description = ref('');
 const incurredAt = ref(toLocalDateTimeInput(new Date()));
-const amount = ref('');
+const items = ref<ExpenseItemForm[]>([
+  { category: 'PARTS', description: '', amount: '' },
+]);
 const notes = ref('');
 const maintenanceRecordId = ref('');
 const error = ref('');
@@ -57,6 +66,18 @@ const recordOptions = computed(() => [
   })),
 ]);
 
+const totalAmount = computed(() => {
+  const total = items.value.reduce((sum, item) => {
+    const minor = decimalToMinorUnits(normalizeAmount(item.amount));
+    return minor === undefined ? sum : sum + minor;
+  }, 0n);
+  return minorUnitsToDecimal(total);
+});
+
+const formattedTotal = computed(() =>
+  formatDecimalCurrency(totalAmount.value, locale.value),
+);
+
 watch(
   () => props.expense,
   (expense) => {
@@ -65,7 +86,19 @@ watch(
     incurredAt.value = expense
       ? toLocalDateTimeInput(new Date(expense.incurredAt))
       : toLocalDateTimeInput(new Date());
-    amount.value = expense?.amount ?? '';
+    items.value = expense?.items?.length
+      ? expense.items.map((item) => ({
+          category: item.category,
+          description: item.description,
+          amount: item.amount,
+        }))
+      : [
+          {
+            category: expense?.category ?? 'PARTS',
+            description: expense?.description ?? '',
+            amount: expense?.amount ?? '',
+          },
+        ];
     notes.value = expense?.notes ?? '';
     maintenanceRecordId.value = expense?.maintenanceRecordId ?? '';
     error.value = '';
@@ -73,14 +106,53 @@ watch(
   { immediate: true },
 );
 
+function normalizeAmount(value: string): string {
+  return value.trim().replace(',', '.');
+}
+
+function minorUnitsToDecimal(value: bigint): string {
+  const cents = value % 100n;
+  const reais = value / 100n;
+  return `${reais}.${cents.toString().padStart(2, '0')}`;
+}
+
+function addItem(defaults?: Partial<ExpenseItemForm>): void {
+  items.value.push({
+    category: defaults?.category ?? 'PARTS',
+    description: defaults?.description ?? '',
+    amount: defaults?.amount ?? '',
+  });
+}
+
+function addLaborItem(): void {
+  addItem({ category: 'LABOR', description: t('expenses.form.laborItem') });
+}
+
+function removeItem(index: number): void {
+  if (items.value.length === 1) return;
+  items.value.splice(index, 1);
+}
+
 function submit(): void {
   const occurred = localDateTimeToIso(incurredAt.value);
-  const normalizedAmount = amount.value.trim().replace(',', '.');
+  const normalizedItems = items.value.map((item) => ({
+    category: item.category,
+    description: item.description.trim(),
+    amount: normalizeAmount(item.amount),
+  }));
+  const everyItemIsValid =
+    normalizedItems.length > 0 &&
+    normalizedItems.every(
+      (item) =>
+        item.description &&
+        item.description.length <= 500 &&
+        /^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/.test(item.amount),
+    );
   if (
     !description.value.trim() ||
     description.value.trim().length > 500 ||
     !occurred ||
-    !/^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/.test(normalizedAmount) ||
+    !everyItemIsValid ||
     notes.value.trim().length > 2000
   ) {
     error.value = t('expenses.form.validation');
@@ -91,7 +163,8 @@ function submit(): void {
     category: category.value,
     description: description.value.trim(),
     incurredAt: occurred,
-    amount: normalizedAmount,
+    amount: totalAmount.value,
+    items: normalizedItems,
     ...(notes.value.trim()
       ? { notes: notes.value.trim() }
       : props.mode === 'edit'
@@ -129,13 +202,6 @@ function submit(): void {
           :disabled="disabled"
         />
       </div>
-      <AppInput
-        id="expense-amount"
-        v-model="amount"
-        inputmode="decimal"
-        :label="t('expenses.form.amount')"
-        :disabled="disabled"
-      />
       <AppSelect
         id="expense-record"
         v-model="maintenanceRecordId"
@@ -145,6 +211,62 @@ function submit(): void {
         :disabled="disabled"
       />
     </div>
+    <section class="expense-items" :aria-label="t('expenses.form.items')">
+      <div class="items-header">
+        <div>
+          <h2>{{ t('expenses.form.items') }}</h2>
+          <p>{{ t('expenses.form.itemsHint') }}</p>
+        </div>
+        <strong class="tabular">{{ formattedTotal }}</strong>
+      </div>
+      <div v-for="(item, index) in items" :key="index" class="expense-item-row">
+        <AppSelect
+          :id="`expense-item-category-${index}`"
+          v-model="item.category"
+          :label="t('expenses.form.itemCategory')"
+          :options="categoryOptions"
+          :disabled="disabled"
+        />
+        <AppInput
+          :id="`expense-item-description-${index}`"
+          v-model="item.description"
+          :label="t('expenses.form.itemDescription')"
+          :disabled="disabled"
+        />
+        <AppInput
+          :id="`expense-item-amount-${index}`"
+          v-model="item.amount"
+          inputmode="decimal"
+          :label="t('expenses.form.itemAmount')"
+          :disabled="disabled"
+        />
+        <AppButton
+          type="button"
+          variant="quiet"
+          :disabled="disabled || items.length === 1"
+          @click="removeItem(index)"
+          >{{ t('expenses.form.removeItem') }}</AppButton
+        >
+      </div>
+      <div class="item-actions">
+        <AppButton
+          type="button"
+          variant="secondary"
+          :disabled="disabled"
+          @click="addItem()"
+        >
+          {{ t('expenses.form.addItem') }}
+        </AppButton>
+        <AppButton
+          type="button"
+          variant="secondary"
+          :disabled="disabled"
+          @click="addLaborItem"
+        >
+          {{ t('expenses.form.addLabor') }}
+        </AppButton>
+      </div>
+    </section>
     <div class="ui-native-field">
       <label for="expense-notes">{{ t('expenses.form.notes') }}</label>
       <textarea
@@ -176,9 +298,48 @@ textarea {
   border-radius: var(--radius-sm);
   resize: vertical;
 }
+.expense-items {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+}
+.items-header,
+.item-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.items-header h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+.items-header p {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+}
+.expense-item-row {
+  display: grid;
+  grid-template-columns:
+    minmax(9rem, 0.8fr) minmax(12rem, 1.5fr) minmax(8rem, 0.8fr)
+    auto;
+  gap: 0.75rem;
+  align-items: end;
+}
 @media (max-width: 38rem) {
-  .form-grid {
+  .form-grid,
+  .expense-item-row,
+  .items-header,
+  .item-actions {
     grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+  .items-header,
+  .item-actions {
+    display: grid;
   }
 }
 </style>

@@ -144,6 +144,8 @@ useHead({ title: computed(() => t('expenses.list.metaTitle')) });
               {{ t(`expenses.categories.${expense.category}`)
               }}<span v-if="expense.maintenanceRecordId">
                 · {{ t('expenses.list.linked') }}</span
+              ><span v-if="expense.items.length > 1">
+                · {{ t('expenses.list.itemCount', expense.items.length) }}</span
               >
             </p>
           </div>

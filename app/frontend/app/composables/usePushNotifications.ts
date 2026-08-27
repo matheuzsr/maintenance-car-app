@@ -1,4 +1,3 @@
-import { useQueryClient } from '@tanstack/vue-query';
 import {
   disablePushSubscription,
   getVapidPublicKey,
@@ -6,6 +5,7 @@ import {
   notificationKeys,
   registerPushSubscription,
 } from '~/services/api/notifications';
+import { queryClient } from '~/services/query-client';
 import {
   beginNotificationPermissionRequest,
   pushSubscriptionInput,
@@ -18,7 +18,6 @@ import {
 } from '~/utils/notifications';
 
 export function usePushNotifications() {
-  const queryClient = useQueryClient();
   const session = useSessionStore();
   const { isOnline } = useOnlineStatus();
   const supported = ref(false);

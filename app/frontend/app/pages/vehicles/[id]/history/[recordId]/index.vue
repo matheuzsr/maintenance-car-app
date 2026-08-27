@@ -115,6 +115,21 @@ useHead({
         <h2>{{ t('maintenance.records.form.notes') }}</h2>
         <p>{{ query.data.value.notes }}</p>
       </section>
+      <section
+        v-if="query.data.value.costItems.length"
+        class="record-cost-items"
+      >
+        <h2>{{ t('maintenance.records.detail.costItems') }}</h2>
+        <ol>
+          <li v-for="item in query.data.value.costItems" :key="item.id">
+            <div>
+              <span>{{ t(`expenses.categories.${item.category}`) }}</span>
+              <strong>{{ item.description }}</strong>
+            </div>
+            <span class="tabular">{{ formatMoney(item.amount) }}</span>
+          </li>
+        </ol>
+      </section>
       <nav class="detail-links">
         <NuxtLink class="text-link" :to="`/vehicles/${id}/history`">{{
           t('maintenance.records.detail.back')
@@ -164,6 +179,37 @@ useHead({
 .record-notes h2,
 .record-notes p {
   margin: 0.2rem 0;
+}
+.record-cost-items {
+  display: grid;
+  gap: 0.75rem;
+}
+.record-cost-items h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+.record-cost-items ol {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+.record-cost-items li {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+.record-cost-items li div {
+  display: grid;
+  gap: 0.2rem;
+}
+.record-cost-items span {
+  color: var(--text-muted);
 }
 @media (max-width: 38rem) {
   .record-details {

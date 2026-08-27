@@ -27,7 +27,9 @@
     "dashboard": "Visão geral",
     "agenda": "Agenda",
     "add": "Adicionar",
-    "expenses": "Despesas",
+    "history": "Histórico",
+    "maintenance": "Manutenção",
+    "expenses": "Despesas avulsas",
     "reports": "Relatórios",
     "more": "Mais",
     "components": "Componentes",
@@ -95,7 +97,7 @@
     "description": "A ação será vinculada ao veículo selecionado.",
     "odometer": "Atualização do odômetro",
     "maintenance": "Manutenção concluída",
-    "expense": "Nova despesa",
+    "expense": "Despesa avulsa",
     "futureHint": "Escolha um veículo para registrar esta informação."
   },
   "states": {
@@ -182,7 +184,7 @@
       "plans": "Planos",
       "agenda": "Agenda",
       "history": "Histórico",
-      "expenses": "Despesas"
+      "expenses": "Despesas avulsas"
     },
     "categories": {
       "ENGINE": "Motor",
@@ -340,6 +342,7 @@
         "metaTitle": "Detalhes da manutenção · Garagem em Dia",
         "eyebrow": "Registro concluído",
         "plan": "Plano relacionado",
+        "costItems": "Composição do custo",
         "linkedPlan": "Abrir plano vinculado",
         "back": "Voltar ao histórico",
         "errorTitle": "Registro não encontrado",
@@ -357,6 +360,15 @@
         "performedAt": "Data e hora da execução",
         "odometer": "Quilometragem na execução",
         "cost": "Custo total (R$)",
+        "costItems": "Itens de custo da manutenção",
+        "costItemsHint": "Separe peças, mão de obra e outros valores. O custo total é calculado automaticamente.",
+        "costItemCategory": "Categoria do item",
+        "costItemDescription": "Descrição do item",
+        "costItemAmount": "Valor do item (R$)",
+        "addCostItem": "Adicionar item",
+        "addLabor": "Adicionar mão de obra",
+        "removeCostItem": "Remover",
+        "laborItem": "Mão de obra",
         "workshop": "Oficina (opcional)",
         "notes": "Observações (opcional)",
         "validation": "Revise o serviço, data, quilometragem e custo. Use no máximo duas casas decimais.",
@@ -403,11 +415,12 @@
     "list": {
       "metaTitle": "Despesas · Garagem em Dia",
       "eyebrow": "Custos do veículo",
-      "title": "Despesas de manutenção",
-      "description": "Registre peças, mão de obra e outros custos relacionados à manutenção.",
-      "create": "Nova despesa",
+      "title": "Despesas avulsas",
+      "description": "Registre custos que não precisam virar um registro completo de manutenção.",
+      "create": "Nova despesa avulsa",
       "label": "Despesas registradas",
       "linked": "Vinculada a uma manutenção",
+      "itemCount": "{count} item | {count} itens",
       "errorTitle": "Não foi possível carregar as despesas",
       "errorDescription": "Verifique a conexão e os filtros informados.",
       "emptyTitle": "Nenhuma despesa encontrada",
@@ -416,11 +429,11 @@
       "page": "Página {page} de {total}"
     },
     "create": {
-      "metaTitle": "Nova despesa · Garagem em Dia",
+      "metaTitle": "Nova despesa avulsa · Garagem em Dia",
       "eyebrow": "Novo lançamento",
-      "title": "Registrar despesa",
-      "description": "Informe o valor exato e, se fizer parte de um serviço, vincule ao registro correspondente.",
-      "action": "Salvar despesa"
+      "title": "Registrar despesa avulsa",
+      "description": "Use esta área para custos soltos. Para troca de peça com quilometragem, registre uma manutenção.",
+      "action": "Salvar despesa avulsa"
     },
     "edit": {
       "metaTitle": "Editar despesa · Garagem em Dia",
@@ -431,6 +444,7 @@
     "detail": {
       "metaTitle": "Detalhes da despesa · Garagem em Dia",
       "link": "Vínculo",
+      "items": "Composição da despesa",
       "openRecord": "Abrir manutenção relacionada",
       "standalone": "Despesa avulsa",
       "errorTitle": "Despesa não encontrada",
@@ -441,6 +455,15 @@
       "description": "Descrição",
       "incurredAt": "Data e hora da despesa",
       "amount": "Valor (R$)",
+      "items": "Itens da despesa",
+      "itemsHint": "Separe peça, mão de obra e outros custos. O total é calculado automaticamente.",
+      "itemCategory": "Categoria do item",
+      "itemDescription": "Descrição do item",
+      "itemAmount": "Valor do item (R$)",
+      "addItem": "Adicionar item",
+      "addLabor": "Adicionar mão de obra",
+      "removeItem": "Remover",
+      "laborItem": "Mão de obra",
       "record": "Manutenção relacionada (opcional)",
       "noRecord": "Despesa avulsa, sem manutenção",
       "recordHint": "Itens vinculados detalham a manutenção e não são somados novamente no relatório.",

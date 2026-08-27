@@ -1,7 +1,19 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import type { MaintenancePlan, MaintenanceRecord, Vehicle } from '~/types/api';
+import type {
+  ExpenseCategory,
+  MaintenancePlan,
+  MaintenanceRecord,
+  Vehicle,
+} from '~/types/api';
 import { localDateTimeToIso, toLocalDateTimeInput } from '~/utils/date-time';
+import { decimalToMinorUnits, formatDecimalCurrency } from '~/utils/formatters';
+
+interface MaintenanceCostItemDraft {
+  category: ExpenseCategory;
+  description: string;
+  amount: string;
+}
 
 export interface MaintenanceRecordDraft {
   description: string;
@@ -10,6 +22,7 @@ export interface MaintenanceRecordDraft {
   workshop?: string;
   notes?: string;
   totalCost: string;
+  costItems?: MaintenanceCostItemDraft[];
   planId?: string;
 }
 
@@ -35,14 +48,23 @@ const props = withDefaults(
   },
 );
 const emit = defineEmits<{ submit: [value: MaintenanceRecordDraft] }>();
-const { t, n } = useI18n();
+const { t, n, locale } = useI18n();
+const costCategories: ExpenseCategory[] = [
+  'PARTS',
+  'LABOR',
+  'DIAGNOSTICS',
+  'TOWING',
+  'OTHER',
+];
 
 const description = ref('');
 const performedAt = ref(toLocalDateTimeInput(new Date()));
 const odometerKm = ref('');
 const workshop = ref('');
 const notes = ref('');
-const totalCost = ref('');
+const costItems = ref<MaintenanceCostItemDraft[]>([
+  { category: 'PARTS', description: '', amount: '' },
+]);
 const planId = ref('');
 const acknowledgeStale = ref(false);
 const error = ref('');
@@ -51,6 +73,22 @@ const planOptions = computed(() => [
   { label: t('maintenance.records.form.noPlan'), value: '' },
   ...props.plans.map((item) => ({ label: item.name, value: item.id })),
 ]);
+const costCategoryOptions = computed(() =>
+  costCategories.map((value) => ({
+    value,
+    label: t(`expenses.categories.${value}`),
+  })),
+);
+const totalCost = computed(() => {
+  const total = costItems.value.reduce((sum, item) => {
+    const minor = decimalToMinorUnits(normalizeAmount(item.amount));
+    return minor === undefined ? sum : sum + minor;
+  }, 0n);
+  return minorUnitsToDecimal(total);
+});
+const formattedTotalCost = computed(() =>
+  formatDecimalCurrency(totalCost.value, locale.value),
+);
 const referenceDate = computed(() =>
   props.vehicle.currentOdometerRecordedAt
     ? new Date(props.vehicle.currentOdometerRecordedAt)
@@ -90,7 +128,19 @@ function reset(): void {
   );
   workshop.value = props.record?.workshop ?? '';
   notes.value = props.record?.notes ?? '';
-  totalCost.value = props.record?.totalCost ?? '';
+  costItems.value = props.record?.costItems?.length
+    ? props.record.costItems.map((item) => ({
+        category: item.category,
+        description: item.description,
+        amount: item.amount,
+      }))
+    : [
+        {
+          category: 'PARTS',
+          description: props.record?.description ?? props.plan?.name ?? '',
+          amount: props.record?.totalCost ?? '',
+        },
+      ];
   planId.value = props.record?.planId ?? props.plan?.id ?? '';
   acknowledgeStale.value = false;
   error.value = '';
@@ -100,10 +150,52 @@ watch(() => [props.record, props.plan, props.vehicle], reset, {
   deep: true,
 });
 
+function normalizeAmount(value: string): string {
+  return value.trim().replace(',', '.');
+}
+
+function minorUnitsToDecimal(value: bigint): string {
+  const cents = value % 100n;
+  const reais = value / 100n;
+  return `${reais}.${cents.toString().padStart(2, '0')}`;
+}
+
+function addCostItem(defaults?: Partial<MaintenanceCostItemDraft>): void {
+  costItems.value.push({
+    category: defaults?.category ?? 'PARTS',
+    description: defaults?.description ?? '',
+    amount: defaults?.amount ?? '',
+  });
+}
+
+function addLaborCostItem(): void {
+  addCostItem({
+    category: 'LABOR',
+    description: t('maintenance.records.form.laborItem'),
+  });
+}
+
+function removeCostItem(index: number): void {
+  if (costItems.value.length === 1) return;
+  costItems.value.splice(index, 1);
+}
+
 function submit(): void {
   const performedAtIso = localDateTimeToIso(performedAt.value);
   const km = Number(odometerKm.value);
-  const cost = totalCost.value.trim().replace(',', '.');
+  const normalizedCostItems = costItems.value.map((item) => ({
+    category: item.category,
+    description: item.description.trim(),
+    amount: normalizeAmount(item.amount),
+  }));
+  const everyCostItemIsValid =
+    normalizedCostItems.length > 0 &&
+    normalizedCostItems.every(
+      (item) =>
+        item.description &&
+        item.description.length <= 500 &&
+        /^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/.test(item.amount),
+    );
   if (
     !description.value.trim() ||
     description.value.trim().length > 500 ||
@@ -112,7 +204,7 @@ function submit(): void {
     km < 0 ||
     workshop.value.trim().length > 120 ||
     notes.value.trim().length > 2000 ||
-    !/^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/.test(cost)
+    !everyCostItemIsValid
   ) {
     error.value = t('maintenance.records.form.validation');
     return;
@@ -128,7 +220,8 @@ function submit(): void {
     odometerKm: km,
     ...(workshop.value.trim() ? { workshop: workshop.value.trim() } : {}),
     ...(notes.value.trim() ? { notes: notes.value.trim() } : {}),
-    totalCost: cost,
+    totalCost: totalCost.value,
+    costItems: normalizedCostItems,
     ...(props.mode !== 'complete' && planId.value
       ? { planId: planId.value }
       : {}),
@@ -171,19 +264,76 @@ function submit(): void {
         :disabled="disabled"
       />
       <AppInput
-        id="record-cost"
-        v-model="totalCost"
-        :label="t('maintenance.records.form.cost')"
-        :disabled="disabled"
-        inputmode="decimal"
-      />
-      <AppInput
         id="record-workshop"
         v-model="workshop"
         :label="t('maintenance.records.form.workshop')"
         :disabled="disabled"
       />
     </div>
+    <section
+      class="record-cost-items"
+      :aria-label="t('maintenance.records.form.costItems')"
+    >
+      <div class="cost-items-header">
+        <div>
+          <h2>{{ t('maintenance.records.form.costItems') }}</h2>
+          <p>{{ t('maintenance.records.form.costItemsHint') }}</p>
+        </div>
+        <strong class="tabular">{{ formattedTotalCost }}</strong>
+      </div>
+      <div
+        v-for="(item, index) in costItems"
+        :key="index"
+        class="cost-item-row"
+      >
+        <AppSelect
+          :id="`record-cost-item-category-${index}`"
+          v-model="item.category"
+          :label="t('maintenance.records.form.costItemCategory')"
+          :options="costCategoryOptions"
+          :disabled="disabled"
+        />
+        <AppInput
+          :id="`record-cost-item-description-${index}`"
+          v-model="item.description"
+          :label="t('maintenance.records.form.costItemDescription')"
+          :disabled="disabled"
+        />
+        <AppInput
+          :id="`record-cost-item-amount-${index}`"
+          v-model="item.amount"
+          :label="t('maintenance.records.form.costItemAmount')"
+          :disabled="disabled"
+          inputmode="decimal"
+        />
+        <AppButton
+          type="button"
+          variant="quiet"
+          :disabled="disabled || costItems.length === 1"
+          @click="removeCostItem(index)"
+        >
+          {{ t('maintenance.records.form.removeCostItem') }}
+        </AppButton>
+      </div>
+      <div class="cost-item-actions">
+        <AppButton
+          type="button"
+          variant="secondary"
+          :disabled="disabled"
+          @click="addCostItem()"
+        >
+          {{ t('maintenance.records.form.addCostItem') }}
+        </AppButton>
+        <AppButton
+          type="button"
+          variant="secondary"
+          :disabled="disabled"
+          @click="addLaborCostItem"
+        >
+          {{ t('maintenance.records.form.addLabor') }}
+        </AppButton>
+      </div>
+    </section>
     <div class="ui-native-field">
       <label for="record-notes">{{
         t('maintenance.records.form.notes')
@@ -252,9 +402,48 @@ textarea {
   gap: 0.55rem;
   font-weight: 650;
 }
+.record-cost-items {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+}
+.cost-items-header,
+.cost-item-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.cost-items-header h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+.cost-items-header p {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+}
+.cost-item-row {
+  display: grid;
+  grid-template-columns:
+    minmax(9rem, 0.8fr) minmax(12rem, 1.5fr)
+    minmax(8rem, 0.8fr) auto;
+  gap: 0.75rem;
+  align-items: end;
+}
 @media (max-width: 38rem) {
-  .form-grid {
+  .form-grid,
+  .cost-item-row,
+  .cost-items-header,
+  .cost-item-actions {
     grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+  .cost-items-header,
+  .cost-item-actions {
+    display: grid;
   }
 }
 </style>
