@@ -34,10 +34,26 @@ describe('ReportsService', () => {
       {
         performedAt: new Date('2026-02-01T02:30:00.000Z'),
         totalCost: new Prisma.Decimal('100.00'),
+        costItems: [
+          {
+            category: ExpenseCategory.PARTS,
+            amount: new Prisma.Decimal('70.00'),
+          },
+          {
+            category: ExpenseCategory.LABOR,
+            amount: new Prisma.Decimal('30.00'),
+          },
+        ],
       },
       {
         performedAt: new Date('2026-02-01T03:30:00.000Z'),
         totalCost: new Prisma.Decimal('25.00'),
+        costItems: [
+          {
+            category: ExpenseCategory.OTHER,
+            amount: new Prisma.Decimal('25.00'),
+          },
+        ],
       },
     ]);
     expenseDelegate.findMany.mockResolvedValue([
@@ -46,18 +62,23 @@ describe('ReportsService', () => {
         amount: new Prisma.Decimal('20.00'),
         category: ExpenseCategory.PARTS,
         maintenanceRecordId: 'linked-record',
+        items: [
+          { category: ExpenseCategory.PARTS, amount: new Prisma.Decimal('20') },
+        ],
       },
       {
         incurredAt: new Date('2026-02-01T02:50:00.000Z'),
         amount: new Prisma.Decimal('5.00'),
         category: ExpenseCategory.DIAGNOSTICS,
         maintenanceRecordId: null,
+        items: [],
       },
       {
         incurredAt: new Date('2026-02-01T03:45:00.000Z'),
         amount: new Prisma.Decimal('10.00'),
         category: ExpenseCategory.LABOR,
         maintenanceRecordId: null,
+        items: [],
       },
     ]);
 
@@ -73,8 +94,9 @@ describe('ReportsService', () => {
       total: '140.00',
       expensesByCategory: [
         { category: ExpenseCategory.DIAGNOSTICS, total: '5.00' },
-        { category: ExpenseCategory.LABOR, total: '10.00' },
-        { category: ExpenseCategory.PARTS, total: '20.00' },
+        { category: ExpenseCategory.LABOR, total: '40.00' },
+        { category: ExpenseCategory.OTHER, total: '25.00' },
+        { category: ExpenseCategory.PARTS, total: '90.00' },
       ],
     });
     expect(report.buckets).toEqual([
@@ -86,7 +108,8 @@ describe('ReportsService', () => {
         total: '105.00',
         expensesByCategory: [
           { category: ExpenseCategory.DIAGNOSTICS, total: '5.00' },
-          { category: ExpenseCategory.PARTS, total: '20.00' },
+          { category: ExpenseCategory.LABOR, total: '30.00' },
+          { category: ExpenseCategory.PARTS, total: '90.00' },
         ],
       },
       {
@@ -97,6 +120,7 @@ describe('ReportsService', () => {
         total: '35.00',
         expensesByCategory: [
           { category: ExpenseCategory.LABOR, total: '10.00' },
+          { category: ExpenseCategory.OTHER, total: '25.00' },
         ],
       },
     ]);
@@ -147,7 +171,11 @@ describe('ReportsService', () => {
         deletedAt: null,
         performedAt: { gte: from, lte: to },
       },
-      select: { performedAt: true, totalCost: true },
+      select: {
+        performedAt: true,
+        totalCost: true,
+        costItems: { select: { category: true, amount: true } },
+      },
     });
     expect(expenseDelegate.findMany).toHaveBeenCalledWith({
       where: {
@@ -161,6 +189,7 @@ describe('ReportsService', () => {
         amount: true,
         category: true,
         maintenanceRecordId: true,
+        items: { select: { category: true, amount: true } },
       },
     });
     expect(report).toMatchObject({

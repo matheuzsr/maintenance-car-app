@@ -160,11 +160,29 @@ describe('MaintenanceRecordsService', () => {
     });
     const recordCreateCalls = recordDelegate.create.mock
       .calls as unknown as Array<
-      [{ data: { description: string; totalCost: Prisma.Decimal } }]
+      [
+        {
+          data: {
+            description: string;
+            totalCost: Prisma.Decimal;
+            costItems: {
+              createMany: {
+                data: Array<{ description: string; amount: Prisma.Decimal }>;
+              };
+            };
+          };
+        },
+      ]
     >;
     const createInput = recordCreateCalls[0][0];
     expect(createInput.data.description).toBe(plan.name);
     expect(createInput.data.totalCost.toString()).toBe('350');
+    expect(
+      createInput.data.costItems.createMany.data.map((item) => ({
+        description: item.description,
+        amount: item.amount.toString(),
+      })),
+    ).toEqual([{ description: plan.name, amount: '350' }]);
     const readingCreateCalls = readingDelegate.create.mock
       .calls as unknown as Array<[{ data: Record<string, unknown> }]>;
     expect(readingCreateCalls[0][0].data).toMatchObject({
@@ -176,6 +194,7 @@ describe('MaintenanceRecordsService', () => {
     expect(recordDelegate.update).toHaveBeenCalledWith({
       where: { id: recordId },
       data: { odometerReadingId: 'reading-1' },
+      include: { costItems: { orderBy: { createdAt: 'asc' } } },
     });
     expect(recordDelegate.findFirst).toHaveBeenCalledWith({
       where: { userId, vehicleId, planId, deletedAt: null },

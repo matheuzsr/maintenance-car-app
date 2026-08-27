@@ -54,7 +54,16 @@ export class ReportsService {
           deletedAt: null,
           ...(from || to ? { performedAt: dateFilter } : {}),
         },
-        select: { performedAt: true, totalCost: true },
+        select: {
+          performedAt: true,
+          totalCost: true,
+          costItems: {
+            select: {
+              category: true,
+              amount: true,
+            },
+          },
+        },
       }),
       this.prisma.expense.findMany({
         where: {
@@ -68,6 +77,12 @@ export class ReportsService {
           amount: true,
           category: true,
           maintenanceRecordId: true,
+          items: {
+            select: {
+              category: true,
+              amount: true,
+            },
+          },
         },
       }),
     ]);
@@ -76,6 +91,7 @@ export class ReportsService {
     const buckets = new Map<string, MutableCostTotals>();
     for (const record of records) {
       summary.serviceCost = summary.serviceCost.plus(record.totalCost);
+      this.addCategoryBreakdown(summary, this.recordCategoryBreakdown(record));
       const bucket = this.getBucket(
         buckets,
         record.performedAt,
@@ -83,13 +99,14 @@ export class ReportsService {
         vehicle.user.timezone,
       );
       bucket.serviceCost = bucket.serviceCost.plus(record.totalCost);
+      this.addCategoryBreakdown(bucket, this.recordCategoryBreakdown(record));
     }
 
     for (const expense of expenses) {
       this.addExpense(
         summary,
-        expense.category,
         expense.amount,
+        this.expenseCategoryBreakdown(expense),
         expense.maintenanceRecordId !== null,
       );
       const bucket = this.getBucket(
@@ -100,8 +117,8 @@ export class ReportsService {
       );
       this.addExpense(
         bucket,
-        expense.category,
         expense.amount,
+        this.expenseCategoryBreakdown(expense),
         expense.maintenanceRecordId !== null,
       );
     }
@@ -142,8 +159,8 @@ export class ReportsService {
 
   private addExpense(
     totals: MutableCostTotals,
-    category: ExpenseCategory,
     amount: Prisma.Decimal,
+    categories: Array<{ category: ExpenseCategory; amount: Prisma.Decimal }>,
     linkedToRecord: boolean,
   ): void {
     if (linkedToRecord) {
@@ -152,12 +169,42 @@ export class ReportsService {
     } else {
       totals.additionalExpenses = totals.additionalExpenses.plus(amount);
     }
-    totals.expensesByCategory.set(
-      category,
-      (totals.expensesByCategory.get(category) ?? new Prisma.Decimal(0)).plus(
-        amount,
-      ),
-    );
+    for (const item of categories) {
+      this.addCategoryBreakdown(totals, [item]);
+    }
+  }
+
+  private addCategoryBreakdown(
+    totals: MutableCostTotals,
+    categories: Array<{ category: ExpenseCategory; amount: Prisma.Decimal }>,
+  ): void {
+    for (const item of categories) {
+      totals.expensesByCategory.set(
+        item.category,
+        (
+          totals.expensesByCategory.get(item.category) ?? new Prisma.Decimal(0)
+        ).plus(item.amount),
+      );
+    }
+  }
+
+  private recordCategoryBreakdown(record: {
+    totalCost: Prisma.Decimal;
+    costItems: Array<{ category: ExpenseCategory; amount: Prisma.Decimal }>;
+  }): Array<{ category: ExpenseCategory; amount: Prisma.Decimal }> {
+    return record.costItems?.length
+      ? record.costItems
+      : [{ category: ExpenseCategory.OTHER, amount: record.totalCost }];
+  }
+
+  private expenseCategoryBreakdown(expense: {
+    category: ExpenseCategory;
+    amount: Prisma.Decimal;
+    items: Array<{ category: ExpenseCategory; amount: Prisma.Decimal }>;
+  }): Array<{ category: ExpenseCategory; amount: Prisma.Decimal }> {
+    return expense.items?.length
+      ? expense.items
+      : [{ category: expense.category, amount: expense.amount }];
   }
 
   private emptyTotals(): MutableCostTotals {

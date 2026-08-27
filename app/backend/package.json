@@ -26,7 +26,7 @@
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:seed": "tsx prisma/seed.ts",
-    "openapi:export": "node --env-file=../../.env -r ts-node/register scripts/export-openapi.ts ../../packages/api-contract/openapi.json"
+    "openapi:export": "node --env-file=.env -r ts-node/register scripts/export-openapi.ts ../../packages/api-contract/openapi.json"
   },
   "dependencies": {
     "@nestjs/bullmq": "^11.0.5",

@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Expense, MaintenanceRecord, Prisma, Vehicle } from '@prisma/client';
+import { MaintenanceRecord, Prisma, Vehicle } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateExpenseDto,
@@ -11,8 +11,12 @@ import {
   UpdateExpenseDto,
 } from './dto';
 
+type ExpenseWithItems = Prisma.ExpenseGetPayload<{
+  include: { items: { orderBy: { createdAt: 'asc' } } };
+}>;
+
 export interface PaginatedExpenses {
-  data: Expense[];
+  data: ExpenseWithItems[];
   meta: {
     page: number;
     limit: number;
@@ -31,7 +35,7 @@ export class ExpensesService {
     userId: string,
     vehicleId: string,
     dto: CreateExpenseDto,
-  ): Promise<Expense> {
+  ): Promise<ExpenseWithItems> {
     return this.withSerializableRetry(async (transaction) => {
       await this.findOwnedVehicle(transaction, userId, vehicleId);
       if (dto.maintenanceRecordId) {
@@ -43,6 +47,7 @@ export class ExpensesService {
         );
       }
       return transaction.expense.create({
+        include: { items: { orderBy: { createdAt: 'asc' } } },
         data: {
           userId,
           vehicleId,
@@ -50,8 +55,13 @@ export class ExpensesService {
           category: dto.category,
           description: dto.description,
           incurredAt: new Date(dto.incurredAt),
-          amount: new Prisma.Decimal(dto.amount),
+          amount: this.expenseAmount(dto),
           notes: dto.notes,
+          items: {
+            createMany: {
+              data: this.expenseItems(dto),
+            },
+          },
         },
       });
     });
@@ -92,6 +102,7 @@ export class ExpensesService {
     const [data, total] = await this.prisma.$transaction([
       this.prisma.expense.findMany({
         where,
+        include: { items: { orderBy: { createdAt: 'asc' } } },
         orderBy: [{ incurredAt: 'desc' }, { createdAt: 'desc' }],
         skip,
         take: query.limit,
@@ -114,7 +125,7 @@ export class ExpensesService {
     userId: string,
     vehicleId: string,
     expenseId: string,
-  ): Promise<Expense> {
+  ): Promise<ExpenseWithItems> {
     await this.findOwnedVehicle(this.prisma, userId, vehicleId);
     return this.findOwnedExpense(this.prisma, userId, vehicleId, expenseId);
   }
@@ -124,7 +135,7 @@ export class ExpensesService {
     vehicleId: string,
     expenseId: string,
     dto: UpdateExpenseDto,
-  ): Promise<Expense> {
+  ): Promise<ExpenseWithItems> {
     return this.withSerializableRetry(async (transaction) => {
       await this.findOwnedVehicle(transaction, userId, vehicleId);
       await this.findOwnedExpense(transaction, userId, vehicleId, expenseId);
@@ -136,7 +147,11 @@ export class ExpensesService {
           dto.maintenanceRecordId,
         );
       }
+      if (dto.items !== undefined) {
+        await transaction.expenseItem.deleteMany({ where: { expenseId } });
+      }
       return transaction.expense.update({
+        include: { items: { orderBy: { createdAt: 'asc' } } },
         where: { id: expenseId, userId, vehicleId, deletedAt: null },
         data: {
           ...(dto.maintenanceRecordId !== undefined
@@ -149,10 +164,19 @@ export class ExpensesService {
           ...(dto.incurredAt !== undefined
             ? { incurredAt: new Date(dto.incurredAt) }
             : {}),
-          ...(dto.amount !== undefined
-            ? { amount: new Prisma.Decimal(dto.amount) }
+          ...(dto.amount !== undefined || dto.items !== undefined
+            ? { amount: this.expenseAmount(dto) }
             : {}),
           ...(dto.notes !== undefined ? { notes: dto.notes } : {}),
+          ...(dto.items !== undefined
+            ? {
+                items: {
+                  createMany: {
+                    data: this.expenseItems(dto),
+                  },
+                },
+              }
+            : {}),
         },
       });
     });
@@ -208,12 +232,44 @@ export class ExpensesService {
     userId: string,
     vehicleId: string,
     expenseId: string,
-  ): Promise<Expense> {
+  ): Promise<ExpenseWithItems> {
     const expense = await client.expense.findFirst({
       where: { id: expenseId, userId, vehicleId, deletedAt: null },
+      include: { items: { orderBy: { createdAt: 'asc' } } },
     });
     if (!expense) throw new NotFoundException('Expense not found');
     return expense;
+  }
+
+  private expenseItems(
+    dto: CreateExpenseDto | UpdateExpenseDto,
+  ): Prisma.ExpenseItemCreateManyExpenseInput[] {
+    const items =
+      dto.items ??
+      (dto.category && dto.description && dto.amount
+        ? [
+            {
+              category: dto.category,
+              description: dto.description,
+              amount: dto.amount,
+            },
+          ]
+        : []);
+    return items.map((item) => ({
+      category: item.category,
+      description: item.description,
+      amount: new Prisma.Decimal(item.amount),
+    }));
+  }
+
+  private expenseAmount(
+    dto: CreateExpenseDto | UpdateExpenseDto,
+  ): Prisma.Decimal {
+    if (!dto.items) return new Prisma.Decimal(dto.amount ?? '0');
+    return dto.items.reduce(
+      (total, item) => total.plus(item.amount),
+      new Prisma.Decimal(0),
+    );
   }
 
   private async withSerializableRetry<T>(

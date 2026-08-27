@@ -211,12 +211,27 @@ model MaintenanceRecord {
   plan              VehicleMaintenancePlan? @relation(fields: [planId, userId, vehicleId], references: [id, userId, vehicleId], onDelete: Restrict)
   odometerReading   OdometerReading?        @relation(fields: [odometerReadingId, userId, vehicleId], references: [id, userId, vehicleId], onDelete: Restrict)
   expenses          Expense[]
+  costItems         MaintenanceRecordCostItem[]
 
   @@unique([odometerReadingId, userId, vehicleId])
   @@unique([id, userId, vehicleId])
   @@index([userId, vehicleId, performedAt])
   @@index([planId, performedAt])
   @@map("maintenance_records")
+}
+
+model MaintenanceRecordCostItem {
+  id                  String            @id @default(uuid()) @db.Uuid
+  maintenanceRecordId String            @map("maintenance_record_id") @db.Uuid
+  category            ExpenseCategory
+  description         String
+  amount              Decimal           @db.Decimal(12, 2)
+  createdAt           DateTime          @default(now()) @map("created_at")
+  updatedAt           DateTime          @updatedAt @map("updated_at")
+  maintenanceRecord   MaintenanceRecord @relation(fields: [maintenanceRecordId], references: [id], onDelete: Cascade)
+
+  @@index([maintenanceRecordId])
+  @@map("maintenance_record_cost_items")
 }
 
 model Expense {
@@ -235,10 +250,25 @@ model Expense {
   user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   vehicle             Vehicle            @relation(fields: [vehicleId, userId], references: [id, userId], onDelete: Cascade)
   maintenanceRecord   MaintenanceRecord? @relation(fields: [maintenanceRecordId, userId, vehicleId], references: [id, userId, vehicleId], onDelete: Restrict)
+  items               ExpenseItem[]
 
   @@index([userId, vehicleId, incurredAt])
   @@index([maintenanceRecordId])
   @@map("expenses")
+}
+
+model ExpenseItem {
+  id          String          @id @default(uuid()) @db.Uuid
+  expenseId   String          @map("expense_id") @db.Uuid
+  category    ExpenseCategory
+  description String
+  amount      Decimal         @db.Decimal(12, 2)
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  expense     Expense         @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+
+  @@index([expenseId])
+  @@map("expense_items")
 }
 
 model PushSubscription {

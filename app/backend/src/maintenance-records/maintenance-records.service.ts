@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
-  MaintenanceRecord,
+  ExpenseCategory,
   OdometerReadingSource,
   Prisma,
   Vehicle,
@@ -19,7 +19,7 @@ import {
 } from './dto';
 
 export interface PaginatedMaintenanceRecords {
-  data: MaintenanceRecord[];
+  data: MaintenanceRecordWithCostItems[];
   meta: {
     page: number;
     limit: number;
@@ -36,7 +36,20 @@ interface RecordInput {
   workshop?: string;
   notes?: string;
   totalCost: string;
+  costItems?: Array<{
+    category: ExpenseCategory;
+    description: string;
+    amount: string;
+  }>;
 }
+
+type MaintenanceRecordWithCostItems = Prisma.MaintenanceRecordGetPayload<{
+  include: typeof RECORD_INCLUDE;
+}>;
+
+const RECORD_INCLUDE = {
+  costItems: { orderBy: { createdAt: 'asc' as const } },
+} satisfies Prisma.MaintenanceRecordInclude;
 
 @Injectable()
 export class MaintenanceRecordsService {
@@ -48,7 +61,7 @@ export class MaintenanceRecordsService {
     userId: string,
     vehicleId: string,
     dto: CreateMaintenanceRecordDto,
-  ): Promise<MaintenanceRecord> {
+  ): Promise<MaintenanceRecordWithCostItems> {
     return this.withSerializableRetry(async (transaction) => {
       const vehicle = await this.findOwnedVehicle(
         transaction,
@@ -89,7 +102,7 @@ export class MaintenanceRecordsService {
     vehicleId: string,
     planId: string,
     dto: CompleteMaintenancePlanDto,
-  ): Promise<MaintenanceRecord> {
+  ): Promise<MaintenanceRecordWithCostItems> {
     return this.withSerializableRetry(async (transaction) => {
       const vehicle = await this.findOwnedVehicle(
         transaction,
@@ -143,6 +156,7 @@ export class MaintenanceRecordsService {
       this.prisma.maintenanceRecord.findMany({
         where,
         orderBy: [{ performedAt: 'desc' }, { createdAt: 'desc' }],
+        include: RECORD_INCLUDE,
         skip,
         take: query.limit,
       }),
@@ -164,7 +178,7 @@ export class MaintenanceRecordsService {
     userId: string,
     vehicleId: string,
     recordId: string,
-  ): Promise<MaintenanceRecord> {
+  ): Promise<MaintenanceRecordWithCostItems> {
     await this.findOwnedVehicle(this.prisma, userId, vehicleId);
     return this.findOwnedRecord(this.prisma, userId, vehicleId, recordId);
   }
@@ -174,7 +188,7 @@ export class MaintenanceRecordsService {
     vehicleId: string,
     recordId: string,
     dto: UpdateMaintenanceRecordDto,
-  ): Promise<MaintenanceRecord> {
+  ): Promise<MaintenanceRecordWithCostItems> {
     return this.withSerializableRetry(async (transaction) => {
       await this.findOwnedVehicle(transaction, userId, vehicleId);
       const current = await this.findOwnedRecord(
@@ -207,8 +221,8 @@ export class MaintenanceRecordsService {
         ...(dto.odometerKm !== undefined ? { odometerKm } : {}),
         ...(dto.workshop !== undefined ? { workshop: dto.workshop } : {}),
         ...(dto.notes !== undefined ? { notes: dto.notes } : {}),
-        ...(dto.totalCost !== undefined
-          ? { totalCost: new Prisma.Decimal(dto.totalCost) }
+        ...(dto.totalCost !== undefined || dto.costItems !== undefined
+          ? { totalCost: this.recordTotalCost(dto) }
           : {}),
       };
 
@@ -240,7 +254,19 @@ export class MaintenanceRecordsService {
       const record = await transaction.maintenanceRecord.update({
         where: { id: recordId, userId, vehicleId, deletedAt: null },
         data,
+        include: RECORD_INCLUDE,
       });
+      if (dto.costItems !== undefined) {
+        await transaction.maintenanceRecordCostItem.deleteMany({
+          where: { maintenanceRecordId: recordId },
+        });
+        await transaction.maintenanceRecordCostItem.createMany({
+          data: this.recordCostItems(dto).map((item) => ({
+            maintenanceRecordId: recordId,
+            ...item,
+          })),
+        });
+      }
       const affectedPlanIds = new Set(
         [current.planId, record.planId].filter(
           (planId): planId is string => planId !== null,
@@ -258,7 +284,9 @@ export class MaintenanceRecordsService {
         await this.synchronizeVehicleReference(transaction, userId, vehicleId);
       }
 
-      return record;
+      return dto.costItems === undefined
+        ? record
+        : this.findOwnedRecord(transaction, userId, vehicleId, recordId);
     });
   }
 
@@ -337,7 +365,7 @@ export class MaintenanceRecordsService {
     userId: string,
     vehicle: Vehicle,
     input: RecordInput,
-  ): Promise<MaintenanceRecord> {
+  ): Promise<MaintenanceRecordWithCostItems> {
     const performedAt = new Date(input.performedAt);
     const record = await transaction.maintenanceRecord.create({
       data: {
@@ -349,7 +377,12 @@ export class MaintenanceRecordsService {
         odometerKm: input.odometerKm,
         workshop: input.workshop,
         notes: input.notes,
-        totalCost: new Prisma.Decimal(input.totalCost),
+        totalCost: this.recordTotalCost(input),
+        costItems: {
+          createMany: {
+            data: this.recordCostItems(input),
+          },
+        },
       },
     });
     const reading = await transaction.odometerReading.create({
@@ -364,6 +397,7 @@ export class MaintenanceRecordsService {
     const linkedRecord = await transaction.maintenanceRecord.update({
       where: { id: record.id },
       data: { odometerReadingId: reading.id },
+      include: RECORD_INCLUDE,
     });
 
     await this.advanceVehicleReference(
@@ -470,12 +504,48 @@ export class MaintenanceRecordsService {
     userId: string,
     vehicleId: string,
     recordId: string,
-  ): Promise<MaintenanceRecord> {
+  ): Promise<MaintenanceRecordWithCostItems> {
     const record = await client.maintenanceRecord.findFirst({
       where: { id: recordId, userId, vehicleId, deletedAt: null },
+      include: RECORD_INCLUDE,
     });
     if (!record) throw new NotFoundException('Maintenance record not found');
     return record;
+  }
+
+  private recordCostItems(input: {
+    description?: string;
+    totalCost?: string;
+    costItems?: RecordInput['costItems'];
+  }): Prisma.MaintenanceRecordCostItemCreateManyMaintenanceRecordInput[] {
+    const items =
+      input.costItems ??
+      (input.totalCost
+        ? [
+            {
+              category: ExpenseCategory.OTHER,
+              description: input.description ?? 'Maintenance service',
+              amount: input.totalCost,
+            },
+          ]
+        : []);
+
+    return items.map((item) => ({
+      category: item.category,
+      description: item.description,
+      amount: new Prisma.Decimal(item.amount),
+    }));
+  }
+
+  private recordTotalCost(input: {
+    totalCost?: string;
+    costItems?: RecordInput['costItems'];
+  }): Prisma.Decimal {
+    if (!input.costItems) return new Prisma.Decimal(input.totalCost ?? '0');
+    return input.costItems.reduce(
+      (total, item) => total.plus(item.amount),
+      new Prisma.Decimal(0),
+    );
   }
 
   private async withSerializableRetry<T>(

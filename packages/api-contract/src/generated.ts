@@ -704,6 +704,25 @@ export interface components {
       /** @default true */
       active?: boolean;
     };
+    MaintenanceRecordCostItemResponseDto: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      maintenanceRecordId: string;
+      /**
+       * @example PARTS
+       * @enum {string}
+       */
+      category: 'LABOR' | 'PARTS' | 'DIAGNOSTICS' | 'TOWING' | 'OTHER';
+      /** @example Oil filter */
+      description: string;
+      /** @example 80.00 */
+      amount: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
     MaintenanceRecordResponseDto: {
       /** Format: uuid */
       id: string;
@@ -726,6 +745,7 @@ export interface components {
       notes: string | null;
       /** @example 350.00 */
       totalCost: string;
+      costItems: components['schemas']['MaintenanceRecordCostItemResponseDto'][];
       /** Format: date-time */
       createdAt: string;
       /** Format: date-time */
@@ -740,6 +760,18 @@ export interface components {
       total: number;
       /** @example 1 */
       totalPages: number;
+    };
+    MaintenanceRecordCostItemFieldsDto: {
+      /**
+       * @description Cost category for this maintenance item.
+       * @example PARTS
+       * @enum {string}
+       */
+      category: 'LABOR' | 'PARTS' | 'DIAGNOSTICS' | 'TOWING' | 'OTHER';
+      /** @example Oil filter */
+      description: string;
+      /** @example 80.00 */
+      amount: string;
     };
     CreateMaintenanceRecordDto: {
       /** @example Oil and filter change */
@@ -760,6 +792,8 @@ export interface components {
        * @example 350.00
        */
       totalCost: string;
+      /** @description Optional itemized costs for this maintenance. When provided, totalCost is recalculated from the item amounts. */
+      costItems?: components['schemas']['MaintenanceRecordCostItemFieldsDto'][];
       /**
        * Format: uuid
        * @description Plan associated with this record. The latest active linked record becomes the plan reference.
@@ -805,6 +839,8 @@ export interface components {
        * @example 350.00
        */
       totalCost?: string;
+      /** @description Optional itemized costs for this maintenance. When provided, totalCost is recalculated from the item amounts. */
+      costItems?: components['schemas']['MaintenanceRecordCostItemFieldsDto'][];
       /** Format: uuid */
       planId?: string | null;
       workshop?: string | null;
@@ -854,6 +890,20 @@ export interface components {
       plan: components['schemas']['MaintenancePlanResponseDto'];
       status: components['schemas']['MaintenanceAgendaStatusResponseDto'];
     };
+    ExpenseItemFieldsDto: {
+      /**
+       * @example PARTS
+       * @enum {string}
+       */
+      category: 'LABOR' | 'PARTS' | 'DIAGNOSTICS' | 'TOWING' | 'OTHER';
+      /** @example Brake pads */
+      description: string;
+      /**
+       * @description Non-negative decimal value sent as a string with up to two decimal places.
+       * @example 199.90
+       */
+      amount: string;
+    };
     CreateExpenseDto: {
       /**
        * @example PARTS
@@ -872,6 +922,8 @@ export interface components {
        * @example 249.90
        */
       amount: string;
+      /** @description Optional itemized breakdown. When provided, the expense amount is calculated from these items. */
+      items?: components['schemas']['ExpenseItemFieldsDto'][];
       /** @example Purchased directly from the manufacturer */
       notes?: string | null;
       /**
@@ -879,6 +931,22 @@ export interface components {
        * @description Maintenance record associated with this expense. It must belong to the same user and vehicle.
        */
       maintenanceRecordId?: string | null;
+    };
+    ExpenseItemResponseDto: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      expenseId: string;
+      /** @enum {string} */
+      category: 'LABOR' | 'PARTS' | 'DIAGNOSTICS' | 'TOWING' | 'OTHER';
+      /** @example Brake pads */
+      description: string;
+      /** @example 199.90 */
+      amount: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
     };
     ExpenseResponseDto: {
       /** Format: uuid */
@@ -898,6 +966,7 @@ export interface components {
       /** @example 249.90 */
       amount: string;
       notes: string | null;
+      items: components['schemas']['ExpenseItemResponseDto'][];
       /** Format: date-time */
       createdAt: string;
       /** Format: date-time */
@@ -935,6 +1004,8 @@ export interface components {
        * @example 249.90
        */
       amount?: string;
+      /** @description Optional itemized breakdown. When provided, the expense amount is calculated from these items. */
+      items?: components['schemas']['ExpenseItemFieldsDto'][];
       /** @example Purchased directly from the manufacturer */
       notes?: string | null;
       /**

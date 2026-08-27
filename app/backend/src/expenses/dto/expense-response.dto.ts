@@ -1,6 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ExpenseCategory } from '@prisma/client';
 
+export class ExpenseItemResponseDto {
+  @ApiProperty({ format: 'uuid' })
+  id!: string;
+
+  @ApiProperty({ format: 'uuid' })
+  expenseId!: string;
+
+  @ApiProperty({ enum: ExpenseCategory })
+  category!: ExpenseCategory;
+
+  @ApiProperty({ example: 'Brake pads' })
+  description!: string;
+
+  @ApiProperty({ type: String, example: '199.90' })
+  amount!: string;
+
+  @ApiProperty({ format: 'date-time' })
+  createdAt!: Date;
+
+  @ApiProperty({ format: 'date-time' })
+  updatedAt!: Date;
+}
+
 export class ExpenseResponseDto {
   @ApiProperty({ format: 'uuid' })
   id!: string;
@@ -28,6 +51,9 @@ export class ExpenseResponseDto {
 
   @ApiProperty({ type: String, nullable: true })
   notes!: string | null;
+
+  @ApiProperty({ type: [ExpenseItemResponseDto] })
+  items!: ExpenseItemResponseDto[];
 
   @ApiProperty({ format: 'date-time' })
   createdAt!: Date;

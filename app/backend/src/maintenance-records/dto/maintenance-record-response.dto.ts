@@ -1,4 +1,28 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ExpenseCategory } from '@prisma/client';
+
+export class MaintenanceRecordCostItemResponseDto {
+  @ApiProperty({ format: 'uuid' })
+  id!: string;
+
+  @ApiProperty({ format: 'uuid' })
+  maintenanceRecordId!: string;
+
+  @ApiProperty({ enum: ExpenseCategory, example: ExpenseCategory.PARTS })
+  category!: ExpenseCategory;
+
+  @ApiProperty({ example: 'Oil filter' })
+  description!: string;
+
+  @ApiProperty({ type: String, example: '80.00' })
+  amount!: string;
+
+  @ApiProperty({ format: 'date-time' })
+  createdAt!: Date;
+
+  @ApiProperty({ format: 'date-time' })
+  updatedAt!: Date;
+}
 
 export class MaintenanceRecordResponseDto {
   @ApiProperty({ format: 'uuid' })
@@ -37,6 +61,9 @@ export class MaintenanceRecordResponseDto {
 
   @ApiProperty({ type: String, example: '350.00' })
   totalCost!: string;
+
+  @ApiProperty({ type: [MaintenanceRecordCostItemResponseDto] })
+  costItems!: MaintenanceRecordCostItemResponseDto[];
 
   @ApiProperty({ format: 'date-time' })
   createdAt!: Date;

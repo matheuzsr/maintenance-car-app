@@ -1,17 +1,51 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ExpenseCategory } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  ArrayMinSize,
   IsDateString,
+  IsEnum,
   IsInt,
+  IsArray,
   IsNotEmpty,
   IsOptional,
   IsString,
   Matches,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
 
 export const DECIMAL_COST_PATTERN = /^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/;
+
+export class MaintenanceRecordCostItemFieldsDto {
+  @ApiProperty({
+    enum: ExpenseCategory,
+    example: ExpenseCategory.PARTS,
+    description: 'Cost category for this maintenance item.',
+  })
+  @IsEnum(ExpenseCategory)
+  category!: ExpenseCategory;
+
+  @ApiProperty({ example: 'Oil filter', maxLength: 500 })
+  @Transform(({ value }): unknown =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(500)
+  description!: string;
+
+  @ApiProperty({
+    example: '80.00',
+    type: String,
+    pattern: DECIMAL_COST_PATTERN.source,
+  })
+  @IsString()
+  @Matches(DECIMAL_COST_PATTERN)
+  amount!: string;
+}
 
 export class MaintenanceRecordFieldsDto {
   @ApiProperty({ example: 'Oil and filter change', maxLength: 500 })
@@ -70,4 +104,19 @@ export class MaintenanceRecordFieldsDto {
   @IsString()
   @Matches(DECIMAL_COST_PATTERN)
   totalCost!: string;
+
+  @ApiPropertyOptional({
+    type: [MaintenanceRecordCostItemFieldsDto],
+    minItems: 1,
+    maxItems: 50,
+    description:
+      'Optional itemized costs for this maintenance. When provided, totalCost is recalculated from the item amounts.',
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(50)
+  @ValidateNested({ each: true })
+  @Type(() => MaintenanceRecordCostItemFieldsDto)
+  costItems?: MaintenanceRecordCostItemFieldsDto[];
 }

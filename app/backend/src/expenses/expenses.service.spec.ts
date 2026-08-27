@@ -118,13 +118,81 @@ describe('ExpensesService', () => {
       },
     });
     const createCalls = expenseDelegate.create.mock.calls as unknown as Array<
-      [{ data: { amount: Prisma.Decimal } }]
+      [
+        {
+          data: {
+            amount: Prisma.Decimal;
+            items: { createMany: { data: Array<{ amount: Prisma.Decimal }> } };
+          };
+        },
+      ]
     >;
     const createCall = createCalls[0][0];
     expect(createCall.data.amount.toString()).toBe('249.9');
+    expect(createCall.data.items.createMany.data).toHaveLength(1);
     expect(prisma.$transaction).toHaveBeenCalledWith(expect.any(Function), {
       isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
     });
+  });
+
+  it('creates expense items and calculates the total from them', async () => {
+    await service.create(userId, vehicleId, {
+      category: ExpenseCategory.PARTS,
+      description: 'Brake service',
+      incurredAt: '2026-08-13T12:00:00.000Z',
+      amount: '0.00',
+      items: [
+        {
+          category: ExpenseCategory.PARTS,
+          description: 'Brake pads',
+          amount: '249.90',
+        },
+        {
+          category: ExpenseCategory.LABOR,
+          description: 'Labor',
+          amount: '80.00',
+        },
+      ],
+    });
+
+    const createCalls = expenseDelegate.create.mock.calls as unknown as Array<
+      [
+        {
+          data: {
+            amount: Prisma.Decimal;
+            items: {
+              createMany: {
+                data: Array<{
+                  category: ExpenseCategory;
+                  description: string;
+                  amount: Prisma.Decimal;
+                }>;
+              };
+            };
+          };
+        },
+      ]
+    >;
+    const createCall = createCalls[0][0];
+    expect(createCall.data.amount.toString()).toBe('329.9');
+    expect(
+      createCall.data.items.createMany.data.map((item) => ({
+        category: item.category,
+        description: item.description,
+        amount: item.amount.toString(),
+      })),
+    ).toEqual([
+      {
+        category: ExpenseCategory.PARTS,
+        description: 'Brake pads',
+        amount: '249.9',
+      },
+      {
+        category: ExpenseCategory.LABOR,
+        description: 'Labor',
+        amount: '80',
+      },
+    ]);
   });
 
   it('rejects a linked record outside the owner and vehicle scope', async () => {
@@ -197,6 +265,7 @@ describe('ExpensesService', () => {
         },
       },
       orderBy: [{ incurredAt: 'desc' }, { createdAt: 'desc' }],
+      include: { items: { orderBy: { createdAt: 'asc' } } },
       skip: 10,
       take: 10,
     });
@@ -211,6 +280,7 @@ describe('ExpensesService', () => {
     expect(expenseDelegate.update).toHaveBeenCalledWith({
       where: { id: expenseId, userId, vehicleId, deletedAt: null },
       data: { maintenanceRecordId: null },
+      include: { items: { orderBy: { createdAt: 'asc' } } },
     });
     expect(prisma.$transaction).toHaveBeenCalledWith(expect.any(Function), {
       isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
