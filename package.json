@@ -28,7 +28,8 @@
     "prisma:migrate:dev": "npm run prisma:migrate:dev --workspace @maintenance-car/backend",
     "prisma:migrate:deploy": "npm run prisma:migrate:deploy --workspace @maintenance-car/backend",
     "prisma:seed": "npm run prisma:seed --workspace @maintenance-car/backend",
-    "start:worker:dev": "npm run start:worker:dev --workspace @maintenance-car/backend"
+    "start:worker:dev": "npm run start:worker:dev --workspace @maintenance-car/backend",
+    "start:all": "docker compose up -d postgres redis && npm run prisma:migrate:deploy && npm run start:dev"
   },
   "devDependencies": {
     "concurrently": "^9.2.0",
